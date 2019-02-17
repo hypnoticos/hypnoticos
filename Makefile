@@ -1,0 +1,82 @@
+#
+# HypnoticOS
+# Copyright (C) 2019  jk30
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# TODO Remove this
+export _DEBUG=1
+
+export VERSION=0.1
+export ARCHITECTURE=i686
+export HYPNOTICOS=HypnoticOS-$(ARCHITECTURE)-$(VERSION)-$(shell date +"%D-%T")
+export SYSROOT=$(PWD)/sysroot
+export INCDIR=$(PWD)/include
+export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
+export ISODIR=$(PWD)/iso
+ISONAME=hypnoticos.iso
+SUBDIRS=libc src
+INSTALLDIRS=$(SUBDIRS:%=install-%)
+CLEANDIRS=$(SUBDIRS:%=clean-%)
+
+export MKDIR=mkdir -p
+export CP=cp
+export RM=rm -f
+export MAKE=make
+export TARGET=$(ARCHITECTURE)-elf
+
+export CC=$(TARGET)-gcc
+export CFLAGS=-O2 -Wall -D_HYPNOTICOS="$(HYPNOTICOS)" --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
+
+export AR=$(TARGET)-ar
+
+export LD=$(TARGET)-ld
+export LDFLAGS=
+
+export NASM=nasm
+export NASMFLAGS=-f elf
+
+.PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
+
+all: prepare subdirs
+
+prepare:
+	$(MKDIR) $(SYSROOT)/usr/include
+	$(CP) -R $(INCDIR)/* $(SYSROOT)/usr/include/
+
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@
+
+install: subdirs $(INSTALLDIRS)
+
+$(INSTALLDIRS):
+	$(MAKE) -C $(@:install-%=%) install
+
+$(CLEANDIRS):
+	$(MAKE) -C $(@:clean-%=%) clean
+
+clean: $(CLEANDIRS)
+	$(RM) -R $(SYSROOT)
+
+iso: prepare subdirs
+	$(MKDIR) $(ISODIR)/boot/grub
+	$(CP) $(SYSROOT)/boot/$(KERNELFILENAME) $(ISODIR)/boot/
+	echo "menuentry \"HypnoticOS 0.1\" {" > $(ISODIR)/boot/grub/grub.cfg
+	echo "multiboot /boot/$(KERNELFILENAME)" >> $(ISODIR)/boot/grub/grub.cfg
+	echo "}" >> $(ISODIR)/boot/grub/grub.cfg
+	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
+	grub-mkrescue -o $(ISONAME) $(ISODIR)
