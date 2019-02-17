@@ -38,7 +38,7 @@ export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
 export CC=$(TARGET)-gcc
-export CFLAGS=-O2 -Wall -D_HYPNOTICOS="$(HYPNOTICOS)" --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
+export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
 
 export AR=$(TARGET)-ar
 

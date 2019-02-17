@@ -1,4 +1,4 @@
-// 
+//
 // HypnoticOS
 // Copyright (C) 2019  jk30
 //
@@ -16,12 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STRING_H
-#define __STRING_H
+#ifndef __STDIO_H
+#define __STDIO_H
 
-#include <stddef.h>
-
-void *memcpy(void *destination, const void *source, size_t count);
-void *memset(void *addr, int chr, size_t count);
+int puts(const char *str);
 
 #endif

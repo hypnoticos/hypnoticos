@@ -17,6 +17,8 @@
 //
 
 #include <stdint.h>
+#include <stdio.h>
+#include <hypnoticos/video-memory.h>
 
 // TODO MultibootInfo_t
 /*!
@@ -25,5 +27,9 @@
    \param multiboot Multiboot struct
 */
 void Main(uint32_t magic, void *multiboot) {
+  VideoMemoryInit();
+
+  puts(_HYPNOTICOS);
+
   return;
 }

@@ -16,8 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include ../libc/objects.mk
+
+LIBC_OBJS_KERNEL=$(addsuffix -kernel,$(addprefix ../libc/,$(LIBC_OBJS)))
+
 BUILD=$(KERNELFILENAME)
-BUILD_OBJS=boot/multiboot.o boot/boot.o boot/main.o
+BUILD_OBJS=boot/multiboot.o boot/boot.o boot/main.o video-memory.o
 
 CFLAGS+=-D_HYPNOTICOS_KERNEL -ffreestanding -fbuiltin
 LIBS+=-lgcc
@@ -32,6 +36,9 @@ all: $(BUILD)
 
 install: $(BUILD)
 
+%.o-kernel: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -41,8 +48,8 @@ install: $(BUILD)
 %.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD): $(BUILD_OBJS)
-	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(LDFLAGS) $(LIBS)
+$(BUILD): $(BUILD_OBJS) $(LIBC_OBJS_KERNEL)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(LIBC_OBJS_KERNEL) $(LDFLAGS) $(LIBS)
 	mkdir -p $(SYSROOT)/boot
 	cp $(BUILD) $(SYSROOT)/boot
 

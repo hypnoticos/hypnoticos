@@ -1,4 +1,4 @@
-// 
+//
 // HypnoticOS
 // Copyright (C) 2019  jk30
 //
@@ -16,12 +16,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STRING_H
-#define __STRING_H
+#ifdef _HYPNOTICOS_KERNEL
 
-#include <stddef.h>
+#include <stdint.h>
+#include <hypnoticos/video-memory.h>
 
-void *memcpy(void *destination, const void *source, size_t count);
-void *memset(void *addr, int chr, size_t count);
+int puts(const char *str) {
+  // TODO Call fputs
+
+  uint32_t i;
+
+  for(i = 0; str[i] != 0; i++) {
+    VideoMemoryPutc(str[i]);
+  }
+  VideoMemoryPutc('\n');
+
+  return 1;
+}
+
+#else
+
+int puts(const char *str) {
+  // TODO
+}
 
 #endif

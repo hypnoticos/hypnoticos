@@ -16,26 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-include objects.mk
-
-BUILD=libc.a
-BUILD_OBJS=$(LIBC_OBJS)
-
-CFLAGS+=-D_HYPNOTICOS_LIBC
-
-.PHONY: install $(BUILD) clean
-
-all: $(BUILD)
-
-install: $(BUILD)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD): $(BUILD_OBJS)
-	$(AR) rcs $@ $(OBJS)
-	mkdir -p $(SYSROOT)/lib
-	cp $(BUILD) $(SYSROOT)/lib
-
-clean:
-	$(RM) $(BUILD) $(BUILD_OBJS)
+LIBC_OBJS=stdio/puts.o string/memcpy.o string/memset.o 
