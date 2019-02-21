@@ -16,32 +16,9 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global Start, Stack
-extern Main, GdtInit
+global TssSet
 
-section .text
-Start:
-  cli
-  
-  mov esp, Stack
-
-  push ebx      ; Multiboot struct
-  push eax      ; Magic value
-
-  ; Init GDT
-  call GdtInit
-
-  ; Enter protected mode (set PE bit [bit 0] of CR0)
-  mov eax, cr0
-  or eax, 0x1
-  mov cr0, eax
-
-  call Main
-
-  cli
-  jmp $
-
-section .bss
-align 4         ; Must be 32-bit aligned
-  resb 16384
-Stack:
+TssSet:
+  mov ax, 0x2B        ; 0x28 | 0x3
+  ltr ax              ; Load task register
+  ret

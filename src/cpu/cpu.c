@@ -17,21 +17,20 @@
 //
 
 #include <stdint.h>
-#include <stdio.h>
-#include <hypnoticos/video-memory.h>
+#include <string.h>
 #include <hypnoticos/cpu.h>
 
-// TODO MultibootInfo_t
-/*!
-   \brief Called by Start.
-   \param magic Magic value
-   \param multiboot Multiboot struct
-*/
-void Main(uint32_t magic, void *multiboot) {
-  VideoMemoryInit();
-  puts(_HYPNOTICOS);
+extern void *Stack;
 
-  TssInit();
+Tss_t Tss;
 
-  return;
+void TssSet();
+
+void TssInit() {
+  memset(&Tss, 0, sizeof(Tss_t));
+
+  Tss.ss0 = 0x10;
+  Tss.esp0 = (uint32_t) Stack;
+
+  TssSet();
 }
