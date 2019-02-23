@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 typedef struct _Tss_t Tss_t;
+typedef struct _IdtGate_t IdtGate_t;
 
 struct _Tss_t {
    uint32_t prev_tss;
@@ -53,8 +54,14 @@ struct _Tss_t {
    uint16_t iomap_base;
 } __attribute__((packed));
 
-extern Tss_t Tss;
+struct _IdtGate_t {
+  uint16_t offset_low;
+  uint16_t ss;
+  uint16_t flags;
+  uint16_t offset_high;
+} __attribute__((packed));
 
 void TssInit();
+void IdtInit();
 
 #endif

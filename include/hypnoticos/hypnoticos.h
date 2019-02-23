@@ -16,24 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdint.h>
-#include <stdio.h>
-#include <hypnoticos/video-memory.h>
-#include <hypnoticos/cpu.h>
-#include <hypnoticos/hypnoticos.h>
+#ifndef __HYPNOTICOS_H
+#define __HYPNOTICOS_H
 
-// TODO MultibootInfo_t
-/*!
-   \brief Called by Start.
-   \param magic Magic value
-   \param multiboot Multiboot struct
-*/
-void Main(uint32_t magic, void *multiboot) {
-  VideoMemoryInit();
-  puts(_HYPNOTICOS);
+#ifndef _HYPNOTICOS
+#define _HYPNOTICOS       "Unknown"
+#endif // _HYPNOTICOS
 
-  TssInit();
-  IdtInit();
-
-  return;
-}
+#endif

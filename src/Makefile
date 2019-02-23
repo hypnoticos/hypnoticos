@@ -21,7 +21,7 @@ include ../libc/objects.mk
 LIBC_OBJS_KERNEL=$(addsuffix -kernel,$(addprefix ../libc/,$(LIBC_OBJS)))
 
 BUILD=$(KERNELFILENAME)
-BUILD_OBJS=boot/multiboot.o boot/boot.o boot/main.o cpu/cpu.o cpu/gdt.o cpu/tss.o video-memory.o
+BUILD_OBJS=boot/multiboot.o boot/boot.o boot/main.o cpu/cpu.o cpu/idt.o cpu/gdt.o cpu/tss.o video-memory.o
 
 CFLAGS+=-D_HYPNOTICOS_KERNEL -ffreestanding -fbuiltin
 LIBS+=-lgcc
