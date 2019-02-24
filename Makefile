@@ -21,6 +21,7 @@ export _DEBUG=1
 
 export VERSION=0.1
 export ARCHITECTURE=i686
+export ARCHITECTURE_UPPERCASE=$(shell echo $(ARCHITECTURE) | tr "[:lower:]" "[:upper:]")
 export HYPNOTICOS=HypnoticOS-$(ARCHITECTURE)-$(VERSION)-$(shell date +"%D-%T")
 export SYSROOT=$(PWD)/sysroot
 export INCDIR=$(PWD)/include
@@ -38,7 +39,7 @@ export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
 export CC=$(TARGET)-gcc
-export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
+export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
 
 export AR=$(TARGET)-ar
 

@@ -23,5 +23,6 @@
 
 void *memcpy(void *destination, const void *source, size_t count);
 void *memset(void *addr, int chr, size_t count);
+size_t strlen(const char *s);
 
 #endif

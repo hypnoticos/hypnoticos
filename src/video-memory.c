@@ -53,7 +53,7 @@ void VideoMemoryPutc(char chr) {
   uint16_t offset;
 
   if(chr != '\n') {
-    offset = (VideoMemoryX + (VideoMemoryY * 25)) * 2;
+    offset = (VideoMemoryX + (VideoMemoryY * 80)) * 2;
     VideoMemoryAddr[offset] = chr;
     VideoMemoryAddr[offset + 1] = 0x07;
     VideoMemoryX++;

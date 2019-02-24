@@ -16,17 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifdef _HYPNOTICOS_KERNEL
+
 #include <stdint.h>
-#include <stdio.h>
 #include <hypnoticos/video-memory.h>
 
-int puts(const char *str) {
-  int i;
-
-  i = fputs(str, stdout);
-  if(fputc('\n', stdout) != '\n') {
-    return EOF;
-  }
-
-  return i;
+int putchar(int chr) {
+  VideoMemoryPutc(chr);
+  return chr;
 }
+
+#else
+
+int putchar(int chr) {
+  // TODO
+
+  return chr;
+}
+
+#endif

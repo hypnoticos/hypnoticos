@@ -19,6 +19,21 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
+#include <stdarg.h>
+#include <stdint.h>
+
+// TODO
+#define stdin       1
+#define stdout      2
+#define stderr      3
+
+#define EOF         -1
+
+int fputc(int chr, uint32_t f);
+int fputs(const char *s, uint32_t f);
+int printf(const char *format, ...);
+int putchar(int chr);
 int puts(const char *str);
+int vfprintf(uint32_t f, const char *format, va_list va); // TODO First parameter must be FILE *f
 
 #endif

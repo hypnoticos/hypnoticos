@@ -16,17 +16,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdint.h>
 #include <stdio.h>
-#include <hypnoticos/video-memory.h>
 
-int puts(const char *str) {
-  int i;
+int fputs(const char *s, uint32_t f) {
+  uint32_t i;
 
-  i = fputs(str, stdout);
-  if(fputc('\n', stdout) != '\n') {
-    return EOF;
+  for(i = 0; s[i] != 0; i++) {
+    if(fputc(s[i], f) != s[i]) {
+      return EOF;
+    }
   }
 
-  return i;
+  return 1;
 }

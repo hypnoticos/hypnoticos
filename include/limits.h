@@ -16,17 +16,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdint.h>
-#include <stdio.h>
-#include <hypnoticos/video-memory.h>
+#ifndef __LIMITS_H
+#define __LIMITS_H
 
-int puts(const char *str) {
-  int i;
+#if defined(ARCHITECTURE_I686) || 1         // 32-bit is the default
+#define HYPNOTICOS_MAX_DIGITS       10                      // E.g. used by vfprintf
+#define UINT_MAX                    (uint32_t) 4294967295
+#endif
 
-  i = fputs(str, stdout);
-  if(fputc('\n', stdout) != '\n') {
-    return EOF;
-  }
-
-  return i;
-}
+#endif
