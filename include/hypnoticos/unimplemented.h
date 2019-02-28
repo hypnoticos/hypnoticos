@@ -16,27 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdint.h>
-#include <stdio.h>
-#include <hypnoticos/video-memory.h>
-#include <hypnoticos/cpu.h>
-#include <hypnoticos/hypnoticos.h>
-#include <multiboot.h>
-#include <hypnoticos/boot.h>
+#ifndef __HYPNOTICOS_UNIMPLEMENTED_H
+#define __HYPNOTICOS_UNIMPLEMENTED_H
 
-/*!
-   \brief Called by Start.
-   \param magic Magic value
-   \param multiboot multiboot_info_t struct
-*/
-void Main(uint32_t magic, multiboot_info_t *multiboot) {
-  VideoMemoryInit();
-  puts(_HYPNOTICOS);
+// TODO This should eventually be removed.
+#define UNIMPLEMENTED()         printf("WARNING: %s is unimplemented", __FUNCTION__);
 
-  TssInit();
-  IdtInit();
-
-  MultibootCheck(magic, multiboot);
-
-  return;
-}
+#endif
