@@ -48,7 +48,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
     mmap_entry = (multiboot_memory_map_t *) ((uint32_t) multiboot->mmap_addr + offset);
 
     // Check if the size parameter is invalid
-    if(offset + mmap_entry->size > multiboot->mmap_length) {
+    if(offset + mmap_entry->size > multiboot->mmap_length || mmap_entry->size < 20) {
       HALT();
     }
 
@@ -77,9 +77,8 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
         HALT();
         break;
       }
-      
-      offset += mmap_entry->size + sizeof(mmap_entry->size);
     }
+    offset += mmap_entry->size + sizeof(mmap_entry->size);
   }
 
   if(offset != multiboot->mmap_length) {
