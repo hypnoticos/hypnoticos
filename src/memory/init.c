@@ -18,8 +18,8 @@
 
 #include <stdio.h>
 
-typedef struct MemoryBlock MemoryBlock_t;
-struct MemoryBlock {
+typedef struct _MemoryBlock_t MemoryBlock_t;
+struct _MemoryBlock_t {
   uint32_t start; /*!< The start of the memory block */
   uint32_t length; /*!< The length of the memory block */
   uint8_t type; /*!< The memory block's type */
