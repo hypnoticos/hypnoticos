@@ -18,11 +18,4 @@
 
 #include <stdio.h>
 
-int fputc(int chr, FILE *f) {
-  // TODO
-  if(f != stdout && f != stderr) {
-    return 0;
-  }
-
-  return putchar(chr);
-}
+FILE stdstreams[3] = {{.file_no=STDIN_FILENO}, {.file_no=STDOUT_FILENO}, {.file_no=STDERR_FILENO}};

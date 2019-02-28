@@ -21,7 +21,7 @@
 #include <string.h>
 #include <limits.h>
 
-int vfprintf(uint32_t f, const char *format, va_list va) {
+int vfprintf(FILE *f, const char *format, va_list va) {
   uint32_t arg_uint, count = 0, i = 0, i2, i3;
   char *arg_string, buffer[HYPNOTICOS_MAX_DIGITS + 1];
 

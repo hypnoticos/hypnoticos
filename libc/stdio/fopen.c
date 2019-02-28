@@ -17,12 +17,14 @@
 //
 
 #include <stdio.h>
+#include <hypnoticos/unimplemented.h>     // TODO Remove this.
 
-int fputc(int chr, FILE *f) {
-  // TODO
-  if(f != stdout && f != stderr) {
-    return 0;
-  }
+// TODO
+FILE *fopen(const char *path, const char *mode) {
+  (void) path;
+  (void) mode;  
 
-  return putchar(chr);
+  UNIMPLEMENTED();
+
+  return 0;
 }

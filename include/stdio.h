@@ -22,18 +22,36 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+// TODO. unistd.h?
+#define STDIN_FILENO      0
+#define STDOUT_FILENO     1
+#define STDERR_FILENO     2
+
+#define stdin             &stdstreams[0]
+#define stdout            &stdstreams[1]
+#define stderr            &stdstreams[2]
+
+#define NULL              0
+
+#define EOF               -1
+
 // TODO
-#define stdin       1
-#define stdout      2
-#define stderr      3
+typedef struct {
+  uint32_t file_no;
+} FILE;
 
-#define EOF         -1
-
-int fputc(int chr, uint32_t f);
-int fputs(const char *s, uint32_t f);
+int fclose(FILE *f);
+int feof(FILE *f);
+char *fgets(char *buffer, int count, FILE *f);
+FILE *fopen(const char *path, const char *mode);
+int fprintf(FILE *f, const char *format, ...);
+int fputc(int chr, FILE *f);
+int fputs(const char *s, FILE *f);
 int printf(const char *format, ...);
 int putchar(int chr);
 int puts(const char *str);
-int vfprintf(uint32_t f, const char *format, va_list va); // TODO First parameter must be FILE *f
+int vfprintf(FILE *f, const char *format, va_list va); // TODO First parameter must be FILE *f
+
+extern FILE stdstreams[3];
 
 #endif

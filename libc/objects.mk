@@ -16,5 +16,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-LIBC_OBJS=stdio/fputc.o stdio/fputs.o stdio/printf.o stdio/putchar.o stdio/puts.o stdio/vfprintf.o
+LIBC_OBJS=stdio/fputc.o stdio/fputs.o stdio/printf.o stdio/putchar.o stdio/puts.o stdio/stdstreams.o stdio/vfprintf.o
 LIBC_OBJS+=string/memcpy.o string/memset.o string/strlen.o

@@ -16,13 +16,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <stdarg.h>
 #include <stdio.h>
 
-int fputc(int chr, FILE *f) {
-  // TODO
-  if(f != stdout && f != stderr) {
-    return 0;
-  }
+int fprintf(FILE *f, const char *format, ...) {
+  int r;
+  va_list va;
 
-  return putchar(chr);
+  va_start(va, format);
+  r = vfprintf(f, format, va);
+  va_end(va);
+
+  return r;
 }

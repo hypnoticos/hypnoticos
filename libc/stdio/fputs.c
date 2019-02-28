@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 
-int fputs(const char *s, uint32_t f) {
+int fputs(const char *s, FILE *f) {
   uint32_t i;
 
   for(i = 0; s[i] != 0; i++) {
