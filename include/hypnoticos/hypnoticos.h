@@ -23,4 +23,11 @@
 #define _HYPNOTICOS       "Unknown"
 #endif // _HYPNOTICOS
 
+#ifdef _HYPNOTICOS_KERNEL
+#define HALT()         printf("\nKERNEL HALTED (%s at line %u - in %s).", __FILE__, __LINE__, __FUNCTION__); \
+                        while(1) { \
+                          asm("hlt"); \
+                        }
+#endif
+
 #endif
