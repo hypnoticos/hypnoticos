@@ -39,7 +39,9 @@ Start:
   call Main
 
   cli
-  jmp $
+Loop:
+  hlt
+  jmp Loop
 
 section .bss
 align 4         ; Must be 32-bit aligned
