@@ -23,7 +23,7 @@
 #include <hypnoticos/memory.h>
 
 void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
-  uint32_t offset;
+  uint32_t offset, mmap_addr, mmap_length;
   multiboot_memory_map_t *mmap_entry;
 
   // At a minimum the magic number should be right, and the mmap should be present.
@@ -42,13 +42,17 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
     HALT();
   }
 
+  // WARNING: From here the existence of the multiboot structure and its components (except mmap components) is not guaranteed.
+  mmap_addr = multiboot->mmap_addr;
+  mmap_length = multiboot->mmap_length;
+
   // Parse each mmap entry in the buffer
   offset = 0;
-  while(offset < multiboot->mmap_length) {
-    mmap_entry = (multiboot_memory_map_t *) ((uint32_t) multiboot->mmap_addr + offset);
+  while(offset < mmap_length) {
+    mmap_entry = (multiboot_memory_map_t *) ((uint32_t) mmap_addr + offset);
 
     // Check if the size parameter is invalid
-    if(offset + mmap_entry->size > multiboot->mmap_length || mmap_entry->size < 20) {
+    if(offset + mmap_entry->size > mmap_length || mmap_entry->size < 20) {
       HALT();
     }
 
@@ -63,7 +67,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
       // Check the type
       switch(mmap_entry->type) {
         case MULTIBOOT_MEMORY_AVAILABLE:
-        MemoryNewBlock(mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_AVAILABLE);
+        MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_AVAILABLE);
         break;
 
         case MULTIBOOT_MEMORY_RESERVED:
@@ -78,10 +82,11 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
         break;
       }
     }
+
     offset += mmap_entry->size + sizeof(mmap_entry->size);
   }
 
-  if(offset != multiboot->mmap_length) {
+  if(offset != mmap_length) {
     // Something didn't go right.
     HALT();
   }

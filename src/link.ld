@@ -22,6 +22,7 @@ ENTRY(Start)
 
 SECTIONS {
   . = 1M;
+  AddrStart = .;
 
   .text : ALIGN(4K) {
     *(.text)
@@ -38,4 +39,6 @@ SECTIONS {
   .bss : ALIGN(4K) {
     *(.bss)
   }
+
+  AddrEnd = .;
 }
