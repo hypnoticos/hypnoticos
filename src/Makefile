@@ -24,7 +24,7 @@ BUILD=$(KERNELFILENAME)
 # boot/multiboot.o should be at the start
 BUILD_OBJS=boot/multiboot.o
 BUILD_OBJS+=boot/boot.o boot/main.o boot/multiboot-check.o
-BUILD_OBJS+=cpu/cpu.o cpu/idt.o cpu/gdt.o cpu/tss.o
+BUILD_OBJS+=cpu/cpu.o cpu/cpuid.o cpu/idt.o cpu/gdt.o cpu/tss.o
 BUILD_OBJS+=memory/alloc.o memory/find.o memory/init.o memory/table.o
 BUILD_OBJS+=video-memory.o
 

@@ -61,7 +61,8 @@ struct _IdtGate_t {
   uint16_t offset_high;
 } __attribute__((packed));
 
-void TssInit();
+void CpuChecks();
 void IdtInit();
+void TssInit();
 
 #endif

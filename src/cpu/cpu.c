@@ -20,6 +20,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/hypnoticos.h>
+
+uint32_t *Cpuid(uint32_t eax_input);
+uint32_t CpuidTest();
 
 #define IDT_GATE_COUNT              256
 
@@ -125,4 +129,21 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
   while(1) {
     asm("hlt");
   }
+}
+
+void CpuChecks() {
+  uint32_t *r;
+  char s[13];
+
+  if(!CpuidTest()) {
+    HALT();
+  }
+
+  // Vendor identification string -  EBX, EDX, ECX
+  r = Cpuid(0);
+  memcpy(s, &r[1], 4);
+  memcpy(s + 4, &r[3], 4);
+  memcpy(s + 8, &r[2], 4);
+  s[12] = 0;
+  printf("Vendor identification string: %s\n", s);
 }

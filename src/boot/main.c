@@ -37,4 +37,6 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   IdtInit();
 
   MultibootCheck(magic, multiboot);
+
+  CpuChecks();
 }
