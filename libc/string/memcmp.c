@@ -16,12 +16,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_UNIMPLEMENTED_H
-#define __HYPNOTICOS_UNIMPLEMENTED_H
+#include <string.h>
+#include <stdint.h>
 
-#include <stdio.h>
+int memcmp(const void *addr1, const void *addr2, size_t count) {
+  size_t i;
 
-// TODO This should eventually be removed.
-#define UNIMPLEMENTED()         printf("WARNING: %s is unimplemented", __FUNCTION__);
+  for(i = 0; i < count; i++) {
+    if(((uint8_t *) addr1)[i] != ((uint8_t *) addr2)[i]) {
+      return 1;
+    }
+  }
 
-#endif
+  return 0;
+}

@@ -16,12 +16,47 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_UNIMPLEMENTED_H
-#define __HYPNOTICOS_UNIMPLEMENTED_H
+#ifdef __HYPNOTICOS_KERNEL
 
-#include <stdio.h>
+#include <stdlib.h>
+#include <hypnoticos/memory.h>
 
-// TODO This should eventually be removed.
-#define UNIMPLEMENTED()         printf("WARNING: %s is unimplemented", __FUNCTION__);
+void *realloc(void *addr, size_t new_size) {
+  void *r;
+  MemoryTable_t *mt;
+
+  mt = MemoryFind(addr);
+  if(mt == NULL) {
+    return NULL;
+  }
+
+  r = malloc(new_size);
+
+  if(mt->size > new_size) {
+    memcpy(r, addr, new_size);
+  } else {
+    memcpy(r, addr, mt->size);
+    memset(r + mt->size, 0, new_size - mt->size);
+  }
+
+  free(addr);
+
+  return r;
+}
+
+#else
+
+#include <stdlib.h>
+#include <hypnoticos/unimplemented.h> // TODO Remove once implemented
+
+// TODO
+void *realloc(void *addr, size_t new_size) {
+  (void) addr;
+  (void) new_size;
+
+  UNIMPLEMENTED();
+
+  return NULL;
+}
 
 #endif

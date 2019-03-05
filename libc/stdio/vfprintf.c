@@ -24,11 +24,15 @@
 int vfprintf(FILE *f, const char *format, va_list va) {
   uint32_t arg_uint, count = 0, i = 0, i2, i3;
   char *arg_string, buffer[HYPNOTICOS_MAX_DIGITS + 1];
+  int arg_int;
 
   while(format[i] != 0) {
     if(format[i] == '%' && format[i + 1] != 0) {
       i++;
-      if(format[i] == 'd' || format[i] == 'i') {
+      if(format[i] == 'c') {
+        arg_int = va_arg(va, int);
+        fputc(arg_int, f);
+      } else if(format[i] == 'd' || format[i] == 'i') {
         fputc(format[i], f); // TODO
         count++;
       } else if(format[i] == 'p' || format[i] == 'u' || format[i] == 'x' || format[i] == 'X') {

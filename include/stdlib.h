@@ -19,7 +19,10 @@
 #ifndef __STDLIB_H
 #define __STDLIB_H
 
+#include <stddef.h>
+
 void free(void *addr);
 void *malloc(size_t size);
+void *realloc(void *addr, size_t new_size);
 
 #endif
