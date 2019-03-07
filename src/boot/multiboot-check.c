@@ -42,7 +42,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
     HALT();
   }
 
-  // WARNING: From here the existence of the multiboot structure and its components (except mmap components) is not guaranteed.
+  // WARNING: From here the existence of the multiboot structure and its components (except mmap components for the rest of this function) is not guaranteed.
   mmap_addr = multiboot->mmap_addr;
   mmap_length = multiboot->mmap_length;
 

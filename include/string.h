@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 
+int memcmp(const void *addr1, const void *addr2, size_t count);
 void *memcpy(void *destination, const void *source, size_t count);
 void *memset(void *addr, int chr, size_t count);
 size_t strlen(const char *s);

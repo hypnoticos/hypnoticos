@@ -16,39 +16,39 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global Start, Stack
-extern Main, GdtInit
+global MsrRead, MsrWrite
 
-section .text
-Start:
-  cli
-  
-  mov esp, Stack
+; TODO Check if MSR is supported
 
-  push ebx      ; Multiboot struct
-  push eax      ; Magic value
+MsrWrite:
+  push ebp
+  mov ebp, esp
 
-  ; Disable PIC interrupts
-  mov al, 0xFF
-  out byte 0xA1, al
-  out byte 0x21, al
+  mov ecx, [ebp + 8]
+  mov edx, [ebp + 12]
+  mov eax, [ebp + 16]
+  wrmsr
 
-  ; Init GDT
-  call GdtInit
+  mov esp, ebp
+  pop ebp
+  mov eax, 0
+  ret
 
-  ; Enter protected mode (set PE bit [bit 0] of CR0)
-  mov eax, cr0
-  or eax, 0x1
-  mov cr0, eax
+MsrRead:
+  push ebp
+  mov ebp, esp
 
-  call Main
+  mov ecx, [ebp + 8]
+  rdmsr
 
-  cli
-Loop:
-  hlt
-  jmp Loop
+  mov [_MsrReadOutput_edx], edx
+  mov [_MsrReadOutput_eax], eax
 
-section .bss
-align 4         ; Must be 32-bit aligned
-  resb 16384
-Stack:
+  mov esp, ebp
+  pop ebp
+  mov eax, _MsrReadOutput
+  ret
+
+_MsrReadOutput:
+  _MsrReadOutput_edx dd 0
+  _MsrReadOutput_eax dd 0

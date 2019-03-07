@@ -61,7 +61,80 @@ struct _IdtGate_t {
   uint16_t offset_high;
 } __attribute__((packed));
 
+typedef struct _AcpiRsdp_t AcpiRsdp_t;
+struct _AcpiRsdp_t {
+  uint8_t signature[8];
+  uint8_t checksum;
+  uint8_t oem_id[6];
+  uint8_t revision;
+  uint32_t rsdt_addr;
+  uint32_t length;
+  uint32_t xsdt_addr_high;
+  uint32_t xsdt_addr_low;
+  uint8_t extended_checksum;
+  uint8_t reserved[3];
+} __attribute__((packed));
+
+typedef struct _AcpiTableHeader_t AcpiTableHeader_t;
+typedef struct _AcpiRsdt_t AcpiRsdt_t;
+typedef struct _AcpiApicIo_t AcpiApicIo_t;
+typedef struct _AcpiApicLocal_t AcpiApicLocal_t;
+
+struct _AcpiTableHeader_t {
+  uint8_t signature[4];
+  uint32_t length;
+  uint8_t revision;
+  uint8_t checksum;
+  uint8_t oem_id[6];
+  uint8_t oem_table_id[8];
+  uint32_t oem_revision;
+  uint32_t creator_id;
+  uint32_t creator_revision;
+} __attribute__((packed));
+
+struct _AcpiRsdt_t {
+  AcpiTableHeader_t hdr;
+  // Entries are here
+} __attribute__((packed));
+
+struct _AcpiApicIo_t {
+  uint8_t type;
+  uint8_t length;
+  uint8_t apic_id;
+  uint8_t reserved;
+  uint32_t addr;
+  uint32_t global_system_interrupt_base;
+} __attribute__((packed));
+
+struct _AcpiApicLocal_t {
+  uint8_t type;
+  uint8_t length;
+  uint16_t acpi_processor_id;
+  uint8_t apic_id;
+  uint32_t flags;
+} __attribute__((packed));
+
+#define APIC_LOCAL_OFFSET_SIVR          0x0F0
+#define APIC_LOCAL_OFFSET_TIMER_DCR     0x3E0
+#define APIC_LOCAL_OFFSET_TIMER_LVT     0x320
+#define APIC_LOCAL_OFFSET_TIMER_ICR     0x380
+
+#define APIC_LOCAL_DCR_2                0x00
+
+#define APIC_LOCAL_VECTOR_TIMER         0xA0
+#define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
+
+void AcpiFindRsdp();
+void *AcpiFindTable(const char *signature);
+uint8_t AcpiParseApic();
+uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
+uint8_t ApicIoInit();
+uint8_t ApicLocalCheck();
+void ApicLocalSetUpTimer();
 void CpuChecks();
+uint32_t *Cpuid(uint32_t eax_input);
+uint32_t *MsrRead(uint32_t ecx_input);
+void MsrWrite(uint32_t ecx, uint32_t edx, uint32_t eax);
 void IdtInit();
 void TssInit();
 

@@ -16,35 +16,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdint.h>
 #include <stdio.h>
-#include <hypnoticos/video-memory.h>
+#include <string.h>
 #include <hypnoticos/cpu.h>
-#include <hypnoticos/hypnoticos.h>
-#include <multiboot.h>
-#include <hypnoticos/boot.h>
+#include <hypnoticos/unimplemented.h> // TODO Remove once implemented
 
-/*!
-   \brief Called by Start.
-   \param magic Magic value
-   \param multiboot multiboot_info_t struct
-*/
-void Main(uint32_t magic, multiboot_info_t *multiboot) {
-  VideoMemoryInit();
-  puts(_HYPNOTICOS);
+uint8_t ApicIoOkay = 0;
+AcpiApicIo_t ApicIo;
 
-  TssInit();
-  IdtInit();
-  AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
-
-  MultibootCheck(magic, multiboot);
-
-  CpuChecks();
-
-  asm("sti");
-  ApicLocalSetUpTimer();
-
-  while(1) {
-    asm("hlt");
+uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
+  if(ApicIoOkay != 0) {
+    return 0;
   }
+
+  ApicIoOkay = 1;
+  memcpy(&ApicIo, ptr, sizeof(AcpiApicIo_t));
+  return 1;
+}
+
+uint8_t ApicIoInit() {
+  UNIMPLEMENTED();
+
+  return 1;
 }

@@ -22,7 +22,6 @@
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/hypnoticos.h>
 
-uint32_t *Cpuid(uint32_t eax_input);
 uint32_t CpuidTest();
 
 #define IDT_GATE_COUNT              256
@@ -64,6 +63,8 @@ void Idt17();
 void Idt18();
 void Idt19();
 void Idt20();
+void Idt160();
+void Idt240();
 void IdtReserved();
 
 void TssInit() {
@@ -111,6 +112,11 @@ void IdtInit() {
   IdtCreateGate(30, IdtReserved, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(31, IdtReserved, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
+  /// Local APIC interrupts
+  // NOTE: take care when renumbering these IDT entries
+  IdtCreateGate(APIC_LOCAL_VECTOR_TIMER, Idt160, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(APIC_LOCAL_VECTOR_SPURIOUS, Idt240, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+
   IdtSet((IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1);
 }
 
@@ -123,11 +129,28 @@ inline void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t ss, u
 }
 
 void IdtCall(const uint8_t vector, const uint32_t error_code) {
-  // TODO
-  puts("IdtCall");
+  switch(vector) {
+    case APIC_LOCAL_VECTOR_TIMER:
+    // TODO Call process manager
+    //ApicLocalSetUpTimer(); // TODO Reset the timer
+    while(1) {
+      asm("hlt");
+    }
+    break;
 
-  while(1) {
-    asm("hlt");
+    case APIC_LOCAL_VECTOR_SPURIOUS:
+    printf("\nSPURIOUS INTERRUPT\n");
+    while(1) {
+      asm("hlt");
+    }
+    break;
+
+    default:
+    printf("\nINTERRUPT (vector %u)", vector); // TODO error_code
+    while(1) {
+      asm("hlt");
+    }
+    break;
   }
 }
 
@@ -140,10 +163,18 @@ void CpuChecks() {
   }
 
   // Vendor identification string -  EBX, EDX, ECX
-  r = Cpuid(0);
+  r = Cpuid(0x00);
   memcpy(s, &r[1], 4);
   memcpy(s + 4, &r[3], 4);
   memcpy(s + 8, &r[2], 4);
   s[12] = 0;
   printf("Vendor identification string: %s\n", s);
+
+  if(!ApicLocalCheck()) {
+    HALT();
+  } else if(!AcpiParseApic()) { // This function finds the I/O APIC
+    HALT();
+  } else if(!ApicIoInit()) {
+    HALT();
+  }
 }
