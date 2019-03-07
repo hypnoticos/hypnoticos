@@ -133,9 +133,6 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     case APIC_LOCAL_VECTOR_TIMER:
     // TODO Call process manager
     //ApicLocalSetUpTimer(); // TODO Reset the timer
-    while(1) {
-      asm("hlt");
-    }
     break;
 
     case APIC_LOCAL_VECTOR_SPURIOUS:
@@ -146,7 +143,7 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     break;
 
     default:
-    printf("\nINTERRUPT (vector %u)", vector); // TODO error_code
+    printf("\nINTERRUPT (vector %u, error code 0x%X)", vector, error_code);
     while(1) {
       asm("hlt");
     }
