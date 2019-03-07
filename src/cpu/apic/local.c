@@ -28,7 +28,6 @@ AcpiApicLocal_t **ApicLocal = NULL;
 void *ApicLocalBspBase = NULL;
 
 void ApicLocalEnable();
-void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value);
 
 uint8_t ApicLocalCheck() {
   uint32_t *r;
@@ -94,4 +93,12 @@ void ApicLocalSetUpTimer() {
 
 void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value) {
   *((uint32_t *) ((uint32_t) base_addr + offset)) = value;
+}
+
+uint32_t ApicLocalRead(void *base_addr, uint32_t offset) {
+  return *((uint32_t *) ((uint32_t) base_addr + offset));
+}
+
+void ApicLocalEoi() {
+  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_EOI, 0x0);
 }

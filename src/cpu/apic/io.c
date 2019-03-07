@@ -16,7 +16,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
 #include <string.h>
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/unimplemented.h> // TODO Remove once implemented
@@ -24,8 +23,13 @@
 uint8_t ApicIoOkay = 0;
 AcpiApicIo_t ApicIo;
 
+inline uint32_t ApicIoRead(AcpiApicIo_t *io_apic, uint8_t r);
+inline void ApicIoWrite(AcpiApicIo_t *io_apic, uint8_t r, uint32_t data);
+void ApicIoIrq(uint8_t no, uint8_t vector);
+
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
   if(ApicIoOkay != 0) {
+    // TODO Support multiple I/O APICs
     return 0;
   }
 
@@ -35,7 +39,39 @@ uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
 }
 
 uint8_t ApicIoInit() {
-  UNIMPLEMENTED();
+  uint32_t i;
+
+  // TODO Max redirection entry
+  for(i = 0; i <= 23; i++) {
+    ApicIoIrq(i, 0x30);
+  }
 
   return 1;
+}
+
+#define APIC_IO_IOREGSEL          0x00
+#define APIC_IO_IOWIN             0x10
+
+inline uint32_t ApicIoRead(AcpiApicIo_t *io_apic, uint8_t r) {
+  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
+  return *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOWIN));
+}
+
+inline void ApicIoWrite(AcpiApicIo_t *io_apic, uint8_t r, uint32_t data) {
+  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
+  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOWIN)) = data;
+}
+
+void ApicIoIrq(uint8_t no, uint8_t vector) {
+  uint8_t local_apic_id;
+  uint32_t value_low, value_high;
+
+  // TODO Identify P6 family and Pentium processors - only retrieve bits 24 to 27
+  local_apic_id = ApicLocalRead(ApicLocalBspBase, 0x20) & 0xFF000000;
+
+  value_low = vector;
+  value_high = (local_apic_id << 24);
+
+  ApicIoWrite(&ApicIo, 0x10 + (no * 2), value_low);
+  ApicIoWrite(&ApicIo, 0x11 + (no * 2), value_high);
 }

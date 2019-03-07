@@ -114,6 +114,7 @@ struct _AcpiApicLocal_t {
   uint32_t flags;
 } __attribute__((packed));
 
+#define APIC_LOCAL_OFFSET_EOI           0x0B0
 #define APIC_LOCAL_OFFSET_SIVR          0x0F0
 #define APIC_LOCAL_OFFSET_TIMER_DCR     0x3E0
 #define APIC_LOCAL_OFFSET_TIMER_LVT     0x320
@@ -124,13 +125,19 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
 
+extern void *ApicLocalBspBase;
+
 void AcpiFindRsdp();
 void *AcpiFindTable(const char *signature);
 uint8_t AcpiParseApic();
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();
+uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr);
 uint8_t ApicLocalCheck();
+void ApicLocalEoi();
+uint32_t ApicLocalRead(void *base_addr, uint32_t offset);
 void ApicLocalSetUpTimer();
+void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value);
 void CpuChecks();
 uint32_t *Cpuid(uint32_t eax_input);
 uint32_t *MsrRead(uint32_t ecx_input);

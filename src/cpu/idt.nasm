@@ -17,7 +17,7 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt160, Idt240, IdtReserved
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt160, Idt240, IdtReserved
 extern IdtGates, IdtCall
 
 IdtSet:
@@ -182,6 +182,14 @@ Idt19:
 Idt20:
   push 0                ; No error code
   push 19               ; #VE, Virtualization Exception
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt48:
+  push 0
+  push 48
   call IdtCall
   pop eax               ; Clear vector parameter
   pop eax               ; Clear error code parameter

@@ -63,6 +63,7 @@ void Idt17();
 void Idt18();
 void Idt19();
 void Idt20();
+void Idt48();
 void Idt160();
 void Idt240();
 void IdtReserved();
@@ -117,6 +118,9 @@ void IdtInit() {
   IdtCreateGate(APIC_LOCAL_VECTOR_TIMER, Idt160, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(APIC_LOCAL_VECTOR_SPURIOUS, Idt240, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
+  // IO APIC interrupts
+  IdtCreateGate(48, Idt48, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+
   IdtSet((IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1);
 }
 
@@ -133,6 +137,7 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     case APIC_LOCAL_VECTOR_TIMER:
     // TODO Call process manager
     //ApicLocalSetUpTimer(); // TODO Reset the timer
+    ApicLocalEoi();
     break;
 
     case APIC_LOCAL_VECTOR_SPURIOUS:
@@ -140,6 +145,10 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     while(1) {
       asm("hlt");
     }
+    break;
+
+    case 48:
+    ApicLocalEoi();
     break;
 
     default:

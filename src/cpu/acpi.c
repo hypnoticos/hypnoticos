@@ -135,10 +135,9 @@ uint8_t AcpiParseApic() {
     } else if(structure_type == 0x00) {
       // TODO Local APIC
       apic_local = (AcpiApicLocal_t *) ((uint32_t) apic + i);
-      printf("Local APIC detected (ID %u)\n", apic_local->apic_id);
+      ApicLocalAdd(apic_local);
     } else if(structure_type == 0x01) {
       // I/O APIC
-      printf("I/O APIC detected\n");
       if(!ApicIoAdd((AcpiApicIo_t *) ((uint32_t) apic + i))) {
         return 0;
       }
