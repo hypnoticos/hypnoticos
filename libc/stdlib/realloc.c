@@ -16,9 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifdef __HYPNOTICOS_KERNEL
+#ifdef _HYPNOTICOS_KERNEL
 
 #include <stdlib.h>
+#include <string.h>
 #include <hypnoticos/memory.h>
 
 void *realloc(void *addr, size_t new_size) {
