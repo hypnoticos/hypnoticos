@@ -43,7 +43,7 @@ uint8_t ApicIoInit() {
 
   // TODO Max redirection entry
   for(i = 0; i <= 23; i++) {
-    ApicIoIrq(i, 0x30);
+    ApicIoIrq(i, 0x30 + i);
   }
 
   return 1;

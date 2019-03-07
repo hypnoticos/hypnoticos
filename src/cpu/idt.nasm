@@ -17,7 +17,7 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt160, Idt240, IdtReserved
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, IdtReserved
 extern IdtGates, IdtCall
 
 IdtSet:
@@ -187,9 +187,193 @@ Idt20:
   pop eax               ; Clear error code parameter
   iret
 
-Idt48:
+Idt48:                  ; IRQ 0
   push 0
   push 48
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt49:                  ; IRQ 1
+  push 0
+  push 49
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt50:                  ; IRQ 2
+  push 0
+  push 50
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt51:                  ; IRQ 3
+  push 0
+  push 51
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt52:                  ; IRQ 4
+  push 0
+  push 52
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt53:                  ; IRQ 5
+  push 0
+  push 53
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt54:                  ; IRQ 6
+  push 0
+  push 54
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt55:                  ; IRQ 7
+  push 0
+  push 55
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt56:                  ; IRQ 8
+  push 0
+  push 56
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt57:                  ; IRQ 9
+  push 0
+  push 57
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt58:                  ; IRQ 10
+  push 0
+  push 58
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt59:                  ; IRQ 11
+  push 0
+  push 59
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt60:                  ; IRQ 12
+  push 0
+  push 60
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt61:                  ; IRQ 13
+  push 0
+  push 61
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt62:                  ; IRQ 14
+  push 0
+  push 62
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt63:                  ; IRQ 15
+  push 0
+  push 63
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt64:                  ; IRQ 16
+  push 0
+  push 64
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt65:                  ; IRQ 17
+  push 0
+  push 65
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt66:                  ; IRQ 18
+  push 0
+  push 66
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt67:                  ; IRQ 19
+  push 0
+  push 67
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt68:                  ; IRQ 20
+  push 0
+  push 68
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt69:                  ; IRQ 21
+  push 0
+  push 69
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt70:                  ; IRQ 22
+  push 0
+  push 70
+  call IdtCall
+  pop eax               ; Clear vector parameter
+  pop eax               ; Clear error code parameter
+  iret
+
+Idt71:                  ; IRQ 23
+  push 0
+  push 71
   call IdtCall
   pop eax               ; Clear vector parameter
   pop eax               ; Clear error code parameter

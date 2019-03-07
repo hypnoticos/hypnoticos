@@ -64,6 +64,29 @@ void Idt18();
 void Idt19();
 void Idt20();
 void Idt48();
+void Idt49();
+void Idt50();
+void Idt51();
+void Idt52();
+void Idt53();
+void Idt54();
+void Idt55();
+void Idt56();
+void Idt57();
+void Idt58();
+void Idt59();
+void Idt60();
+void Idt61();
+void Idt62();
+void Idt63();
+void Idt64();
+void Idt65();
+void Idt66();
+void Idt67();
+void Idt68();
+void Idt69();
+void Idt70();
+void Idt71();
 void Idt160();
 void Idt240();
 void IdtReserved();
@@ -119,7 +142,30 @@ void IdtInit() {
   IdtCreateGate(APIC_LOCAL_VECTOR_SPURIOUS, Idt240, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
   // IO APIC interrupts
-  IdtCreateGate(48, Idt48, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 0, Idt48, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 1, Idt49, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 2, Idt50, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 3, Idt51, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 4, Idt52, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 5, Idt53, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 6, Idt54, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 7, Idt55, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 8, Idt56, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 9, Idt57, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 10, Idt58, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 11, Idt59, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 12, Idt60, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 13, Idt61, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 14, Idt62, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 15, Idt63, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 16, Idt64, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 17, Idt65, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 18, Idt66, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 19, Idt67, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 20, Idt68, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 21, Idt69, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 22, Idt70, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(0x30 + 23, Idt71, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
   IdtSet((IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1);
 }
@@ -148,6 +194,30 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     break;
 
     case 48:
+    case 49:
+    case 50:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+    case 58:
+    case 59:
+    case 60:
+    case 61:
+    case 62:
+    case 63:
+    case 64:
+    case 65:
+    case 66:
+    case 67:
+    case 68:
+    case 69:
+    case 70:
+    case 71:
+    printf("IRQ%u\n", vector - 48);
     ApicLocalEoi();
     break;
 
