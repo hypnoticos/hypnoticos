@@ -69,6 +69,7 @@ void ApicIoIrq(uint8_t no, uint8_t vector) {
   // TODO Identify P6 family and Pentium processors - only retrieve bits 24 to 27
   local_apic_id = ApicLocalRead(ApicLocalBspBase, 0x20) & 0xFF000000;
 
+  // TODO Determine whether the other flags are to be set
   value_low = vector;
   value_high = (local_apic_id << 24);
 
