@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/devices.h>
 #include <hypnoticos/hypnoticos.h>
 
 uint32_t CpuidTest();
@@ -143,8 +144,8 @@ void IdtInit() {
 
   // IO APIC interrupts
   IdtCreateGate(0x30 + 0, Idt48, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
-  IdtCreateGate(0x30 + 1, Idt49, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
-  IdtCreateGate(0x30 + 2, Idt50, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(IDT_IRQ_1, Idt49, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(IDT_IRQ_2, Idt50, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 3, Idt51, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 4, Idt52, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 5, Idt53, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
@@ -194,8 +195,6 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     break;
 
     case 48:
-    case 49:
-    case 50:
     case 51:
     case 52:
     case 53:
@@ -218,6 +217,16 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     case 70:
     case 71:
     printf("IRQ%u\n", vector - 48);
+    ApicLocalEoi();
+    break;
+
+    case IDT_IRQ_1:
+    KeyboardIrq();
+    ApicLocalEoi();
+    break;
+
+    case IDT_IRQ_2:
+    // Timer
     ApicLocalEoi();
     break;
 

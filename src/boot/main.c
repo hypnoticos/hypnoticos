@@ -23,6 +23,7 @@
 #include <hypnoticos/hypnoticos.h>
 #include <multiboot.h>
 #include <hypnoticos/boot.h>
+#include <hypnoticos/devices.h>
 
 /*!
    \brief Called by Start.
@@ -41,8 +42,17 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
 
   CpuChecks();
 
+  KeyboardInit();
+  if(!KeyboardPresent) {
+    printf("No PS/2 keyboard detected\n");
+  }
+
   asm("sti");
   ApicLocalSetUpTimer();
+
+  if(!PciInit()) {
+    HALT();
+  }
 
   while(1) {
     asm("hlt");

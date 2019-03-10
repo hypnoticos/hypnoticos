@@ -125,6 +125,9 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
 
+#define IDT_IRQ_1                       49
+#define IDT_IRQ_2                       50
+
 extern void *ApicLocalBspBase;
 
 void AcpiFindRsdp();
@@ -140,9 +143,16 @@ void ApicLocalSetUpTimer();
 void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value);
 void CpuChecks();
 uint32_t *Cpuid(uint32_t eax_input);
+void IdtInit();
+uint8_t IoPort8In(uint16_t port);
+void IoPort8Out(uint16_t port, uint8_t data);
+uint16_t IoPort16In(uint16_t port);
+void IoPort16Out(uint16_t port, uint16_t data);
+uint32_t IoPort32In(uint16_t port);
+void IoPort32Out(uint16_t port, uint32_t data);
 uint32_t *MsrRead(uint32_t ecx_input);
 void MsrWrite(uint32_t ecx, uint32_t edx, uint32_t eax);
-void IdtInit();
+uint8_t PciInit();
 void TssInit();
 
 #endif
