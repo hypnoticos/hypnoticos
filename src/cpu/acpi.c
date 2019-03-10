@@ -119,7 +119,6 @@ uint8_t AcpiParseApic() {
   AcpiApic_t *apic;
   uint8_t structure_type, structure_length;
   uint32_t i;
-  AcpiApicLocal_t *apic_local;
 
   apic = AcpiFindTable("APIC");
   for(i = 44; i < apic->hdr.length; i += structure_length) {
@@ -133,9 +132,10 @@ uint8_t AcpiParseApic() {
       // Reserved for OEM use - skip
       continue;
     } else if(structure_type == 0x00) {
-      // TODO Local APIC
-      apic_local = (AcpiApicLocal_t *) ((uint32_t) apic + i);
-      ApicLocalAdd(apic_local);
+      // Local APIC
+      if(!ApicLocalAdd((AcpiApicLocal_t *) ((uint32_t) apic + i))) {
+        return 0;
+      }
     } else if(structure_type == 0x01) {
       // I/O APIC
       if(!ApicIoAdd((AcpiApicIo_t *) ((uint32_t) apic + i))) {
