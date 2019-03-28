@@ -18,4 +18,4 @@
 
 LIBC_OBJS=stdio/fputc.o stdio/fputs.o stdio/printf.o stdio/putchar.o stdio/puts.o stdio/stdstreams.o stdio/vfprintf.o
 LIBC_OBJS+=stdlib/calloc.o stdlib/free.o stdlib/malloc.o stdlib/realloc.o
-LIBC_OBJS+=string/memcmp.o string/memcpy.o string/memset.o string/strlen.o
+LIBC_OBJS+=string/memcmp.o string/memcpy.o string/memset.o string/strcpy.o string/strlen.o

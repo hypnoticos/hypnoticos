@@ -143,6 +143,7 @@ void ApicLocalSetUpTimer();
 void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value);
 void CpuChecks();
 uint32_t *Cpuid(uint32_t eax_input);
+extern uint32_t EflagsGet();
 void IdtInit();
 uint8_t IoPort8In(uint16_t port);
 void IoPort8Out(uint16_t port, uint8_t data);

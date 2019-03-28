@@ -96,11 +96,15 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     table = (MemoryTable_t *) start;
     table->addr = (uint32_t) start;
     table->size = table_size;
+    strcpy(table->function, "-");
+    table->line = 0;
     table->status = 1;
 
     table = (MemoryTable_t *) start + sizeof(MemoryTable_t);
     table->addr = (uint32_t) AddrStart;
     table->size = (uint32_t) AddrEnd - (uint32_t) AddrStart + 1;
+    strcpy(table->function, "-");
+    table->line = 0;
     table->status = 1;
 
     // Create an entry in the memory table index

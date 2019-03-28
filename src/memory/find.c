@@ -20,6 +20,8 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
+uint8_t MemoryIsFree(void *addr, size_t size);
+
 /*!
    \brief For an address, find the that address's MemoryTable_t structure.
    \param addr The address
@@ -49,9 +51,45 @@ inline MemoryTable_t *MemoryFind(void *addr) {
   return NULL;
 }
 
+/*!
+   \brief Check if the entire block specified is unallocated
+   \param addr The start of the block
+   \param size The size of the block
+   \return 1 if unallocated, 0 otherwise.
+*/
+uint8_t MemoryIsFree(void *addr, size_t size) {
+  MemoryTableIndex_t *mti;
+  MemoryTable_t *mt;
+
+  // Iterate through every memory allocation
+  for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
+    for(mt = mti->addr; mt < mti->addr + mti->size; mt += sizeof(MemoryTable_t)) {
+      if(mt->status != 1) {
+        // Not allocated
+        continue;
+      }
+
+      // new block's end is less than this block's start
+      if((void *) ((uint32_t) addr + size) < (void *) mt->addr) {
+        continue;
+      }
+
+      // new block's start is greater than this block's end
+      if(addr > (void *) ((uint32_t) mt->addr + mt->size)) {
+        continue;
+      }
+
+      // Otherwise, this block overlaps with the specified block
+      return 0;
+    }
+  }
+
+  // No conflicts, entire block is unallocated
+  return 1;
+}
+
 void *MemoryFindSpace(size_t size) {
   MemoryBlock_t *block;
-  MemoryTable_t *mt;
   uint32_t addr = 0;
 
   // For each memory block, find the highest address possible
@@ -61,8 +99,8 @@ void *MemoryFindSpace(size_t size) {
     // Check if this address is available
     // If not, check before the start of the address occupying that address. Continue until space found, or no space is available.
     do {
-      if((mt = MemoryFind((void *) addr)) != NULL) {
-        addr = mt->addr - size;
+      if(!MemoryIsFree((void *) addr, size)) {
+        addr -= size;
       } else {
         return (void *) addr;
       }

@@ -24,6 +24,9 @@
 #include <multiboot.h>
 #include <hypnoticos/boot.h>
 #include <hypnoticos/devices.h>
+#include <hypnoticos/dispatcher.h>
+
+#include <hypnoticos/memory.h>
 
 /*!
    \brief Called by Start.
@@ -47,12 +50,16 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
     printf("No PS/2 keyboard detected\n");
   }
 
-  asm("sti");
-  ApicLocalSetUpTimer();
-
   if(!PciInit()) {
     HALT();
   }
+
+  DispatcherInit();
+  DispatcherNew("first-process", DispatcherFirstProcess);
+  DispatcherNew("another-process", DispatcherAnotherProcess);
+
+  asm("sti");
+  ApicLocalSetUpTimer();
 
   while(1) {
     asm("hlt");

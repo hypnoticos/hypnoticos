@@ -17,10 +17,11 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
-void MemoryAllocated(void *addr, size_t size) {
+void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line) {
   MemoryTableIndex_t *mti;
   MemoryTable_t *mt;
 
@@ -33,6 +34,8 @@ void MemoryAllocated(void *addr, size_t size) {
         mt->addr = (uint32_t) addr;
         mt->size = size;
         mt->status = 1;
+        strcpy(mt->function, function);
+        mt->line = line;
         return;
       }
 
@@ -48,4 +51,24 @@ void MemoryAllocated(void *addr, size_t size) {
 
   // TODO Replace with an error?
   HALT();
+}
+
+void *__malloc(size_t size, const char function[200], uint32_t line) {
+  void *addr;
+
+  if(MemoryTableIndices.size == 0) {
+    // No memory tables
+    HALT();
+  }
+
+  // Find space
+  if((addr = MemoryFindSpace(size)) == NULL) {
+    printf("malloc: couldn't allocate\n");
+    return NULL;
+  }
+
+  // Update table
+  MemoryAllocated(addr, size, function, line);
+
+  return addr;
 }

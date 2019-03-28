@@ -23,7 +23,14 @@
 
 void *calloc(size_t count, size_t size);
 void free(void *addr);
+
+#ifdef _HYPNOTICOS_KERNEL
+#include <hypnoticos/memory.h>
+#define malloc(a)       __malloc(a, __FUNCTION__, __LINE__)
+#else
 void *malloc(size_t size);
+#endif
+
 void *realloc(void *addr, size_t new_size);
 
 #endif

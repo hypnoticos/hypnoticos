@@ -21,6 +21,7 @@
 #include <string.h>
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/devices.h>
+#include <hypnoticos/dispatcher.h>
 #include <hypnoticos/hypnoticos.h>
 
 uint32_t CpuidTest();
@@ -66,7 +67,6 @@ void Idt19();
 void Idt20();
 void Idt48();
 void Idt49();
-void Idt50();
 void Idt51();
 void Idt52();
 void Idt53();
@@ -145,7 +145,7 @@ void IdtInit() {
   // IO APIC interrupts
   IdtCreateGate(0x30 + 0, Idt48, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(IDT_IRQ_1, Idt49, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
-  IdtCreateGate(IDT_IRQ_2, Idt50, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(IDT_IRQ_2, DispatcherInterrupt, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 3, Idt51, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 4, Idt52, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
   IdtCreateGate(0x30 + 5, Idt53, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
@@ -225,10 +225,7 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     ApicLocalEoi();
     break;
 
-    case IDT_IRQ_2:
-    // Timer
-    ApicLocalEoi();
-    break;
+    // IRQ 2 is the timer and is sent to the dispatcher instead of this function
 
     default:
     printf("\nINTERRUPT (vector %u, error code 0x%X)", vector, error_code);

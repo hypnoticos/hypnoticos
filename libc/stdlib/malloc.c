@@ -16,33 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifdef _HYPNOTICOS_KERNEL
-
-#include <stdio.h>
-#include <hypnoticos/memory.h>
-#include <hypnoticos/hypnoticos.h>
-
-void *malloc(size_t size) {
-  void *addr;
-
-  if(MemoryTableIndices.size == 0) {
-    // No memory tables
-    HALT();
-  }
-
-  // Find space
-  if((addr = MemoryFindSpace(size)) == NULL) {
-    printf("malloc: couldn't allocate\n");
-    return NULL;
-  }
-
-  // Update table
-  MemoryAllocated(addr, size);
-
-  return addr;
-}
-
-#else
+// NOTE: The malloc() implementation for the kernel is a macro
+#ifndef _HYPNOTICOS_KERNEL
 
 #include <stdio.h>
 #include <stddef.h>

@@ -1,4 +1,4 @@
-// 
+//
 // HypnoticOS
 // Copyright (C) 2019  jk30
 //
@@ -16,15 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STRING_H
-#define __STRING_H
+#include <string.h>
+#include <stdint.h>
 
-#include <stddef.h>
+char *strcpy(char *d, const char *s) {
+  uint32_t i;
 
-int memcmp(const void *addr1, const void *addr2, size_t count);
-void *memcpy(void *destination, const void *source, size_t count);
-void *memset(void *addr, int chr, size_t count);
-char *strcpy(char *d, const char *s);
-size_t strlen(const char *s);
+  for(i = 0; s[i] != 0; i++) {
+    d[i] = s[i];
+  }
 
-#endif
+  return d;
+}

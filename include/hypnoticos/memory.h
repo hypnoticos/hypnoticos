@@ -52,10 +52,14 @@ struct _MemoryTable_t {
   uint32_t addr; /*!< Address of this memory allocation */
   uint32_t size; /*!< Size of this memory allocation */
   uint8_t status; /*!< Status of this entry in the table (0 = empty, 1 = in use) */
+
+  char function[200];
+  uint32_t line;
 } __attribute__((packed));
 extern MemoryTableIndex_t MemoryTableIndices;
 
-void MemoryAllocated(void *addr, size_t size);
+void *__malloc(size_t size, const char function[200], uint32_t line);
+void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size);
 void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);

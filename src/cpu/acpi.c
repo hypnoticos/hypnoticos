@@ -21,6 +21,8 @@
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/hypnoticos.h>
 
+void *BiosEbda = NULL;
+
 inline uint8_t AcpiTestRsdp(void *ptr);
 
 typedef struct _AcpiApic_t AcpiApic_t;
@@ -50,14 +52,13 @@ inline uint8_t AcpiTestRsdp(void *ptr) {
 }
 
 void AcpiFindRsdp() {
-  void *ebda;
   uint16_t *ptr;
   uint32_t i, sum;
 
   // Search first in the first 1KB of the EBDA
   // 16 byte boundaries
-  ebda = (void *) ((*((uint16_t *) 0x40E)) << 4);
-  for(ptr = ebda; ptr < (uint16_t *) (ebda + 1024); ptr += 16) {
+  BiosEbda = (void *) ((*((uint16_t *) 0x40E)) << 4);
+  for(ptr = BiosEbda; ptr < (uint16_t *) (BiosEbda + 1024); ptr += 16) {
     if(AcpiTestRsdp(ptr)) {
       AcpiRsdp = (AcpiRsdp_t *) ptr;
       break;

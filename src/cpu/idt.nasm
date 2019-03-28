@@ -17,7 +17,7 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, IdtReserved
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, IdtReserved
 extern IdtGates, IdtCall
 
 IdtSet:
@@ -198,14 +198,6 @@ Idt48:                  ; IRQ 0
 Idt49:                  ; IRQ 1
   push 0
   push 49
-  call IdtCall
-  pop eax               ; Clear vector parameter
-  pop eax               ; Clear error code parameter
-  iret
-
-Idt50:                  ; IRQ 2
-  push 0
-  push 50
   call IdtCall
   pop eax               ; Clear vector parameter
   pop eax               ; Clear error code parameter
