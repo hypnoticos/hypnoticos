@@ -76,8 +76,11 @@ clean: $(CLEANDIRS)
 iso: prepare subdirs
 	$(MKDIR) $(ISODIR)/boot/grub
 	$(CP) $(SYSROOT)/boot/$(KERNELFILENAME) $(ISODIR)/boot/
-	echo "menuentry \"HypnoticOS 0.1\" {" > $(ISODIR)/boot/grub/grub.cfg
+	echo "menuentry \"HypnoticOS $(VERSION)\" {" > $(ISODIR)/boot/grub/grub.cfg
 	echo "multiboot /boot/$(KERNELFILENAME)" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "}" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISONAME) $(ISODIR)
+
+compress:
+	cd src && tar -cJf ../hypnoticos-$(ARCHITECTURE)-$(VERSION).tar.xz $(KERNELFILENAME) ../$(ISONAME)
