@@ -37,7 +37,7 @@ inline DispatcherProcess_t *DispatcherFind(uint16_t pid);
 inline DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   uint32_t i;
 
-  for(i = 0; DispatcherProcesses[i] != NULL && i < 100; i++) {
+  for(i = 0; DispatcherProcesses[i] != NULL; i++) {
     if(DispatcherProcesses[i]->pid == pid) {
       return DispatcherProcesses[i];
     }
@@ -65,7 +65,11 @@ uint32_t DispatcherPrepareForNext(uint32_t DoSave, DispatcherProcessSave_t save)
       break;
     }
 
-    next_pid++;
+    if(next_pid == 0xFFFF) {
+      next_pid = 0;
+    } else {
+      next_pid++;
+    }
   }
 
   current_pid = next_pid;
