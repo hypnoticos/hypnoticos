@@ -96,7 +96,7 @@ void TssInit() {
   memset(&Tss, 0, sizeof(Tss_t));
 
   Tss.ss0 = 0x10;
-  Tss.esp0 = (uint32_t) Stack;
+  Tss.esp0 = (uint32_t) &Stack;
 
   TssSet();
 }

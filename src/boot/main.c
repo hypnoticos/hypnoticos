@@ -55,8 +55,9 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   }
 
   DispatcherInit();
-  DispatcherNew("first-process", DispatcherFirstProcess);
-  DispatcherNew("another-process", DispatcherAnotherProcess);
+  DispatcherNew("first-process", DispatcherFirstProcess, 0);
+  DispatcherNew("another-process", DispatcherAnotherProcess, 3);
+  DispatcherNew("another-process-2", DispatcherAnotherProcess2, 3);
 
   asm("sti");
   ApicLocalSetUpTimer();

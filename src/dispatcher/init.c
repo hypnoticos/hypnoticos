@@ -30,3 +30,8 @@ void DispatcherAnotherProcess() {
   }
 }
 
+void DispatcherAnotherProcess2() {
+  printf("3");
+  while(1) {
+  }
+}

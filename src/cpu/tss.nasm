@@ -19,6 +19,6 @@
 global TssSet
 
 TssSet:
-  mov ax, 0x2B        ; 0x28 | 0x3
+  mov ax, 0x28
   ltr ax              ; Load task register
   ret

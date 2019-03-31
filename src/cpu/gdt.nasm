@@ -21,7 +21,7 @@ extern Tss
 
 GdtInit:
   ; Update the TSS entry in the GDT
-  mov eax, [Tss]
+  mov eax, Tss
   mov word [TssBaseLow], ax
   shr eax, 16
   mov byte [TssBaseMiddle], al
@@ -40,7 +40,7 @@ GdtRet:
   ret
 
 Gdt:
-  dw (6 * 64) - 1
+  dw (6 * 8) - 1
   dd GdtEntries
 
 GdtEntries:
@@ -103,8 +103,8 @@ GdtEntries:
   ; Limit = 0x89 (size of TSS)
   ; Flags = 0x4
   dw 0x0089                 ; TSS length (limit low)
-  TssBaseLow db 0           ; TSS address low (base low, load later)
-  TssBaseMiddle dw 0        ; TSS address middle (base middle, load later)
-  db 0xE9                   ; 0b11101001
+  TssBaseLow dw 0           ; TSS address low (base low, load later)
+  TssBaseMiddle db 0        ; TSS address middle (base middle, load later)
+  db 0x89                   ; 0b10001001
   db 0x40                   ; Flags = 0x4, TSS length middle (limit middle) = 0x0
   TssBaseHigh db 0          ; TSS address high (base high, load later)

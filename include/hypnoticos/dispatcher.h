@@ -36,6 +36,7 @@ struct _DispatcherProcessSave_t { // NOTE: The order and layout of this structur
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
+  uint8_t privilege_level;
   void *stack;
   DispatcherProcessSave_t save;
 };
@@ -43,8 +44,9 @@ struct _DispatcherProcess_t {
 void DispatcherFirstProcess();
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
-uint8_t DispatcherNew(char *name, void *addr);
+uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level);
 
 void DispatcherAnotherProcess();
+void DispatcherAnotherProcess2();
 
 #endif

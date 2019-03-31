@@ -129,6 +129,7 @@ struct _AcpiApicLocal_t {
 #define IDT_IRQ_2                       50
 
 extern void *ApicLocalBspBase;
+extern Tss_t Tss;
 
 void AcpiFindRsdp();
 void *AcpiFindTable(const char *signature);
