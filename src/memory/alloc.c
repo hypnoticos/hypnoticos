@@ -28,7 +28,7 @@ void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t
   static uint8_t new_table_pending = 0;
 
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
-    for(mt = mti->addr; mt < mti->addr + mti->size; mt += sizeof(MemoryTable_t)) {
+    for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *) ((uint32_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
         // Not allocated
         mt->addr = (uint32_t) addr;

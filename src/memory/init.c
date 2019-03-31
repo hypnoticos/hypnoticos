@@ -75,7 +75,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 
     // Create a memory table
     // First check if creating it at the start of this block would create a problem
-    if(!(MT_START < AddrStart && MT_END < AddrStart)) {
+    if(!((void **) MT_START < &AddrStart && (void **) MT_END < &AddrStart)) {
       // TODO Place the memory table elsewhere
       // May overwrite the kernel
       HALT();
@@ -100,15 +100,15 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     table->line = 0;
     table->status = 1;
 
-    table = (MemoryTable_t *) start + sizeof(MemoryTable_t);
-    table->addr = (uint32_t) AddrStart;
-    table->size = (uint32_t) AddrEnd - (uint32_t) AddrStart + 1;
+    table = (MemoryTable_t *) ((uint32_t) start + sizeof(MemoryTable_t));
+    table->addr = (uint32_t) &AddrStart;
+    table->size = (uint32_t) &AddrEnd - (uint32_t) &AddrStart + 1;
     strcpy(table->function, "-");
     table->line = 0;
     table->status = 1;
 
     // Create an entry in the memory table index
-    MemoryTableIndices.addr = table;
+    MemoryTableIndices.addr = (MemoryTable_t *) start;
     MemoryTableIndices.size = table_size;
     MemoryTableIndices.next = NULL;
     MemoryTableIndices.prev = NULL;

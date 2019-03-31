@@ -79,6 +79,7 @@ uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr) {
 
   ApicLocal[i] = malloc(sizeof(AcpiApicLocal_t));
   memcpy(ApicLocal[i], ptr, sizeof(AcpiApicLocal_t));
+  ApicLocal[i + 1] = NULL;
 
   // TODO Process flags
 

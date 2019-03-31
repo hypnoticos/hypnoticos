@@ -26,8 +26,7 @@ void *realloc(void *addr, size_t new_size) {
   void *r;
   MemoryTable_t *mt;
 
-  mt = MemoryFind(addr);
-  if(mt == NULL) {
+  if((mt = MemoryFind(addr)) == NULL) {
     return NULL;
   }
 

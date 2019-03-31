@@ -23,28 +23,23 @@
 uint8_t MemoryIsFree(void *addr, size_t size);
 
 /*!
-   \brief For an address, find the that address's MemoryTable_t structure.
+   \brief Find an address's MemoryTable_t structure.
    \param addr The address
-   \return The structure, or NULL if the address isn't allocated.
+   \return The structure, or NULL if the address wasn't found.
 */
 inline MemoryTable_t *MemoryFind(void *addr) {
   MemoryTableIndex_t *mti;
   MemoryTable_t *mt;
 
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
-    for(mt = mti->addr; mt < mti->addr + mti->size; mt += sizeof(MemoryTable_t)) {
+    for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *) ((uint32_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
         // Not allocated
         continue;
+      } else if((void *) mt->addr == addr) {
+        // This is the allocation
+        return mt;
       }
-
-      if(addr <= (void *) mt->addr || addr >= (void *) mt->addr + mt->size) {
-        // The address is before or after this allocation
-        continue;
-      }
-
-      // Otherwise, this is the allocation
-      return mt;
     }
   }
 
@@ -63,7 +58,7 @@ uint8_t MemoryIsFree(void *addr, size_t size) {
 
   // Iterate through every memory allocation
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
-    for(mt = mti->addr; mt < mti->addr + mti->size; mt += sizeof(MemoryTable_t)) {
+    for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *)((uint32_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
         // Not allocated
         continue;
