@@ -76,8 +76,6 @@ void KeyboardInitBuffer() {
 void KeyboardBufferQueue(uint8_t key) {
   uint32_t i;
 
-  printf("Key: 0x%X. ", key);
-
   for(i = 0; KeyboardBuffer[i] != KEY_EMPTY && i < KEYBOARD_BUFFER_SIZE; i++);
 
   if(i == KEYBOARD_BUFFER_SIZE) {
@@ -92,7 +90,7 @@ uint8_t KeyboardBufferGet() {
   uint8_t key = KeyboardBuffer[0], i;
 
   for(i = 1; i < KEYBOARD_BUFFER_SIZE; i++) {
-    KeyboardBuffer[i] = KeyboardBuffer[i + 1];
+    KeyboardBuffer[i - 1] = KeyboardBuffer[i];
   }
   KeyboardBuffer[KEYBOARD_BUFFER_SIZE] = 0;
 

@@ -47,6 +47,7 @@ FILE *fopen(const char *path, const char *mode);
 int fprintf(FILE *f, const char *format, ...);
 int fputc(int chr, FILE *f);
 int fputs(const char *s, FILE *f);
+int getchar();
 int printf(const char *format, ...);
 int putchar(int chr);
 int puts(const char *str);
