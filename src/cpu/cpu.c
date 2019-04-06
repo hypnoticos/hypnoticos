@@ -236,7 +236,7 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
   }
 }
 
-void IdtCallException(const uint8_t vector, const uint32_t eip, const uint16_t cs, const uint32_t error_code) {
+void IdtCallException(const uint8_t vector, const uint32_t cr2, const uint32_t eip, const uint16_t cs, const uint32_t error_code) {
   const static char *descriptions[] = {
     "#DE, Divide Error",                                // 0
     "#DB, Debug Exception",                             // 1
@@ -264,8 +264,21 @@ void IdtCallException(const uint8_t vector, const uint32_t eip, const uint16_t c
   printf("\n");
   printf("INTERRUPT: VECTOR %u - %s\n", vector, descriptions[vector]);
   printf("* Error code = 0x%X\n", error_code);
+
+  if(vector == 14) {
+    printf("  Page fault details: P=%u, W/R=%u, U/S=%u, RSVD=%u, I/D=%u, PK=%u, SGX=%u\n",
+      /* P */     (error_code & 0x1) != 0,
+      /* W/R */   (error_code & 0x2) != 0,
+      /* U/S */   (error_code & 0x4) != 0,
+      /* RSVD */  (error_code & 0x8) != 0,
+      /* I/D */   (error_code & 0x10) != 0,
+      /* PK */    (error_code & 0x20) != 0,
+      /* SGX */   (error_code & 0x8000) != 0);
+  }
+
   printf("* CS         = 0x%X\n", cs);
   printf("* EIP        = 0x%X\n", eip);
+  printf("* CR2        = 0x%X\n", cr2);
 
   while(1) {
     asm("hlt");

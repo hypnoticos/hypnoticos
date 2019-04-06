@@ -25,7 +25,6 @@
 #include <hypnoticos/boot.h>
 #include <hypnoticos/devices.h>
 #include <hypnoticos/dispatcher.h>
-
 #include <hypnoticos/memory.h>
 
 /*!
@@ -49,6 +48,8 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   if(!KeyboardPresent) {
     printf("No PS/2 keyboard detected\n");
   }
+
+  MemoryPagingInit();
 
   if(!PciInit()) {
     HALT();

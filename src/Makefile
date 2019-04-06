@@ -27,7 +27,7 @@ BUILD_OBJS+=boot/boot.o boot/main.o boot/multiboot-check.o
 BUILD_OBJS+=cpu/acpi.o cpu/apic/io.o cpu/apic/local.o cpu/cpu.o cpu/cpuid.o cpu/eflags.o cpu/gdt.o cpu/idt.o cpu/io-port.o cpu/msr.o cpu/tss.o
 BUILD_OBJS+=devices/keyboard.o devices/pci.o
 BUILD_OBJS+=dispatcher/dispatcher.o dispatcher/init.o dispatcher/next-process.o
-BUILD_OBJS+=memory/alloc.o memory/find.o memory/init.o memory/table.o
+BUILD_OBJS+=memory/alloc.o memory/find.o memory/init.o memory/paging.o memory/paging-enable.o memory/table.o
 BUILD_OBJS+=video-memory.o
 
 CFLAGS+=-D_HYPNOTICOS_KERNEL -ffreestanding -fbuiltin

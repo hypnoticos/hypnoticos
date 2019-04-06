@@ -38,6 +38,8 @@ Idt0:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 0                ; #DE, Divide Error
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -48,6 +50,8 @@ Idt1:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 1                ; #DB, Debug Exception
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -58,6 +62,8 @@ Idt2:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 2                ; NMI Interrupt
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -68,6 +74,8 @@ Idt3:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 3                ; #BP, Breakpoint
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -78,6 +86,8 @@ Idt4:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 4                ; #OF, Overflow
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -88,6 +98,8 @@ Idt5:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 5                ; #BR, BOUND Range Exceeded
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -98,6 +110,8 @@ Idt6:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 6                ; #UD, Invalid Opcode (Undefined Opcode)
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -108,6 +122,8 @@ Idt7:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 7                ; #NM, Device Not Available (No Math Coprocessor)
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -118,6 +134,8 @@ Idt8:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 8                ; #DF, Double Fault
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -127,6 +145,8 @@ Idt9:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 9                ; Coprocessor Segment Overrun
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -137,6 +157,8 @@ Idt10:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 10               ; #TS, Invalid TSS
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -146,6 +168,8 @@ Idt11:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 11               ; #NP, Segment Not Present
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -155,6 +179,8 @@ Idt12:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 12               ; #SS, Stack-Segment Fault
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -164,8 +190,9 @@ Idt13:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 13               ; #GP, General Protection
-  ;jmp $
   call IdtCallException
   pop eax               ; Clear vector parameter
   iret
@@ -174,6 +201,8 @@ Idt14:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 14               ; #PF, Page Fault
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -183,6 +212,8 @@ Idt16:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 16               ; #MF, x87 FPU Floating-Point Error (Math Fault)
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -193,6 +224,8 @@ Idt17:
   ; Error code on the stack
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 17               ; #AC, Alignment Check
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -202,6 +235,8 @@ Idt18:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 18               ; #MC, Machine Check
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -212,6 +247,8 @@ Idt19:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 19               ; #XM, SIMD Floating-Point Exception
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -222,6 +259,8 @@ Idt20:
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 19               ; #VE, Virtualization Exception
   call IdtCallException
   pop eax               ; Clear vector parameter
@@ -432,6 +471,8 @@ IdtReserved:            ; 15 and 21-31
   push 0                ; No error code
   push dword [esp+8]    ; CS
   push dword [esp+8]    ; EIP
+  mov eax, cr2
+  push eax
   push 15               ; Reserved.
   call IdtCallException
   pop eax               ; Clear vector parameter

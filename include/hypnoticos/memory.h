@@ -71,5 +71,8 @@ MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
 void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);
 void MemoryNewTable();
+void MemoryPagingInit();
+void *MemoryPagingNewPD();
+uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t addr, uint32_t flags);
 
 #endif
