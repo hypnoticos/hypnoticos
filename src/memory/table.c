@@ -26,13 +26,13 @@ void MemoryNewTable() {
   MemoryTableIndex_t *mti;
   uint32_t table_size = sizeof(MemoryTable_t) * MEMORY_TABLE_NEW_TABLE_ENTRIES;
 
-  for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next);
+  for(mti = &MemoryTableIndices; mti->next != NULL; mti = mti->next);
 
   mti->next = malloc(sizeof(MemoryTableIndex_t));
   mti->next->next = NULL;
   mti->next->prev = mti;
-  mti->addr = malloc(table_size);
-  mti->size = table_size;
+  mti->next->addr = malloc(table_size);
+  mti->next->size = table_size;
 
-  memset(mti->addr, 0, table_size);
+  memset(mti->next->addr, 0, table_size);
 }

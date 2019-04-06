@@ -28,6 +28,8 @@
                         while(1) { \
                           asm("hlt"); \
                         }
+
+extern void *AddrStart, *AddrEnd;
 #endif
 
 #endif

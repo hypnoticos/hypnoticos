@@ -23,6 +23,7 @@ section .text
 Start:
   cli
   
+  mov ebp, Stack
   mov esp, Stack
 
   push ebx      ; Multiboot struct

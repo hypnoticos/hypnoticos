@@ -23,6 +23,13 @@
 #include <stdint.h>
 #include <multiboot.h>
 
+#define ALIGN_NONE              0
+#define ALIGN_4KB               4
+
+#define PAGING_PRESENT          0x1
+#define PAGING_RW               0x2
+#define PAGING_USER             0x4
+
 #define MEMORYBLOCK_TYPE_AVAILABLE        1
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100       // It may be better to have a smaller number here to make try to avoid a conflict with the kernel/mmap (this is relevant for now - TODO)
@@ -58,10 +65,10 @@ struct _MemoryTable_t {
 } __attribute__((packed));
 extern MemoryTableIndex_t MemoryTableIndices;
 
-void *__malloc(size_t size, const char function[200], uint32_t line);
+void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line);
 void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
-void *MemoryFindSpace(size_t size);
+void *MemoryFindSpace(size_t size, uint8_t align);
 void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);
 void MemoryNewTable();
 

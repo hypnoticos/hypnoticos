@@ -20,6 +20,7 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
+inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align);
 uint8_t MemoryIsFree(void *addr, size_t size);
 
 /*!
@@ -83,19 +84,49 @@ uint8_t MemoryIsFree(void *addr, size_t size) {
   return 1;
 }
 
-void *MemoryFindSpace(size_t size) {
+inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align) {
+  uint32_t r;
+
+  r = *addr;
+  r = r % align;
+  r = (*addr) - r;
+
+  if(r < min) {
+    return 0;
+  } else {
+    *addr = r;
+    return 1;
+  }
+}
+
+void *MemoryFindSpace(size_t size, uint8_t align) {
   MemoryBlock_t *block;
   uint32_t addr = 0;
 
   // For each memory block, find the highest address possible
   for(block = &MemoryBlocks; block != NULL; block = block->next) {
     addr = block->start + block->length - 1 - size;
+    if(align == ALIGN_4KB) {
+      if(!MemoryAlign(&addr, block->start, 4096)) {
+        continue;
+      }
+    }
 
     // Check if this address is available
     // If not, check before the start of the address occupying that address. Continue until space found, or no space is available.
     do {
       if(!MemoryIsFree((void *) addr, size)) {
-        addr -= size;
+        if(align == ALIGN_4KB) {
+          if(addr < 4096) {
+            break;
+          }
+          addr -= 4096;
+        } else {
+          if(addr < size) {
+            break;
+          }
+          addr -= size;
+        }
       } else {
         return (void *) addr;
       }

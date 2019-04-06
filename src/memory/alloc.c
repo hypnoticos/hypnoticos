@@ -41,7 +41,7 @@ void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t
 
       // If the iteration covers one of the last 5 entries in the final table, then create a new table
       // The process of creating a new table requires the use of malloc()
-      if(mti->next == NULL && mt >= mti->addr + mti->size - (sizeof(MemoryTable_t) * 5) && new_table_pending == 0) {
+      if(mti->next == NULL && (uint32_t) mt >= (uint32_t) mti->addr + mti->size - (sizeof(MemoryTable_t) * 5) && new_table_pending == 0) {
         new_table_pending = 1;
         MemoryNewTable();
         new_table_pending = 0;
@@ -53,7 +53,7 @@ void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t
   HALT();
 }
 
-void *__malloc(size_t size, const char function[200], uint32_t line) {
+void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line) {
   void *addr;
 
   if(MemoryTableIndices.size == 0) {
@@ -62,7 +62,7 @@ void *__malloc(size_t size, const char function[200], uint32_t line) {
   }
 
   // Find space
-  if((addr = MemoryFindSpace(size)) == NULL) {
+  if((addr = MemoryFindSpace(size, align)) == NULL) {
     printf("malloc: couldn't allocate\n");
     return NULL;
   }

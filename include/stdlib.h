@@ -26,7 +26,8 @@ void free(void *addr);
 
 #ifdef _HYPNOTICOS_KERNEL
 #include <hypnoticos/memory.h>
-#define malloc(a)       __malloc(a, __FUNCTION__, __LINE__)
+#define malloc(size)                  __malloc_align(size, ALIGN_NONE, __FUNCTION__, __LINE__)
+#define malloc_align(size, align)     __malloc_align(size, align, __FUNCTION__, __LINE__)
 #else
 void *malloc(size_t size);
 #endif

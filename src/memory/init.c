@@ -23,8 +23,6 @@
 #include <hypnoticos/hypnoticos.h>
 #include <multiboot.h>
 
-extern void *AddrStart, *AddrEnd;
-
 #define MEMORY_TABLE_INITIAL_ENTRIES          100
 
 /*!< A linked list containing the known available memory blocks */
