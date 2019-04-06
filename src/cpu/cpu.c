@@ -228,11 +228,47 @@ void IdtCall(const uint8_t vector, const uint32_t error_code) {
     // IRQ 2 is the timer and is sent to the dispatcher instead of this function
 
     default:
-    printf("\nINTERRUPT (vector %u, error code 0x%X)", vector, error_code);
+    printf("\nUNKNOWN INTERRUPT");
     while(1) {
       asm("hlt");
     }
     break;
+  }
+}
+
+void IdtCallException(const uint8_t vector, const uint32_t eip, const uint16_t cs, const uint32_t error_code) {
+  const static char *descriptions[] = {
+    "#DE, Divide Error",                                // 0
+    "#DB, Debug Exception",                             // 1
+    "NMI Interrupt",                                    // 2
+    "#BP, Breakpoint",                                  // 3
+    "#OF, Overflow",                                    // 4
+    "#BR, BOUND Range Exceeded",                        // 5
+    "#UD, Invalid Opcode (Undefined Opcode)",           // 6
+    "#NM, Device Not Available (No Math Coprocessor)",  // 7
+    "#DF, Double Fault",                                // 8
+    "Coprocessor Segment Overrun",                      // 9
+    "#TS, Invalid TSS",                                 // 10
+    "#NP, Segment Not Present",                         // 11
+    "#SS, Stack-Segment Fault",                         // 12
+    "#GP, General Protection",                          // 13
+    "#PF, Page Fault",                                  // 14
+    "(unknown)",                                        // 15 and 21-31
+    "#MF, x87 FPU Floating-Point Error (Math Fault)",   // 16
+    "#AC, Alignment Check",                             // 17
+    "#MC, Machine Check",                               // 18
+    "#XM, SIMD Floating-Point Exception",               // 19
+    "#VE, Virtualization Exception"                     // 20
+  };
+
+  printf("\n");
+  printf("INTERRUPT: VECTOR %u - %s\n", vector, descriptions[vector]);
+  printf("* Error code = 0x%X\n", error_code);
+  printf("* CS         = 0x%X\n", cs);
+  printf("* EIP        = 0x%X\n", eip);
+
+  while(1) {
+    asm("hlt");
   }
 }
 
