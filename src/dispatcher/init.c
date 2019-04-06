@@ -18,20 +18,19 @@
 
 #include <stdio.h>
 
-void DispatcherFirstProcess() {
+void __attribute__((aligned(4096))) DispatcherFirstProcess() {
   printf("1");
   while(1) {
   }
 }
 
-void DispatcherAnotherProcess() {
+void __attribute__((aligned(4096))) DispatcherAnotherProcess() {
   printf("2");
   while(1) {
   }
 }
 
-void DispatcherAnotherProcess2() {
-  printf("3");
+void __attribute__((aligned(4096))) DispatcherAnotherProcess2() {
   while(1) {
   }
 }

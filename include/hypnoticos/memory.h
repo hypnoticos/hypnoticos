@@ -65,6 +65,10 @@ struct _MemoryTable_t {
 } __attribute__((packed));
 extern MemoryTableIndex_t MemoryTableIndices;
 
+extern void *MemoryPD;
+
+#define MemoryPagingSetPageImitate(pd, pa, flags)     MemoryPagingSetPage(pd, pa, pa, flags);
+
 void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line);
 void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
@@ -73,6 +77,6 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();
-uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t addr, uint32_t flags);
+uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t va, uint32_t pa, uint32_t flags);
 
 #endif

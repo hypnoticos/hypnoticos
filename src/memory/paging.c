@@ -33,7 +33,7 @@ void MemoryPagingInit() {
   // Allocate every page
   for(pde = 0; pde < 1024; pde++) {
     for(pte = 0; pte < 1024; pte++) {
-      MemoryPagingSetPage(MemoryPD, (pde * 0x400000) + (pte * 4096), PAGING_PRESENT | PAGING_RW);
+      MemoryPagingSetPageImitate(MemoryPD, (pde * 0x400000) + (pte * 4096), PAGING_PRESENT | PAGING_RW);
     }
   }
 
@@ -55,24 +55,24 @@ void *MemoryPagingNewPD() {
   start = ((uint32_t) &AddrStart) / 4096;
   end = (((uint32_t) &AddrEnd) + 4096) / 4096;
   for(i = start; i < end; i++) {
-    MemoryPagingSetPage(ret, i * 4096, PAGING_PRESENT | PAGING_RW);
+    MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT);
   }
 
   return ret;
 }
 
-uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t addr, uint32_t flags) {
+uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t va, uint32_t pa, uint32_t flags) {
   uint32_t pde, pte, i;
 
-  if((addr & 0xFFF) != 0) {
+  if((pa & 0xFFF) != 0) {
     return 0;
   } else if((flags & 0xFFFFF000) != 0) {
     return 0;
   }
 
   // Get PDE & PTE
-  pde = addr / 0x400000;
-  pte = (addr % 0x400000) / 4096;
+  pde = va / 0x400000;
+  pte = (va % 0x400000) / 4096;
 
   // Check if PDE is allocated
   if(!(pd[pde] & 0x1)) {
@@ -85,7 +85,7 @@ uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t addr, uint32_t flags) {
   }
 
   // Set PTE entry
-  *((uint32_t *) ((pd[pde] & 0xFFFFF000) + (4 * pte))) = addr | flags;
+  *((uint32_t *) ((pd[pde] & 0xFFFFF000) + (4 * pte))) = pa | flags;
 
   return 1;
 }

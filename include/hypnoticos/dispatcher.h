@@ -39,13 +39,17 @@ struct _DispatcherProcess_t {
   uint8_t privilege_level;
   void *stack;
   DispatcherProcessSave_t save;
+  uint32_t cr3;
+  uint8_t run;
 };
 
-void DispatcherFirstProcess();
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
-uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level);
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags);
+DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t privilege_level);
+void DispatcherProcessRun(DispatcherProcess_t *p);
 
+void DispatcherFirstProcess();
 void DispatcherAnotherProcess();
 void DispatcherAnotherProcess2();
 

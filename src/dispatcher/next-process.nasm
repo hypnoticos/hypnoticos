@@ -17,7 +17,7 @@
 ;
 
 global DispatcherInterrupt
-extern DispatcherPrepareForNext, ApicLocalEoi, DispatcherCurrentProcessPrivilegeLevel, Tss, DispatcherCurrentPid
+extern DispatcherPrepareForNext, ApicLocalEoi, DispatcherCurrentProcessPrivilegeLevel, Tss, DispatcherCurrentPid, DispatcherNextCr3, MemoryPD
 
 section .data
   DispatcherKernelStack_esp dd 0
@@ -28,6 +28,12 @@ section .data
 section .text
 DispatcherInterrupt:
   cli
+
+  ; Update CR3
+  push eax
+  mov eax, [MemoryPD]
+  mov cr3, eax
+  pop eax
 
   ; Save current ESP & EBP (even if there has been a change in privilege level)
   mov [DispatcherProcessStack_esp], esp
@@ -115,5 +121,15 @@ DispatcherInterrupt:
     mov dword [Tss + 4], DispatcherKernelStack_esp
 
   .Step5:
-    ;;; 5. IRETD
+    ;;; 5. Update CR3
+    push eax
+    mov eax, [DispatcherNextCr3]
+    mov cr3, eax
+    pop eax
+
+    cmp byte [DispatcherCurrentProcessPrivilegeLevel], 0
+    je .Step6
+
+  .Step6:
+    ;;; IRETD
     iretd

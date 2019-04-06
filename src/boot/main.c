@@ -33,6 +33,8 @@
    \param multiboot multiboot_info_t struct
 */
 void Main(uint32_t magic, multiboot_info_t *multiboot) {
+  DispatcherProcess_t *p;
+
   VideoMemoryInit();
   puts(_HYPNOTICOS);
 
@@ -56,9 +58,18 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   }
 
   DispatcherInit();
-  DispatcherNew("first-process", DispatcherFirstProcess, 0);
-  DispatcherNew("another-process", DispatcherAnotherProcess, 3);
-  DispatcherNew("another-process-2", DispatcherAnotherProcess2, 3);
+
+  p = DispatcherProcessNew("first-process", (uint32_t) DispatcherFirstProcess, 0);
+  DispatcherProcessRun(p);
+
+  p = DispatcherProcessNew("another-process", (uint32_t) DispatcherAnotherProcess, 0);
+  DispatcherProcessRun(p);
+
+  p = DispatcherProcessNew("another-process-2", (uint32_t) 0xFF000000, 3);
+  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherAnotherProcess2, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+    HALT();
+  }
+  DispatcherProcessRun(p);
 
   asm("sti");
   ApicLocalSetUpTimer();

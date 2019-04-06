@@ -22,14 +22,19 @@
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/hypnoticos.h>
+#include <hypnoticos/memory.h>
 
 // TODO Save all registers
 
 #define DISPATCHER_PROCESS_STACK_SIZE       8192
+#if (DISPATCHER_PROCESS_STACK_SIZE % 4096) != 0
+#error Check stack size
+#endif
 
 uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 uint8_t DispatcherCurrentProcessPrivilegeLevel = 0;
+uint32_t DispatcherNextCr3 = 0;
 
 DispatcherProcess_t **DispatcherProcesses;
 
@@ -80,6 +85,7 @@ uint32_t DispatcherPrepareForNext(uint32_t DoSave, DispatcherProcessSave_t save)
   ApicLocalEoi();
 
   DispatcherCurrentProcessPrivilegeLevel = p->privilege_level;
+  DispatcherNextCr3 = p->privilege_level == 3 ? p->cr3 : (uint32_t) MemoryPD;
 
   return (uint32_t) &p->save;
 }
@@ -91,7 +97,7 @@ uint8_t DispatcherInit() {
   return 1;
 }
 
-uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level) {
+DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t privilege_level) {
   DispatcherProcess_t *p;
   uint32_t i, offset;
 
@@ -110,20 +116,36 @@ uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level) {
     }
   }
 
+  memset(&p->save, 0, sizeof(DispatcherProcessSave_t));
+
+  p->stack = (void *) malloc_align(DISPATCHER_PROCESS_STACK_SIZE, ALIGN_4KB);
+  memset(p->stack, 0, DISPATCHER_PROCESS_STACK_SIZE);
+
   p->privilege_level = privilege_level;
+  if(privilege_level == 0) {
+    p->cr3 = 0;
+  } else {
+    p->cr3 = (uint32_t) MemoryPagingNewPD();
+
+    // Note: This relies upon DISPATCHER_PROCESS_STACK_SIZE being divisible by 4096
+    for(i = 0; i < DISPATCHER_PROCESS_STACK_SIZE; i += 4096) {
+      if(!DispatcherProcessMap(p, 0xF0000000 + i, (uint32_t) p->stack + i, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+        // TODO Clean up
+        return NULL;
+      }
+    }
+  }
+
+  p->save.ebp = (privilege_level == 3 ? 0xF0000000 : (uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE;
+  p->save.esp = p->save.ebp - 12;
+
+  p->run = 0;
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
 
-  memset(&p->save, 0, sizeof(DispatcherProcessSave_t));
-
-  p->stack = malloc(DISPATCHER_PROCESS_STACK_SIZE + 3); // +3 ensures that there will be 8KB of 4 byte aligned space (TODO align correctly)
-  memset(p->stack, 0, DISPATCHER_PROCESS_STACK_SIZE + 3);
-  p->save.ebp = ((uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE + 3 - ((((uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE + 3) % 4);
-  p->save.esp = p->save.ebp - 12;
-
   // Set up the stack
-  offset = p->save.ebp;
+  offset = (uint32_t) p->stack + DISPATCHER_PROCESS_STACK_SIZE;
 
   // Privilege level 3
   if(privilege_level == 3) {
@@ -150,7 +172,7 @@ uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level) {
 
   // EIP
   offset -= 4;
-  *((uint32_t *) offset) = (uint32_t) addr;
+  *((uint32_t *) offset) = (uint32_t) eip;
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
@@ -158,5 +180,17 @@ uint8_t DispatcherNew(char *name, void *addr, uint8_t privilege_level) {
   DispatcherProcesses[i] = p;
   DispatcherProcesses[i + 1] = NULL;
 
-  return 1;
+  return p;
+}
+
+void DispatcherProcessRun(DispatcherProcess_t *p) {
+  p->run = 1;
+}
+
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags) {
+  if(p->privilege_level != 3) {
+    return 0;
+  } else {
+    return MemoryPagingSetPage((uint32_t *) p->cr3, va, pa, flags);
+  }
 }
