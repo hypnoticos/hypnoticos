@@ -29,8 +29,14 @@ section .text
 DispatcherInterrupt:
   cli
 
-  ; Update CR3
   push eax
+  mov ax, 0x10
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+
+  ; Update CR3
   mov eax, [MemoryPD]
   mov cr3, eax
   pop eax
@@ -126,9 +132,6 @@ DispatcherInterrupt:
     mov eax, [DispatcherNextCr3]
     mov cr3, eax
     pop eax
-
-    cmp byte [DispatcherCurrentProcessPrivilegeLevel], 0
-    je .Step6
 
   .Step6:
     ;;; IRETD
