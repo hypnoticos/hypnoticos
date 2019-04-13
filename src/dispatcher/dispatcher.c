@@ -69,6 +69,8 @@ void DispatcherSetUpNext() {
     p->save.edx = IdtCallSavedEdx;
     p->save.esi = IdtCallSavedEsi;
     p->save.edi = IdtCallSavedEdi;
+
+    p->save.eflags = IdtCallSavedEflags;
   }
 
   // Find next process

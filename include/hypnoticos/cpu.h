@@ -140,6 +140,7 @@ extern uint32_t IdtCallSavedEcx;
 extern uint32_t IdtCallSavedEdx;
 extern uint32_t IdtCallSavedEsi;
 extern uint32_t IdtCallSavedEdi;
+extern uint32_t IdtCallSavedEflags;
 extern Tss_t Tss;
 
 void AcpiFindRsdp();
