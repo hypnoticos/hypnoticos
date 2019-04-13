@@ -129,6 +129,17 @@ struct _AcpiApicLocal_t {
 #define IDT_IRQ_2                       50
 
 extern void *ApicLocalBspBase;
+extern uint8_t IdtCallCurrentPrivilegeLevel;
+extern uint32_t IdtCallSavedCr3;
+extern uint32_t IdtCallSavedEbp;
+extern uint32_t IdtCallSavedEsp;
+extern uint32_t IdtCallSavedEip;
+extern uint32_t IdtCallSavedEax;
+extern uint32_t IdtCallSavedEbx;
+extern uint32_t IdtCallSavedEcx;
+extern uint32_t IdtCallSavedEdx;
+extern uint32_t IdtCallSavedEsi;
+extern uint32_t IdtCallSavedEdi;
 extern Tss_t Tss;
 
 void AcpiFindRsdp();

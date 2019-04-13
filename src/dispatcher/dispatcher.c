@@ -33,9 +33,6 @@
 
 uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
-uint8_t DispatcherCurrentProcessPrivilegeLevel = 0;
-uint32_t DispatcherNextCr3 = 0;
-
 DispatcherProcess_t **DispatcherProcesses;
 
 inline DispatcherProcess_t *DispatcherFind(uint16_t pid);
@@ -52,22 +49,32 @@ inline DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   return NULL;
 }
 
-uint32_t DispatcherPrepareForNext(uint32_t DoSave, DispatcherProcessSave_t save) {
+void DispatcherSetUpNext() {
   DispatcherProcess_t *p;
   uint16_t next_pid;
 
-  if(DoSave) {
-    // Save registers
+  if(DispatcherCurrentPid != 0) {
     if((p = DispatcherFind(DispatcherCurrentPid)) == NULL) {
       HALT();
     }
-    memcpy(&p->save, &save, sizeof(DispatcherProcessSave_t));
+
+    // Do not save CR3
+    p->save.esp = IdtCallSavedEsp;
+    p->save.ebp = IdtCallSavedEbp;
+    p->save.eip = IdtCallSavedEip;
+
+    p->save.eax = IdtCallSavedEax;
+    p->save.ebx = IdtCallSavedEbx;
+    p->save.ecx = IdtCallSavedEcx;
+    p->save.edx = IdtCallSavedEdx;
+    p->save.esi = IdtCallSavedEsi;
+    p->save.edi = IdtCallSavedEdi;
   }
 
   // Find next process
   next_pid = DispatcherCurrentPid + 1;
   while(1) {
-    if((p = DispatcherFind(next_pid)) != NULL) {
+    if((p = DispatcherFind(next_pid)) != NULL && p->run == 1) {
       break;
     }
 
@@ -80,14 +87,24 @@ uint32_t DispatcherPrepareForNext(uint32_t DoSave, DispatcherProcessSave_t save)
 
   DispatcherCurrentPid = next_pid;
 
-  printf("pid=%u(%u). ", p->pid, DispatcherCurrentPid);
+  printf("pid=%u. ", p->pid);
 
-  ApicLocalEoi();
+  IdtCallCurrentPrivilegeLevel = p->privilege_level;
 
-  DispatcherCurrentProcessPrivilegeLevel = p->privilege_level;
-  DispatcherNextCr3 = p->privilege_level == 3 ? p->cr3 : (uint32_t) MemoryPD;
+  // Restore registers
+  IdtCallSavedCr3 = p->privilege_level == 3 ? p->save.cr3 : (uint32_t) MemoryPD;
 
-  return (uint32_t) &p->save;
+  IdtCallSavedEip = p->save.eip;
+
+  IdtCallSavedEsp = p->save.esp;
+  IdtCallSavedEbp = p->save.ebp;
+
+  IdtCallSavedEax = p->save.eax;
+  IdtCallSavedEbx = p->save.ebx;
+  IdtCallSavedEcx = p->save.ecx;
+  IdtCallSavedEdx = p->save.edx;
+  IdtCallSavedEsi = p->save.esi;
+  IdtCallSavedEdi = p->save.edi;
 }
 
 uint8_t DispatcherInit() {
@@ -99,9 +116,10 @@ uint8_t DispatcherInit() {
 
 DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t privilege_level) {
   DispatcherProcess_t *p;
-  uint32_t i, offset;
+  uint32_t i;
 
   p = malloc(sizeof(DispatcherProcess_t));
+  memset(&p->save, 0, sizeof(DispatcherProcessSave_t));
 
   while(1) { // TODO Check if max processes reached
     if(last_pid == 0xFFFF) {
@@ -116,16 +134,14 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t priv
     }
   }
 
-  memset(&p->save, 0, sizeof(DispatcherProcessSave_t));
-
   p->stack = (void *) malloc_align(DISPATCHER_PROCESS_STACK_SIZE, ALIGN_4KB);
   memset(p->stack, 0, DISPATCHER_PROCESS_STACK_SIZE);
 
   p->privilege_level = privilege_level;
   if(privilege_level == 0) {
-    p->cr3 = 0;
+    p->save.cr3 = 0;
   } else {
-    p->cr3 = (uint32_t) MemoryPagingNewPD();
+    p->save.cr3 = (uint32_t) MemoryPagingNewPD();
 
     // Note: This relies upon DISPATCHER_PROCESS_STACK_SIZE being divisible by 4096
     for(i = 0; i < DISPATCHER_PROCESS_STACK_SIZE; i += 4096) {
@@ -136,43 +152,15 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t priv
     }
   }
 
-  p->save.ebp = (privilege_level == 3 ? 0xF0000000 : (uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE;
-  p->save.esp = p->save.ebp - 12;
+  p->save.ebp = (privilege_level == 3 ? 0xF0000000 : (uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE - 1;
+  p->save.esp = p->save.ebp;
 
   p->run = 0;
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
 
-  // Set up the stack
-  offset = (uint32_t) p->stack + DISPATCHER_PROCESS_STACK_SIZE;
-
-  // Privilege level 3
-  if(privilege_level == 3) {
-    p->save.esp -= 8;
-
-    // SS
-    offset -= 4;
-    *((uint32_t *) offset) = 0x20 | 0x03;
-
-    // ESP
-    offset -= 4;
-    *((uint32_t *) offset) = p->save.esp;
-  } else if(privilege_level != 0) {
-    HALT();
-  }
-
-  // EFLAGS
-  offset -= 4;
-  *((uint32_t *) offset) = (uint32_t) EflagsGet() | 0x200;
-
-  // CS
-  offset -= 4;
-  *((uint32_t *) offset) = (uint32_t) (privilege_level == 0 ? 0x08 : 0x18) | privilege_level;
-
-  // EIP
-  offset -= 4;
-  *((uint32_t *) offset) = (uint32_t) eip;
+  p->save.eip = eip;
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
@@ -191,6 +179,6 @@ uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, u
   if(p->privilege_level != 3) {
     return 0;
   } else {
-    return MemoryPagingSetPage((uint32_t *) p->cr3, va, pa, flags);
+    return MemoryPagingSetPage((uint32_t *) p->save.cr3, va, pa, flags);
   }
 }

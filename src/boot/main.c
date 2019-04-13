@@ -66,7 +66,7 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   DispatcherProcessRun(p);
 
   p = DispatcherProcessNew("another-process-2", (uint32_t) 0xFF000000, 3);
-  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherAnotherProcess2, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherAnotherProcess2, PAGING_PRESENT | PAGING_USER)) {
     HALT();
   }
   DispatcherProcessRun(p);
