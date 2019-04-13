@@ -16,16 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
+#ifndef __HYPNOTICOS_FUNCTION_H
+#define __HYPNOTICOS_FUNCTION_H
 
-void __attribute__((aligned(4096))) DispatcherFirstProcess() {
-  printf("1");
-  while(1) {
-  }
-}
+#include <stdint.h>
 
-void __attribute__((aligned(4096))) DispatcherAnotherProcess() {
-  printf("2");
-  while(1) {
-  }
-}
+uint32_t KernelFunction(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+
+#endif

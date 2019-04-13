@@ -89,8 +89,6 @@ void DispatcherSetUpNext() {
 
   DispatcherCurrentPid = next_pid;
 
-  printf("pid=%u. ", p->pid);
-
   IdtCallCurrentPrivilegeLevel = p->privilege_level;
 
   // Restore registers

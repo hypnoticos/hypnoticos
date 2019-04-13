@@ -27,6 +27,8 @@
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/memory.h>
 
+extern void DispatcherTest();
+
 /*!
    \brief Called by Start.
    \param magic Magic value
@@ -66,7 +68,7 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   DispatcherProcessRun(p);
 
   p = DispatcherProcessNew("another-process-2", (uint32_t) 0xFF000000, 3);
-  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherAnotherProcess2, PAGING_PRESENT | PAGING_USER)) {
+  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherTest, PAGING_PRESENT | PAGING_USER)) {
     HALT();
   }
   DispatcherProcessRun(p);

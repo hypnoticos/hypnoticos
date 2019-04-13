@@ -17,15 +17,10 @@
 //
 
 #include <stdio.h>
+#include <hypnoticos/function.h>
 
-void __attribute__((aligned(4096))) DispatcherFirstProcess() {
-  printf("1");
-  while(1) {
-  }
-}
-
-void __attribute__((aligned(4096))) DispatcherAnotherProcess() {
-  printf("2");
-  while(1) {
-  }
+uint32_t KernelFunction(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
+  printf("kernel function\n");
+  asm("hlt");
+  return 0;
 }

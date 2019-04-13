@@ -20,6 +20,7 @@
 #include <string.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/hypnoticos.h>
+#include <hypnoticos/function.h>
 #include <hypnoticos/cpu.h>
 
 #define IDT_GATE_COUNT              256
@@ -128,6 +129,8 @@ void IdtCall() {
     while(1) {
       asm("hlt");
     }
+  } else if(IdtCallVector == 241) {
+    KernelFunction(IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi);
   }
 }
 
@@ -207,7 +210,7 @@ void IdtInit() {
   IdtCreateGate(0x30 + 23, Idt71, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
   // Software interrupt
-  //IdtCreateGate(241, Idt241, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
+  IdtCreateGate(241, Idt241, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_3);
 
   IdtSet((IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1);
 }
