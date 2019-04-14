@@ -28,7 +28,7 @@ export INCDIR=$(PWD)/include
 export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
 export ISODIR=$(PWD)/iso
 ISONAME=hypnoticos.iso
-SUBDIRS=libc src
+SUBDIRS=libc src modules
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
 
@@ -40,14 +40,20 @@ export TARGET=$(ARCHITECTURE)-elf
 
 export CC=$(TARGET)-gcc
 export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
+export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
 
 export AR=$(TARGET)-ar
 
 export LD=$(TARGET)-ld
 export LDFLAGS=
+export LDFLAGS_MODULES=-nostdlib -L../libc
+
+export LIBS=
+export LIBS_MODULES=-lgcc -lc
 
 export NASM=nasm
 export NASMFLAGS=-f elf
+export NASMFLAGS_MODULES=$(NASMFLAGS)
 
 .PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
 
@@ -74,10 +80,12 @@ clean: $(CLEANDIRS)
 	$(RM) -R $(SYSROOT)
 
 iso: prepare subdirs
-	$(MKDIR) $(ISODIR)/boot/grub
+	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
 	$(CP) $(SYSROOT)/boot/$(KERNELFILENAME) $(ISODIR)/boot/
+	$(CP) -R $(SYSROOT)/boot/hypnoticos-modules/* $(ISODIR)/boot/hypnoticos-modules/
 	echo "menuentry \"HypnoticOS $(VERSION)\" {" > $(ISODIR)/boot/grub/grub.cfg
 	echo "multiboot /boot/$(KERNELFILENAME)" >> $(ISODIR)/boot/grub/grub.cfg
+	echo "module /boot/hypnoticos-modules/test" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "}" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISONAME) $(ISODIR)

@@ -30,10 +30,11 @@ MemoryBlock_t MemoryBlocks = {.start=0, .length=0, .type=0, .prev=NULL, .next=NU
 
 MemoryTableIndex_t MemoryTableIndices = {.addr=NULL, .size=NULL, .prev=NULL, .next=NULL};
 
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type) {
+void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_count, uint32_t modules_addr, uint32_t start, uint32_t length, uint8_t type) {
   MemoryBlock_t *current, *next;
-  uint32_t table_size;
+  uint32_t table_size, i;
   MemoryTable_t *table;
+  multiboot_module_t *module;
 
   for(current = &MemoryBlocks; current->next != NULL; current = current->next);
 
@@ -81,6 +82,24 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
       // TODO Place the memory table elsewhere
       // May overwrite mmap entries (which are currently being processed)
       HALT();
+    }
+
+    // Check if the memory table would overlap with module information or the modules themselves
+    if(modules_count != 0 && modules_addr != 0) {
+      if(!((uint32_t) MT_START < modules_addr && (uint32_t) MT_END < modules_addr)) {
+        // TODO Place the memory table elsewhere
+        // May overwrite module information entries
+        HALT();
+      }
+
+      for(i = 0; i < modules_count; i++) {
+        module = (multiboot_module_t *) ((uint32_t) modules_addr + (sizeof(multiboot_module_t) * i));
+        if(!((uint32_t) MT_START < module->mod_start && (uint32_t) MT_END < module->mod_start)) {
+          // TODO Place the memory table elsewhere
+          // May overwrite this module
+          HALT();
+        }
+      }
     }
 
     // Clear the area

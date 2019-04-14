@@ -23,7 +23,7 @@
 #include <hypnoticos/memory.h>
 
 void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
-  uint32_t offset, mmap_addr, mmap_length;
+  uint32_t offset, mmap_addr, mmap_length, modules_count, modules_addr;
   multiboot_memory_map_t *mmap_entry;
 
   // At a minimum the magic number should be right, and the mmap should be present.
@@ -33,6 +33,17 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
   if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
     printf("magic != MULTIBOOT_BOOTLOADER_MAGIC\n");
     HALT();
+  }
+
+  // Check if module information is present
+  // (Bit 3 of flags)
+  if(!(multiboot->flags & 0x08)) {
+    printf("No module information\n");
+    modules_count = 0;
+    modules_addr = 0;
+  } else {
+    modules_count = multiboot->mods_count;
+    modules_addr = multiboot->mods_addr;
   }
 
   // Get mmap buffer
@@ -67,7 +78,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
       // Check the type
       switch(mmap_entry->type) {
         case MULTIBOOT_MEMORY_AVAILABLE:
-        MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_AVAILABLE);
+        MemoryNewBlock(mmap_addr, mmap_length, modules_count, modules_addr, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_AVAILABLE);
         break;
 
         case MULTIBOOT_MEMORY_RESERVED:
