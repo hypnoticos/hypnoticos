@@ -46,7 +46,7 @@ export AR=$(TARGET)-ar
 
 export LD=$(TARGET)-ld
 export LDFLAGS=
-export LDFLAGS_MODULES=-nostdlib -L../libc
+export LDFLAGS_MODULES=-nostdlib -L$(PWD)/libc
 
 export LIBS=
 export LIBS_MODULES=-lgcc -lc

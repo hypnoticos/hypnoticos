@@ -33,7 +33,7 @@ install: $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD): $(BUILD_OBJS)
-	$(AR) rcs $@ $(OBJS)
+	$(AR) rcs $@ $(BUILD_OBJS)
 	mkdir -p $(SYSROOT)/lib
 	cp $(BUILD) $(SYSROOT)/lib
 
