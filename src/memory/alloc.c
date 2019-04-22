@@ -27,6 +27,7 @@ void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t
 
   static uint8_t new_table_pending = 0;
 
+restart:
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
     for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *) ((uint32_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
@@ -45,6 +46,9 @@ void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t
         new_table_pending = 1;
         MemoryNewTable();
         new_table_pending = 0;
+
+        // Restart the search
+        goto restart;
       }
     }
   }
@@ -63,7 +67,8 @@ void *__malloc_align(size_t size, uint8_t align, const char function[200], uint3
 
   // Find space
   if((addr = MemoryFindSpace(size, align)) == NULL) {
-    printf("malloc: couldn't allocate\n");
+    printf("malloc: couldn't allocate %u bytes (%s %u)\n", (uint32_t) size, function, line);
+    HALT();
     return NULL;
   }
 

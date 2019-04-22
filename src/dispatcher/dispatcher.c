@@ -26,11 +26,6 @@
 
 // TODO Save all registers
 
-#define DISPATCHER_PROCESS_STACK_SIZE       8192
-#if (DISPATCHER_PROCESS_STACK_SIZE % 4096) != 0
-#error Check stack size
-#endif
-
 uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
@@ -89,10 +84,8 @@ void DispatcherSetUpNext() {
 
   DispatcherCurrentPid = next_pid;
 
-  IdtCallCurrentPrivilegeLevel = p->privilege_level;
-
   // Restore registers
-  IdtCallSavedCr3 = p->privilege_level == 3 ? p->save.cr3 : (uint32_t) MemoryPD;
+  IdtCallSavedCr3 = p->save.cr3;
 
   IdtCallSavedEip = p->save.eip;
 
@@ -114,7 +107,31 @@ uint8_t DispatcherInit() {
   return 1;
 }
 
-DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t privilege_level) {
+uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
+  uint32_t alloc_size, i, count;
+
+  alloc_size = size + (size % 4096);
+
+  p->stack = malloc_align(alloc_size, ALIGN_4KB);
+  if(p->stack == NULL) {
+    return 0;
+  }
+  memset(p->stack, 0, alloc_size);
+
+  p->save.ebp = 0xFFFF0000 + alloc_size - 1;
+  p->save.esp = p->save.ebp;
+
+  count = (size / 4096) + 1;
+  for(i = 0; i < count; i++) {
+    if(!DispatcherProcessMap(p, 0xFFFF0000 + (i * 4096), (uint32_t) p->stack + (i * 4096), PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+DispatcherProcess_t *DispatcherProcessNew(char *name) {
   DispatcherProcess_t *p;
   uint32_t i;
 
@@ -134,33 +151,16 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t priv
     }
   }
 
-  p->stack = (void *) malloc_align(DISPATCHER_PROCESS_STACK_SIZE, ALIGN_4KB);
-  memset(p->stack, 0, DISPATCHER_PROCESS_STACK_SIZE);
-
-  p->privilege_level = privilege_level;
-  if(privilege_level == 0) {
-    p->save.cr3 = 0;
-  } else {
-    p->save.cr3 = (uint32_t) MemoryPagingNewPD();
-
-    // Note: This relies upon DISPATCHER_PROCESS_STACK_SIZE being divisible by 4096
-    for(i = 0; i < DISPATCHER_PROCESS_STACK_SIZE; i += 4096) {
-      if(!DispatcherProcessMap(p, 0xF0000000 + i, (uint32_t) p->stack + i, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
-        // TODO Clean up
-        return NULL;
-      }
-    }
-  }
-
-  p->save.ebp = (privilege_level == 3 ? 0xF0000000 : (uint32_t) p->stack) + DISPATCHER_PROCESS_STACK_SIZE - 1;
-  p->save.esp = p->save.ebp;
-
+  p->stack = NULL;
   p->run = 0;
+
+  p->save.cr3 = (uint32_t) MemoryPagingNewPD();
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
 
-  p->save.eip = eip;
+  p->alloc = malloc(sizeof(void *));
+  p->alloc[0] = NULL;
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
@@ -175,10 +175,119 @@ void DispatcherProcessRun(DispatcherProcess_t *p) {
   p->run = 1;
 }
 
+void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip) {
+  p->save.eip = eip;
+}
+
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags) {
-  if(p->privilege_level != 3) {
-    return 0;
-  } else {
-    return MemoryPagingSetPage((uint32_t *) p->save.cr3, va, pa, flags);
+  return MemoryPagingSetPage((uint32_t *) p->save.cr3, va, pa, flags);
+}
+
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size) {
+  uint32_t format = 0;
+  DispatcherProcess_t *p;
+
+  switch(DispatcherFormatElfDetect(data, size)) {
+    case DISPATCHER_DETECT_FORMAT_DETECTED:
+    format = DISPATCHER_FORMAT_ELF;
+    break;
+
+    case DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED:
+    return NULL;
+
+    case DISPATCHER_DETECT_FORMAT_NOT_DETECTED:
+    break;
   }
+
+  if(format == 0) {
+    return NULL;
+  }
+
+  p = DispatcherProcessNew(name);
+  if(p == NULL) {
+    return NULL;
+  }
+  p->data = data;
+  p->size = size;
+
+  switch(format) {
+    case DISPATCHER_FORMAT_ELF:
+    if(!DispatcherFormatElfSetUp(p)) {
+      // TODO Clean up
+      return NULL;
+    }
+    break;
+
+    default:
+    // TODO Clean up
+    return NULL;
+  }
+
+  // Check if EIP is set
+  if(p->save.eip == 0) {
+    // TODO Clean up
+    return NULL;
+  }
+
+  // Set up a stack
+  if(!DispatcherProcessSetUpStack(p, 4096)) {
+    // TODO Clean up
+    return NULL;
+  }
+
+  DispatcherProcessRun(p);
+
+  return p;
+}
+
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags) {
+  uint32_t i;
+  void *ptr;
+
+  ptr = malloc_align(4096, ALIGN_4KB);
+  if(ptr == NULL) {
+    return NULL;
+  }
+
+  if(!DispatcherProcessMap(p, va, (uint32_t) ptr, flags)) {
+    free(ptr);
+    return NULL;
+  }
+
+  for(i = 0; p->alloc[i] != NULL; i++);
+
+  p->alloc = realloc(p->alloc, sizeof(void *) * (i + 2));
+  p->alloc[i] = ptr;
+  p->alloc[i + 1] = NULL;
+
+  memset(ptr, 0, 4096);
+
+  return ptr;
+}
+
+uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags) {
+  uint32_t i, memory_count, file_count;
+  void **ptrs;
+
+  memory_count = (memory_size / 4096) + 1;
+  file_count = (file_size / 4096) + 1;
+  if(memory_count < file_count) {
+    return 0;
+  }
+
+  ptrs = malloc(sizeof(void *) * memory_count);
+  for(i = 0; i < memory_count; i++) {
+    if((ptrs[i] = DispatcherProcessAllocatePage(p, va + (i * 4096), flags)) == NULL) {
+      // TODO Clean up
+      return 0;
+    }
+  }
+
+  if(file_size != 0) {
+    for(i = 0; i < file_count; i++) {
+      memcpy(ptrs[i], &data[(i * 4096)], (i == file_count - 1 ? file_size % 4096 : 4096));
+    }
+  }
+
+  return 1;
 }

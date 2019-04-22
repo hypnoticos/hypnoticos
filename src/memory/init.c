@@ -19,18 +19,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <hypnoticos/boot.h>
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 #include <multiboot.h>
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100
 
+#define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint32_t) table) + sizeof(MemoryTable_t)); if((uint32_t) table + sizeof(MemoryTable_t) >= start + table_size) { HALT(); }
+
 /*!< A linked list containing the known available memory blocks */
 MemoryBlock_t MemoryBlocks = {.start=0, .length=0, .type=0, .prev=NULL, .next=NULL};
 
 MemoryTableIndex_t MemoryTableIndices = {.addr=NULL, .size=NULL, .prev=NULL, .next=NULL};
 
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_count, uint32_t modules_addr, uint32_t start, uint32_t length, uint8_t type) {
+void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type) {
   MemoryBlock_t *current, *next;
   uint32_t table_size, i;
   MemoryTable_t *table;
@@ -85,15 +88,15 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_c
     }
 
     // Check if the memory table would overlap with module information or the modules themselves
-    if(modules_count != 0 && modules_addr != 0) {
-      if(!((uint32_t) MT_START < modules_addr && (uint32_t) MT_END < modules_addr)) {
+    if(BootModulesCount != 0 && BootModulesAddr != 0) {
+      if(!((uint32_t) MT_START < BootModulesAddr && (uint32_t) MT_END < BootModulesAddr)) {
         // TODO Place the memory table elsewhere
         // May overwrite module information entries
         HALT();
       }
 
-      for(i = 0; i < modules_count; i++) {
-        module = (multiboot_module_t *) ((uint32_t) modules_addr + (sizeof(multiboot_module_t) * i));
+      for(i = 0; i < BootModulesCount; i++) {
+        module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
         if(!((uint32_t) MT_START < module->mod_start && (uint32_t) MT_END < module->mod_start)) {
           // TODO Place the memory table elsewhere
           // May overwrite this module
@@ -109,7 +112,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_c
 #error Initial memory table is too small
 #endif
 
-    // Create an entry in the table for the table, and for the kernel
+    // Create an entry in the table for the table, for the kernel, the module information and the modules
     table = (MemoryTable_t *) start;
     table->addr = (uint32_t) start;
     table->size = table_size;
@@ -117,12 +120,30 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_c
     table->line = 0;
     table->status = 1;
 
-    table = (MemoryTable_t *) ((uint32_t) start + sizeof(MemoryTable_t));
+    NEXT_ENTRY();
     table->addr = (uint32_t) &AddrStart;
     table->size = (uint32_t) &AddrEnd - (uint32_t) &AddrStart + 1;
     strcpy(table->function, "-");
     table->line = 0;
     table->status = 1;
+
+    NEXT_ENTRY();
+    table->addr = BootModulesAddr;
+    table->size = BootModulesCount * sizeof(multiboot_module_t);
+    strcpy(table->function, "-");
+    table->line = 0;
+    table->status = 1;
+
+    for(i = 0; i < BootModulesCount; i++) {
+      module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
+
+      NEXT_ENTRY();
+      table->addr = module->mod_start;
+      table->size = module->mod_end - module->mod_start;
+      strcpy(table->function, "-");
+      table->line = 0;
+      table->status = 1;
+    }
 
     // Create an entry in the memory table index
     MemoryTableIndices.addr = (MemoryTable_t *) start;

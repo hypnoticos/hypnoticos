@@ -16,9 +16,17 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+section .text
 global _start
 
-section .text
 _start:
+  mov ebp, StackTop
+  mov esp, ebp
   int 241
   jmp $
+
+section .bss
+align 4096
+Stack:
+  resb 4096
+StackTop:

@@ -21,6 +21,5 @@
 
 uint32_t KernelFunction(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
   printf("kernel function\n");
-  asm("hlt");
   return 0;
 }

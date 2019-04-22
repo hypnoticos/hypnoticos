@@ -16,16 +16,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
+#include <multiboot.h>
+#include <hypnoticos/dispatcher.h>
+#include <hypnoticos/boot.h>
 
-void __attribute__((aligned(4096))) DispatcherFirstProcess() {
-  printf("1");
-  while(1) {
-  }
-}
+uint8_t BootLoadModules() {
+  multiboot_module_t *module;
+  uint32_t i;
 
-void __attribute__((aligned(4096))) DispatcherAnotherProcess() {
-  printf("2");
-  while(1) {
+  for(i = 0; i < BootModulesCount; i++) {
+    module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
+    if(!DispatcherProcessNewFromFormat("module", (char *) module->mod_start, module->mod_end - module->mod_start)) {
+      return 0;
+    }
   }
+
+  return 1;
 }

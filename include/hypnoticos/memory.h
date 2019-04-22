@@ -73,7 +73,7 @@ void *__malloc_align(size_t size, uint8_t align, const char function[200], uint3
 void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t modules_count, uint32_t modules_addr, uint32_t start, uint32_t length, uint8_t type);
+void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();

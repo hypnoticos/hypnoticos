@@ -89,7 +89,7 @@ uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr) {
 void ApicLocalSetUpTimer() {
   ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_DCR, APIC_LOCAL_DCR_2);
   ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_LVT, 0x0 | APIC_LOCAL_VECTOR_TIMER);
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_ICR, 0x2);
+  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_ICR, 0x80);
 }
 
 void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value) {

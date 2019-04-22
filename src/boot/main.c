@@ -35,8 +35,6 @@ extern void DispatcherTest();
    \param multiboot multiboot_info_t struct
 */
 void Main(uint32_t magic, multiboot_info_t *multiboot) {
-  DispatcherProcess_t *p;
-
   VideoMemoryInit();
   puts(_HYPNOTICOS);
 
@@ -45,6 +43,8 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
 
   MultibootCheck(magic, multiboot);
+  DispatcherInit();
+  BootLoadModules();
 
   CpuChecks();
 
@@ -59,22 +59,9 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
     HALT();
   }
 
-  DispatcherInit();
 
-  p = DispatcherProcessNew("first-process", (uint32_t) DispatcherFirstProcess, 0);
-  DispatcherProcessRun(p);
-
-  p = DispatcherProcessNew("another-process", (uint32_t) DispatcherAnotherProcess, 0);
-  DispatcherProcessRun(p);
-
-  p = DispatcherProcessNew("another-process-2", (uint32_t) 0xFF000000, 3);
-  if(!DispatcherProcessMap(p, 0xFF000000, (uint32_t) DispatcherTest, PAGING_PRESENT | PAGING_USER)) {
-    HALT();
-  }
-  DispatcherProcessRun(p);
-
-  asm("sti");
   ApicLocalSetUpTimer();
+  asm("sti");
 
   while(1) {
     asm("hlt");

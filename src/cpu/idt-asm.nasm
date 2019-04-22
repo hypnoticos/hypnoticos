@@ -25,7 +25,6 @@ section .data
   IdtCallSavedCr3 dd 0
   IdtCallSavedEsp dd 0
   IdtCallSavedEbp dd 0
-  IdtCallCurrentPrivilegeLevel db 0
 
   IdtCallSavedEax dd 0
   IdtCallSavedEbx dd 0
@@ -69,19 +68,11 @@ IdtCallManage:
     mov [IdtCallSavedEflags], eax
     pop eax
 
-    cmp byte [IdtCallCurrentPrivilegeLevel], 3
-    je .SaveEspOnStack
-
-    mov [IdtCallSavedEsp], esp
-    jmp .DontSaveEspOnStack
-
-  .SaveEspOnStack:
     push eax
     mov eax, [esp + 20]
     mov [IdtCallSavedEsp], eax
     pop eax
 
-  .DontSaveEspOnStack:
     mov [IdtCallSavedEax], eax
     mov [IdtCallSavedEbx], ebx
     mov [IdtCallSavedEcx], ecx
@@ -100,10 +91,6 @@ IdtCallManage:
     mov eax, [MemoryPD]
     mov cr3, eax
 
-    ; Switch to the IDT call stack
-    mov ebp, IdtStackTop
-    mov esp, ebp
-
     call IdtCall
     call ApicLocalEoi
 
@@ -118,12 +105,7 @@ IdtCallManage:
     mov edi, [IdtCallSavedEdi]
 
     mov ebp, [IdtCallSavedEbp]
-    mov esp, [IdtCallSavedEsp]
 
-    cmp byte [IdtCallCurrentPrivilegeLevel], 0
-    je .ReturnToPL0
-
-  .ReturnToPL3:
     mov ax, 0x20 | 0x3
     mov ds, ax
     mov es, ax
@@ -136,15 +118,6 @@ IdtCallManage:
     push 0x1b ; CS
     push dword [IdtCallSavedEip] ; EIP
 
-    jmp .Done
-
-  .ReturnToPL0:
-
-    push dword [IdtCallSavedEflags] ; EFLAGS
-    push 0x08 ; CS
-    push dword [IdtCallSavedEip] ; EIP
-
-  .Done:
     cmp byte [IdtCallErrorCode], 0
     je .SkipErrorCode
 

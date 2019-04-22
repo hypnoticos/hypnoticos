@@ -23,6 +23,14 @@
 
 typedef struct _DispatcherProcess_t DispatcherProcess_t;
 typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
+
+#include <hypnoticos/dispatcher/format-elf.h>
+
+#define DISPATCHER_FORMAT_ELF             0x01
+
+#define DISPATCHER_DETECT_FORMAT_NOT_DETECTED         0
+#define DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED 1
+#define DISPATCHER_DETECT_FORMAT_DETECTED             2
 struct _DispatcherProcessSave_t {
   uint32_t esp;
   uint32_t ebp;
@@ -40,21 +48,28 @@ struct _DispatcherProcessSave_t {
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
-  uint8_t privilege_level;
   void *stack;
   DispatcherProcessSave_t save;
   uint8_t run;
+
+  char *data; /*!< Optional parameter - a copy of the original file. Set to NULL if not present. */
+  uint32_t size; /*!< Data size */
+  uint32_t format;
+  void *format_header;
+
+  void **alloc; /*!< Memory that must be free'd upon process termination */
 };
 
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags);
+uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags);
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags);
-DispatcherProcess_t *DispatcherProcessNew(char *name, uint32_t eip, uint8_t privilege_level);
+DispatcherProcess_t *DispatcherProcessNew(char *name);
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
+void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip);
 void DispatcherSetUpNext();
-
-void DispatcherFirstProcess();
-void DispatcherAnotherProcess();
-void DispatcherAnotherProcess2();
+uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size);
 
 #endif

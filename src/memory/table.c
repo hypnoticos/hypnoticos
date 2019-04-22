@@ -23,16 +23,18 @@
 // TODO Condense tables
 
 void MemoryNewTable() {
-  MemoryTableIndex_t *mti;
+  MemoryTableIndex_t *mti, *next;
   uint32_t table_size = sizeof(MemoryTable_t) * MEMORY_TABLE_NEW_TABLE_ENTRIES;
 
   for(mti = &MemoryTableIndices; mti->next != NULL; mti = mti->next);
 
-  mti->next = malloc(sizeof(MemoryTableIndex_t));
-  mti->next->next = NULL;
-  mti->next->prev = mti;
-  mti->next->addr = malloc(table_size);
-  mti->next->size = table_size;
+  next = malloc(sizeof(MemoryTableIndex_t));
+  next->next = NULL;
+  next->prev = mti;
+  next->addr = malloc(table_size);
+  next->size = table_size;
 
-  memset(mti->next->addr, 0, table_size);
+  memset(next->addr, 0, table_size);
+
+  mti->next = next;
 }
