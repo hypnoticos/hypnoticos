@@ -106,11 +106,13 @@ IdtCallManage:
 
     mov ebp, [IdtCallSavedEbp]
 
+    push eax
     mov ax, 0x20 | 0x3
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+    pop eax
 
     push 0x23 ; SS
     push dword [IdtCallSavedEsp] ; ESP
