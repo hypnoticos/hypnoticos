@@ -175,6 +175,10 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->alloc = malloc(sizeof(void *));
   p->alloc[0] = NULL;
 
+  p->io = malloc(sizeof(uint16_t));
+  p->io[0] = 0;
+  p->io_count = 0;
+
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
   DispatcherProcesses = realloc(DispatcherProcesses, sizeof(DispatcherProcess_t *) * (i + 2));
