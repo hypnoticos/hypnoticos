@@ -38,6 +38,12 @@ void TssInit() {
   Tss.ss0 = 0x10;
   Tss.esp0 = (uint32_t) &IdtStackTop;
 
+  Tss.iomap_base = (uint32_t) &Tss.io_permission - (uint32_t) &Tss;
+
+  memset(&Tss.int_redirection, 0, sizeof(Tss.int_redirection));
+  memset(&Tss.io_permission, 0xFF, sizeof(Tss.io_permission));
+  Tss.io_permission_final = 0xFF;
+
   TssSet();
 }
 

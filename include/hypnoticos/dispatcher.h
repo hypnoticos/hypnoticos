@@ -58,11 +58,15 @@ struct _DispatcherProcess_t {
   void *format_header;
 
   void **alloc; /*!< Memory that must be free'd upon process termination */
+
+  uint16_t *io;
+  uint32_t io_count;
 };
 
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
 void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags);
+void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port);
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags);
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags);
 DispatcherProcess_t *DispatcherProcessNew(char *name);

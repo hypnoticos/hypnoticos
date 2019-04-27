@@ -23,10 +23,11 @@
 uint8_t BootLoadModules() {
   multiboot_module_t *module;
   uint32_t i;
+  DispatcherProcess_t *p;
 
   for(i = 0; i < BootModulesCount; i++) {
     module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-    if(!DispatcherProcessNewFromFormat("module", (char *) module->mod_start, module->mod_end - module->mod_start)) {
+    if(!(p = DispatcherProcessNewFromFormat("module", (char *) module->mod_start, module->mod_end - module->mod_start))) {
       return 0;
     }
   }

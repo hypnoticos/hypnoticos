@@ -100,9 +100,9 @@ GdtEntries:
 
   ; TSS - 0x28
   ; Base = &Tss
-  ; Limit = 0x89 (size of TSS)
+  ; Limit = 0x20AA (size of TSS)
   ; Flags = 0x4
-  dw 0x0089                 ; TSS length (limit low)
+  dw 0x20AA                 ; TSS length (limit low)
   TssBaseLow dw 0           ; TSS address low (base low, load later)
   TssBaseMiddle db 0        ; TSS address middle (base middle, load later)
   db 0x89                   ; 0b10001001

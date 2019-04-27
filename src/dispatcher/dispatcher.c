@@ -47,6 +47,7 @@ inline DispatcherProcess_t *DispatcherFind(uint16_t pid) {
 void DispatcherSetUpNext() {
   DispatcherProcess_t *p;
   uint16_t next_pid;
+  uint32_t i, byte_offset, bit_offset, bit_operation;
 
   if(DispatcherCurrentPid != 0) {
     if((p = DispatcherFind(DispatcherCurrentPid)) == NULL) {
@@ -66,6 +67,12 @@ void DispatcherSetUpNext() {
     p->save.edi = IdtCallSavedEdi;
 
     p->save.eflags = IdtCallSavedEflags;
+
+    // Reset I/O port bitmap
+    for(i = 0; i < p->io_count; i++) {
+      byte_offset = p->io[i] / 8;
+      Tss.io_permission[byte_offset] = 0xFF;
+    }
   }
 
   // Find next process
@@ -98,6 +105,14 @@ void DispatcherSetUpNext() {
   IdtCallSavedEdx = p->save.edx;
   IdtCallSavedEsi = p->save.esi;
   IdtCallSavedEdi = p->save.edi;
+
+  // Set up I/O port bitmap
+  for(i = 0; i < p->io_count; i++) {
+    byte_offset = p->io[i] / 8;
+    bit_offset = p->io[i] % 8;
+    bit_operation = 0x1 << bit_offset;
+    Tss.io_permission[byte_offset] = Tss.io_permission[byte_offset] ^ bit_operation;
+  }
 }
 
 uint8_t DispatcherInit() {
@@ -169,6 +184,12 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   DispatcherProcesses[i + 1] = NULL;
 
   return p;
+}
+
+void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port) {
+  p->io_count++;
+  p->io = realloc(p->io, sizeof(uint16_t) * p->io_count);
+  p->io[p->io_count - 1] = port;
 }
 
 void DispatcherProcessRun(DispatcherProcess_t *p) {

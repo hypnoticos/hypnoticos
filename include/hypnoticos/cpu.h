@@ -52,7 +52,10 @@ struct _Tss_t {
    uint32_t ldt;
    uint16_t trap;
    uint16_t iomap_base;
-} __attribute__((packed));
+   uint8_t int_redirection[32];
+   uint8_t io_permission[8192];
+   uint8_t io_permission_final;
+} __attribute__((packed)) __attribute__((aligned(4096)));
 
 struct _IdtGate_t {
   uint16_t offset_low;
