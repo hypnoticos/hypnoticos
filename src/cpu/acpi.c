@@ -58,7 +58,7 @@ void AcpiFindRsdp() {
   // Search first in the first 1KB of the EBDA
   // 16 byte boundaries
   BiosEbda = (void *) ((*((uint16_t *) 0x40E)) << 4);
-  for(ptr = BiosEbda; ptr < (uint16_t *) (BiosEbda + 1024); ptr += 16) {
+  for(ptr = BiosEbda; ptr < (uint16_t *) ((uint32_t) BiosEbda + 1024); ptr = (void *) ((uint32_t) ptr + 16)) {
     if(AcpiTestRsdp(ptr)) {
       AcpiRsdp = (AcpiRsdp_t *) ptr;
       break;
@@ -67,7 +67,7 @@ void AcpiFindRsdp() {
 
   if(AcpiRsdp == NULL) {
     // Search 0xE0000 to 0xFFFFF if not found in the EBDA
-    for(ptr = (uint16_t *) 0xE0000; ptr < (uint16_t *) 0xFFFFF; ptr += 16) {
+    for(ptr = (uint16_t *) 0xE0000; ptr < (uint16_t *) 0xFFFFF; ptr = (void *) ((uint32_t) ptr + 16)) {
       if(AcpiTestRsdp(ptr)) {
         AcpiRsdp = (AcpiRsdp_t *) ptr;
         break;
