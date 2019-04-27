@@ -16,10 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
-#include <hypnoticos/function.h>
+#ifndef __HYPNOTICOS_INTERFACE_H
+#define __HYPNOTICOS_INTERFACE_H
 
-uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
-  printf("eax=0x%X ebx=0x%X ecx=0x%X edx=0x%X esi=0x%X edi=0x%X\n", eax, ebx, ecx, edx, esi, edi);
-  return 0;
-}
+#include <stdint.h>
+
+uint32_t KernelFunctionInterface(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+
+#endif

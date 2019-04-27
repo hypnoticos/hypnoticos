@@ -88,6 +88,8 @@ void IdtCall();
 extern void IdtSet(uint16_t limit);
 
 void IdtCall() {
+  DispatcherProcess_t *p;
+  uint32_t r;
   const static char *descriptions[] = {
     "#DE, Divide Error",                                // 0
     "#DB, Debug Exception",                             // 1
@@ -130,7 +132,12 @@ void IdtCall() {
       asm("hlt");
     }
   } else if(IdtCallVector == 241) {
-    KernelFunction(IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi);
+    if((p = DispatcherFind(DispatcherCurrentPid)) == NULL) {
+      HALT();
+    }
+
+    r = KernelFunction(p, IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi);
+    IdtCallSavedEax = r;
   }
 }
 

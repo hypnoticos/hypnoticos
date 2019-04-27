@@ -24,15 +24,19 @@ export CFLAGS=$(CFLAGS_MODULES)
 export NASMFLAGS=$(NASMFLAGS_MODULES)
 export LDFLAGS=$(LDFLAGS_MODULES)
 export LIBS=$(LIBS_MODULES)
+export CRT0=$(shell pwd)/crt0.o
 
 .PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
 
-all: subdirs
+all: $(CRT0) subdirs
 
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	$(MAKE) -C $@
+
+%.o: %.nasm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 install: subdirs $(INSTALLDIRS)
 
@@ -40,6 +44,7 @@ $(INSTALLDIRS):
 	$(MAKE) -C $(@:install-%=%) install
 
 $(CLEANDIRS):
+	rm -f $(CRT0)
 	$(MAKE) -C $(@:clean-%=%) clean
 
 clean: $(CLEANDIRS)

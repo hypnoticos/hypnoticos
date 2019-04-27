@@ -30,9 +30,7 @@ uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
 
-inline DispatcherProcess_t *DispatcherFind(uint16_t pid);
-
-inline DispatcherProcess_t *DispatcherFind(uint16_t pid) {
+DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   uint32_t i;
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++) {

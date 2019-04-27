@@ -28,8 +28,11 @@ install: $(BUILD)
 %.o: %.nasm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(BUILD): $(BUILD_OBJS)
-	$(CC) -o $@ $(CFLAGS) $(BUILD_OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
 	mkdir -p $(SYSROOT)/boot/hypnoticos-modules
 	cp $(BUILD) $(SYSROOT)/boot/hypnoticos-modules/$(BUILD)
 

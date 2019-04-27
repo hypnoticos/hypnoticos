@@ -63,6 +63,9 @@ struct _DispatcherProcess_t {
   uint32_t io_count;
 };
 
+extern uint16_t DispatcherCurrentPid;
+
+DispatcherProcess_t *DispatcherFind(uint16_t pid);
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
 void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags);

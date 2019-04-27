@@ -16,17 +16,33 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+global KernelFunctionInterface
+
 section .text
-global _start
+KernelFunctionInterface:
+  push ebp
+  mov ebp, esp
 
-_start:
-  mov ebp, StackTop
-  mov esp, ebp
+  push ebx
+  push ecx
+  push edx
+  push esi
+  push edi
+
+  mov eax, [ebp+8]
+  mov ebx, [ebp+12]
+  mov ecx, [ebp+16]
+  mov edx, [ebp+20]
+  mov esi, [ebp+24]
+  mov edi, [ebp+28]
+
   int 241
-  jmp $
 
-section .bss
-align 4096
-Stack:
-  resb 4096
-StackTop:
+  pop edi
+  pop esi
+  pop edx
+  pop ecx
+  pop ebx
+
+  pop ebp
+  ret

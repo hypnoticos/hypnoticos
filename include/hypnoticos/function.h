@@ -20,7 +20,8 @@
 #define __HYPNOTICOS_FUNCTION_H
 
 #include <stdint.h>
+#include <hypnoticos/dispatcher.h>
 
-uint32_t KernelFunction(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
 
 #endif

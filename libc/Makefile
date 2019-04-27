@@ -20,6 +20,7 @@ include objects.mk
 
 BUILD=libc.a
 BUILD_OBJS=$(LIBC_OBJS)
+BUILD_OBJS+=function.o
 
 CFLAGS+=-D_HYPNOTICOS_LIBC
 
@@ -28,6 +29,9 @@ CFLAGS+=-D_HYPNOTICOS_LIBC
 all: $(BUILD)
 
 install: $(BUILD)
+
+%.o: %.nasm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
