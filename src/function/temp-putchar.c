@@ -16,10 +16,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <hypnoticos/function-codes.h>
-#include <hypnoticos/interface.h>
+// TODO Remove this system call
 
-int main(int argc, char **argv) {
-  KernelFunctionInterface('a', 0, 0, 0, 0, KERNEL_FUNCTION_TEMP_PUTCHAR);
-  while(1);
+#include <stdio.h>
+#include <hypnoticos/function-codes.h>
+#include <hypnoticos/function.h>
+
+uint32_t KernelFunctionTempPutchar(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
+  if((eax | 0xFF) > 0xFF) {
+    return 0;
+  }
+  putchar((char) eax);
+  return 1;
 }

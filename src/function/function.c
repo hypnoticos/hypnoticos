@@ -17,9 +17,19 @@
 //
 
 #include <stdio.h>
+#include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
 
+#define CALL_FUNCTION(f)                return f(p, eax, ebx, ecx, edx, esi, edi)
+
 uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
-  printf("eax=0x%X ebx=0x%X ecx=0x%X edx=0x%X esi=0x%X edi=0x%X\n", eax, ebx, ecx, edx, esi, edi);
-  return 0;
+  switch(edi) {
+    case KERNEL_FUNCTION_TEMP_PUTCHAR:
+    CALL_FUNCTION(KernelFunctionTempPutchar);
+    break;
+
+    default:
+    // TODO Terminate process
+    return 0;
+  }
 }

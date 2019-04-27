@@ -16,10 +16,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <hypnoticos/function-codes.h>
-#include <hypnoticos/interface.h>
+#ifndef __HYPNOTICOS_FUNCTION_CODES_H
+#define __HYPNOTICOS_FUNCTION_CODES_H
 
-int main(int argc, char **argv) {
-  KernelFunctionInterface('a', 0, 0, 0, 0, KERNEL_FUNCTION_TEMP_PUTCHAR);
-  while(1);
-}
+#define KERNEL_FUNCTION_TEMP_PUTCHAR                0x1
+
+#ifdef _HYPNOTICOS_KERNEL
+
+#include <hypnoticos/dispatcher.h>
+
+uint32_t KernelFunctionTempPutchar(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+
+#endif
+
+#endif
