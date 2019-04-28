@@ -16,16 +16,29 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-// TODO Remove this system call
-
 #include <stdio.h>
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
 
-uint32_t KernelFunctionTempPutchar(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
-  if((eax | 0xFF) > 0xFF) {
+uint32_t KernelFunctionWrite(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
+  uint32_t i;
+  char *pa;
+
+  // Check output buffer
+  if(eax != 1) {
     return 0;
   }
-  putchar((char) eax);
-  return 1;
+
+  // Translate va to pa
+  pa = GET_PA(ebx);
+  if(pa == NULL) {
+    return 0;
+  }
+
+  // Send to output buffer
+  for(i = 0; i < ecx; i++) {
+    fputc(pa[i], stdout);
+  }
+
+  return 0;
 }

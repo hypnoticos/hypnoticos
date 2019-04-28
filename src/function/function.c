@@ -24,8 +24,8 @@
 
 uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
   switch(edi) {
-    case KERNEL_FUNCTION_TEMP_PUTCHAR:
-    CALL_FUNCTION(KernelFunctionTempPutchar);
+    case KERNEL_FUNCTION_WRITE:
+    CALL_FUNCTION(KernelFunctionWrite);
     break;
 
     default:

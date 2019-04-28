@@ -20,6 +20,7 @@
 #include <hypnoticos/interface.h>
 
 int main(int argc, char **argv) {
-  KernelFunctionInterface('a', 0, 0, 0, 0, KERNEL_FUNCTION_TEMP_PUTCHAR);
+  const char *t = "Test";
+  KernelFunctionInterface(1, (uint32_t) t, 4, 0, 0, KERNEL_FUNCTION_WRITE);
   while(1);
 }

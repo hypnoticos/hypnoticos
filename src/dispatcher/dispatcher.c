@@ -136,7 +136,7 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
 
   count = (size / 4096) + 1;
   for(i = 0; i < count; i++) {
-    if(!DispatcherProcessMap(p, 0xFFFF0000 + (i * 4096), (uint32_t) p->stack + (i * 4096), PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+    if(!DispatcherProcessMap(p, 0xFFFF0000 + (i * 4096), (uint32_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
       return 0;
     }
   }
@@ -167,10 +167,13 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->stack = NULL;
   p->run = 0;
 
-  p->save.cr3 = (uint32_t) MemoryPagingNewPD();
+  p->save.cr3 = (uint32_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
+
+  p->va = malloc(sizeof(DispatcherProcessVa_t *));
+  p->va[0] = NULL;
 
   p->alloc = malloc(sizeof(void *));
   p->alloc[0] = NULL;
@@ -202,8 +205,53 @@ void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip) {
   p->save.eip = eip;
 }
 
-uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags) {
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint8_t kernel_function_ignore, uint32_t flags) {
+  uint32_t i;
+
+  // Check if va and pa are 4KB aligned
+  if((va & 0xFFF) || (pa & 0xFFF)) {
+    return 0;
+  }
+
+  // Check for duplicates in p->va
+  for(i = 0; p->va[i] != NULL; i++) {
+    if(p->va[i]->va == va) {
+      return 0;
+    }
+  }
+
+  // Add to p->va
+  p->va = realloc(p->va, sizeof(DispatcherProcessVa_t *) * (i + 2));
+  p->va[i] = malloc(sizeof(DispatcherProcessVa_t));
+  p->va[i + 1] = NULL;
+
+  p->va[i]->ignore = kernel_function_ignore;
+  p->va[i]->va = va;
+  p->va[i]->pa = (void *) pa;
+
   return MemoryPagingSetPage((uint32_t *) p->save.cr3, va, pa, flags);
+}
+
+void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore) {
+  uint32_t i, va_range, offset;
+
+  va_range = va & 0xFFFFF000;
+  offset = va & 0xFFF;
+
+  for(i = 0; p->va[i] != NULL; i++) {
+    if(p->va[i]->va == va_range) {
+      if(ignore == 1 && p->va[i]->ignore == 1) {
+        // Found, but to be ignored
+        return NULL;
+      } else {
+        // Found
+        return p->va[i]->pa + offset;
+      }
+    }
+  }
+
+  // Not found
+  return NULL;
 }
 
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size) {
@@ -263,7 +311,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
   return p;
 }
 
-void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags) {
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore, uint32_t flags) {
   uint32_t i;
   void *ptr;
 
@@ -272,7 +320,7 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_
     return NULL;
   }
 
-  if(!DispatcherProcessMap(p, va, (uint32_t) ptr, flags)) {
+  if(!DispatcherProcessMap(p, va, (uint32_t) ptr, kernel_function_ignore, flags)) {
     free(ptr);
     return NULL;
   }
@@ -300,7 +348,7 @@ uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data,
 
   ptrs = malloc(sizeof(void *) * memory_count);
   for(i = 0; i < memory_count; i++) {
-    if((ptrs[i] = DispatcherProcessAllocatePage(p, va + (i * 4096), flags)) == NULL) {
+    if((ptrs[i] = DispatcherProcessAllocatePage(p, va + (i * 4096), 0, flags)) == NULL) {
       // TODO Clean up
       return 0;
     }

@@ -19,13 +19,13 @@
 #ifndef __HYPNOTICOS_FUNCTION_CODES_H
 #define __HYPNOTICOS_FUNCTION_CODES_H
 
-#define KERNEL_FUNCTION_TEMP_PUTCHAR                0x1
+#define KERNEL_FUNCTION_WRITE                       0x1
 
 #ifdef _HYPNOTICOS_KERNEL
 
 #include <hypnoticos/dispatcher.h>
 
-uint32_t KernelFunctionTempPutchar(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+uint32_t KernelFunctionWrite(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
 
 #endif
 

@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 typedef struct _DispatcherProcess_t DispatcherProcess_t;
+typedef struct _DispatcherProcessVa_t DispatcherProcessVa_t;
 typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 
 #include <hypnoticos/dispatcher/format-elf.h>
@@ -45,6 +46,11 @@ struct _DispatcherProcessSave_t {
   uint32_t esi;
   uint32_t edi;
 };
+struct _DispatcherProcessVa_t {
+  uint32_t va;
+  void *pa;
+  uint8_t ignore; /*!< 0 = Kernel functions will not ignore this virtual address range. 1 = Kernel funtions will ignore this virtual address range. */
+};
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
@@ -59,6 +65,8 @@ struct _DispatcherProcess_t {
 
   void **alloc; /*!< Memory that must be free'd upon process termination */
 
+  DispatcherProcessVa_t **va;
+
   uint16_t *io;
   uint32_t io_count;
 };
@@ -68,10 +76,11 @@ extern uint16_t DispatcherCurrentPid;
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
-void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint32_t flags);
 void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port);
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore, uint32_t flags);
+void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore);
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags);
-uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint32_t flags);
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint8_t kernel_function_ignore, uint32_t flags);
 DispatcherProcess_t *DispatcherProcessNew(char *name);
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
