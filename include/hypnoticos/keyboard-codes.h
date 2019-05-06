@@ -20,10 +20,10 @@
 #define HYPNOTICOS_KEYBOARD_CODES_H
 
 #define ADD_KEY(k)      KeyboardBufferQueue(k)
-#define CHECK_KEY_IF_1(compare0, to_add)    CHECK_KEY_IF_6(compare0, 0, 0, 0, 0, 0, to_add)
-#define CHECK_KEY_IF_2(compare0, compare1, to_add)    CHECK_KEY_IF_6(compare0, compare1, 0, 0, 0, 0, to_add)
-#define CHECK_KEY_IF_4(compare0, compare1, compare2, compare3, to_add)    CHECK_KEY_IF_6(compare0, compare1, compare2, compare3, 0, 0, to_add)
-#define CHECK_KEY_IF_6(compare0, compare1, compare2, compare3, compare4, compare5, to_add)       if(key[0] == compare0 && key[1] == compare1 && key[2] == compare2 && key[3] == compare3 && key[4] == compare4 && key[5] == compare5) ADD_KEY(to_add)
+#define CHECK_KEY_IF_1(compare0, to_add)    CHECK_KEY_IF_6((compare0), 0, 0, 0, 0, 0, (to_add))
+#define CHECK_KEY_IF_2(compare0, compare1, to_add)    CHECK_KEY_IF_6((compare0), (compare1), 0, 0, 0, 0, (to_add))
+#define CHECK_KEY_IF_4(compare0, compare1, compare2, compare3, to_add)    CHECK_KEY_IF_6((compare0), (compare1), (compare2), (compare3), 0, 0, (to_add))
+#define CHECK_KEY_IF_6(compare0, compare1, compare2, compare3, compare4, compare5, to_add)       if(key[0] == (compare0) && key[1] == (compare1) && key[2] == (compare2) && key[3] == (compare3) && key[4] == (compare4) && key[5] == (compare5)) ADD_KEY((to_add))
 #define CHECK_KEY_ELSE_IF_1 else CHECK_KEY_IF_1
 #define CHECK_KEY_ELSE_IF_2 else CHECK_KEY_IF_2
 #define CHECK_KEY_ELSE_IF_4 else CHECK_KEY_IF_4

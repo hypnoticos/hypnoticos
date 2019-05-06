@@ -16,10 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STDLIB_H
-#define __STDLIB_H
+#ifndef STDLIB_H
+#define STDLIB_H
 
 #include <stddef.h>
+#include <sys/types.h>
 
 void *calloc(size_t count, size_t size);
 void free(void *addr);

@@ -16,12 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTIOS_MEMORY_H
-#define __HYPNOTIOS_MEMORY_H
+#ifndef HYPNOTICOS_MEMORY_H
+#define HYPNOTICOS_MEMORY_H
 
+#include <multiboot.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <multiboot.h>
+#include <sys/types.h>
 
 #define ALIGN_NONE              0
 #define ALIGN_4KB               4

@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_FUNCTION_CODES_H
-#define __HYPNOTICOS_FUNCTION_CODES_H
+#ifndef HYPNOTICOS_FUNCTION_CODES_H
+#define HYPNOTICOS_FUNCTION_CODES_H
 
 #define KERNEL_FUNCTION_WRITE                       0x1
 

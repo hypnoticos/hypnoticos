@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STDDEF_H
-#define __STDDEF_H
+#ifndef STDDEF_H
+#define STDDEF_H
 
 #define NULL                  0
 

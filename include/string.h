@@ -16,10 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STRING_H
-#define __STRING_H
+#ifndef STRING_H
+#define STRING_H
 
 #include <stddef.h>
+#include <sys/types.h>
 
 int memcmp(const void *addr1, const void *addr2, size_t count);
 void *memcpy(void *destination, const void *source, size_t count);

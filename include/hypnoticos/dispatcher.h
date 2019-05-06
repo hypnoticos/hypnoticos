@@ -16,18 +16,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_DISPATCHER_H
-#define __HYPNOTICOS_DISPATCHER_H
-
-#include <stdint.h>
+#ifndef HYPNOTICOS_DISPATCHER_H
+#define HYPNOTICOS_DISPATCHER_H
 
 typedef struct _DispatcherProcess_t DispatcherProcess_t;
 typedef struct _DispatcherProcessVa_t DispatcherProcessVa_t;
 typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 
 #include <hypnoticos/dispatcher/format-elf.h>
+#include <stdint.h>
 
-#define DISPATCHER_FORMAT_ELF             0x01
+#define DISPATCHER_FORMAT_ELF                         0x01
 
 #define DISPATCHER_DETECT_FORMAT_NOT_DETECTED         0
 #define DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED 1

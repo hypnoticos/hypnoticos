@@ -16,11 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_DISPATCHER_FORMAT_ELF_H
-#define __HYPNOTICOS_DISPATCHER_FORMAT_ELF_H
+#ifndef HYPNOTICOS_DISPATCHER_FORMAT_ELF_H
+#define HYPNOTICOS_DISPATCHER_FORMAT_ELF_H
 
-#include <stdint.h>
 #include <hypnoticos/dispatcher.h>
+#include <stdint.h>
 
 typedef struct _DispatcherFormatElfProgramHeader_t DispatcherFormatElfProgramHeader_t;
 struct _DispatcherFormatElfProgramHeader_t {

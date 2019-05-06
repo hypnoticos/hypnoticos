@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_UNIMPLEMENTED_H
-#define __HYPNOTICOS_UNIMPLEMENTED_H
+#ifndef HYPNOTICOS_UNIMPLEMENTED_H
+#define HYPNOTICOS_UNIMPLEMENTED_H
 
 #include <stdio.h>
 

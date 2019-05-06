@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STDINT_H
-#define __STDINT_H
+#ifndef STDINT_H
+#define STDINT_H
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;

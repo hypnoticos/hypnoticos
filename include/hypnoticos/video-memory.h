@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_VIDEO_MEMORY_H
-#define __HYPNOTICOS_VIDEO_MEMORY_H
+#ifndef HYPNOTICOS_VIDEO_MEMORY_H
+#define HYPNOTICOS_VIDEO_MEMORY_H
 
 void VideoMemoryInit();
 void VideoMemoryClear();

@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_H
-#define __HYPNOTICOS_H
+#ifndef HYPNOTICOS_HYPNOTICOS_H
+#define HYPNOTICOS_HYPNOTICOS_H
 
 #ifndef _HYPNOTICOS
 #define _HYPNOTICOS       "Unknown"

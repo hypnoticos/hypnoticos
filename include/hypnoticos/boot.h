@@ -16,11 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_BOOT_H
-#define __HYPNOTICOS_BOOT_H
+#ifndef HYPNOTICOS_BOOT_H
+#define HYPNOTICOS_BOOT_H
 
-#include <stdint.h>
 #include <multiboot.h>
+#include <stdint.h>
 
 extern uint32_t BootModulesCount, BootModulesAddr;
 

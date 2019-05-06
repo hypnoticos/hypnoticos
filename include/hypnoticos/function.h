@@ -16,11 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_FUNCTION_H
-#define __HYPNOTICOS_FUNCTION_H
+#ifndef HYPNOTICOS_FUNCTION_H
+#define HYPNOTICOS_FUNCTION_H
 
-#include <stdint.h>
 #include <hypnoticos/dispatcher.h>
+#include <stdint.h>
 
 #define GET_PA(va)                    DispatcherProcessGetPa(p, va, 1);
 

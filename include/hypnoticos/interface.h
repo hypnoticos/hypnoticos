@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_INTERFACE_H
-#define __HYPNOTICOS_INTERFACE_H
+#ifndef HYPNOTICOS_INTERFACE_H
+#define HYPNOTICOS_INTERFACE_H
 
 #include <stdint.h>
 

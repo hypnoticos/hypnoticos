@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __HYPNOTICOS_CPU_H
-#define __HYPNOTICOS_CPU_H
+#ifndef HYPNOTICOS_CPU_H
+#define HYPNOTICOS_CPU_H
 
 #include <stdint.h>
 

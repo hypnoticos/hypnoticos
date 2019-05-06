@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __LIMITS_H
-#define __LIMITS_H
+#ifndef LIMITS_H
+#define LIMITS_H
 
 #if defined(ARCHITECTURE_I686) || 1         // 32-bit is the default
 #define HYPNOTICOS_MAX_DIGITS       10                      // E.g. used by vfprintf

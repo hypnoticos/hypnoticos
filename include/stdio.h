@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __STDIO_H
-#define __STDIO_H
+#ifndef STDIO_H
+#define STDIO_H
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -27,13 +27,12 @@
 #define STDOUT_FILENO     1
 #define STDERR_FILENO     2
 
-#define stdin             &stdstreams[0]
-#define stdout            &stdstreams[1]
-#define stderr            &stdstreams[2]
-
 #define NULL              0
+#define stdin             (&stdstreams[0])
+#define stdout            (&stdstreams[1])
+#define stderr            (&stdstreams[2])
 
-#define EOF               -1
+#define EOF               (-1)
 
 // TODO
 typedef struct {
