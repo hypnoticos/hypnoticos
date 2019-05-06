@@ -24,10 +24,27 @@
 #endif // _HYPNOTICOS
 
 #ifdef _HYPNOTICOS_KERNEL
-#define HALT()         printf("\nKERNEL HALTED (%s at line %u - in %s).", __FILE__, __LINE__, __FUNCTION__); \
+#include <stdio.h>
+
+#ifdef _DEBUG
+#define HALT()          printf("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
                         while(1) { \
                           asm("hlt"); \
                         }
+
+#define WARNING()       printf("DEBUG, WARNING: %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__)
+
+#define INFO(s, ...)    printf(s, ##__VA_ARGS__)
+#else
+#define HALT()          printf("\nKERNEL HALTED"); \
+                        while(1) { \
+                          asm("hlt"); \
+                        }
+
+#define WARNING()
+
+#define INFO(s, ...)
+#endif
 
 extern void *AddrStart, *AddrEnd;
 #endif
