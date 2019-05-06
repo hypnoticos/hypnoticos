@@ -16,9 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# TODO Remove this
-export _DEBUG=1
-
 export VERSION=0.1
 export ARCHITECTURE=i686
 export ARCHITECTURE_UPPERCASE=$(shell echo $(ARCHITECTURE) | tr "[:lower:]" "[:upper:]")
@@ -28,6 +25,7 @@ export INCDIR=$(PWD)/include
 export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
 export ISODIR=$(PWD)/iso
 ISONAME=hypnoticos.iso
+ARCHIVENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION).tar.xz
 SUBDIRS=libc src modules
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
@@ -77,7 +75,7 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 clean: $(CLEANDIRS)
-	$(RM) -R $(SYSROOT)
+	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME) $(ARCHIVENAME)
 
 iso: prepare subdirs
 	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
@@ -90,5 +88,5 @@ iso: prepare subdirs
 	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISONAME) $(ISODIR)
 
-compress:
-	cd src && tar -cJf ../hypnoticos-$(ARCHITECTURE)-$(VERSION).tar.xz $(KERNELFILENAME) ../$(ISONAME)
+compress: iso
+	cd src && tar -cJf ../$(ARCHIVENAME) $(KERNELFILENAME) ../$(ISONAME)
