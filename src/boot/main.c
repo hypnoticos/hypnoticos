@@ -44,7 +44,6 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
 
   MultibootCheck(magic, multiboot);
   DispatcherInit();
-  BootLoadModules();
 
   CpuChecks();
 
@@ -54,6 +53,7 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   }
 
   MemoryPagingInit();
+  BootLoadModules();
 
   if(!PciInit()) {
     HALT();

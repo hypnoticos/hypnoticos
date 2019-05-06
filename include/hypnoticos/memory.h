@@ -68,7 +68,7 @@ extern MemoryTableIndex_t MemoryTableIndices;
 
 extern void *MemoryPD;
 
-#define MemoryPagingSetPageImitate(pd, pa, flags)     MemoryPagingSetPage(pd, pa, pa, flags);
+#define MemoryPagingSetPageImitate(pd, pa, flags)     MemoryPagingSetPage(pd, pa, pa, flags)
 
 void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line);
 void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);

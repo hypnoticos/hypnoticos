@@ -43,16 +43,16 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 
   if(current == &MemoryBlocks && MemoryBlocks.type == 0) {
     // There are no other entries in the list
-    current->start = start;
-    current->length = length;
+    current->start = (start == 0 ? start + 1 : start);
+    current->length = (start == 0 ? length - 1 : length);
     current->type = type;
   } else {
     // Create a new entry
     next = malloc(sizeof(MemoryBlock_t)); // TODO What if this (or something that this function does - like creating a new table) overwrites mmap_addr or mmap_length?
     current->next = next;
 
-    next->start = start;
-    next->length = length;
+    next->start = (start == 0 ? start + 1 : start);
+    next->length = (start == 0 ? length - 1 : length);
     next->type = type;
     next->prev = current;
     next->next = NULL;

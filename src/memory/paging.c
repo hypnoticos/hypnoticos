@@ -20,12 +20,21 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
+// Retrieve the top 10 bits
+#define VA_TO_PD(va)                  ((va) >> 22)
+
+// Get the bottom 10 of the top 20 bits
+#define VA_TO_PT(va)                  (((va) >> 12) & 0x3FF)
+
+#define PD_VA_BASE(pd)                (((1024 * 4) * (pd)) << 10)
+#define PT_VA_OFFSET(pt)              ((1024 * 4) * (pt))
+
 extern void MemoryPagingEnable(uint32_t cr3);
 
 void *MemoryPD;
 
 void MemoryPagingInit() {
-  uint32_t pde, pte;
+  uint32_t pde, pte, va;
 
   // Allocate kernel page directory
   MemoryPD = malloc_align(4096, ALIGN_4KB);
@@ -33,7 +42,8 @@ void MemoryPagingInit() {
   // Allocate every page
   for(pde = 0; pde < 1024; pde++) {
     for(pte = 0; pte < 1024; pte++) {
-      MemoryPagingSetPageImitate(MemoryPD, (pde * 0x400000) + (pte * 4096), PAGING_PRESENT | PAGING_RW);
+      va = PD_VA_BASE(pde) | PT_VA_OFFSET(pte);
+      MemoryPagingSetPageImitate(MemoryPD, va, PAGING_PRESENT | ((va == (uint32_t) MemoryPD || va == 0x800000) ? 0 : PAGING_RW));
     }
   }
 
@@ -63,29 +73,32 @@ void *MemoryPagingNewPD() {
 
 uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t va, uint32_t pa, uint32_t flags) {
   uint32_t pde, pte, i;
+  void *ptr;
 
   if((pa & 0xFFF) != 0) {
+    WARNING();
     return 0;
   } else if((flags & 0xFFFFF000) != 0) {
+    WARNING();
     return 0;
   }
 
   // Get PDE & PTE
-  pde = va / 0x400000;
-  pte = (va % 0x400000) / 4096;
+  pde = VA_TO_PD(va);
+  pte = VA_TO_PT(va);
 
   // Check if PDE is allocated
-  if(!(pd[pde] & 0x1)) {
-    pd[pde] = (uint32_t) malloc_align(4096, ALIGN_4KB);
+  if(!(pd[pde] & PAGING_PRESENT)) {
+    ptr = malloc_align(4096, ALIGN_4KB);
     for(i = 0; i < 1024; i++) {
-      // This should be the same as: *((uint32_t *)((pd[pde] & 0xFFFFF000) + (4 * i2))) = ...
-      *((uint32_t *) (pd[pde] + (4 * i))) = 0;
+      *((uint32_t *) ((uint32_t) ptr + (i * 4))) = 0;
     }
-    pd[pde] = pd[pde] | PAGING_PRESENT | PAGING_RW | PAGING_USER;
+    pd[pde] = (uint32_t) ptr | PAGING_PRESENT | PAGING_RW | PAGING_USER;
   }
 
   // Set PTE entry
-  *((uint32_t *) ((pd[pde] & 0xFFFFF000) + (4 * pte))) = pa | flags;
+  ptr = (void *) ((uint32_t) (pd[pde] & 0xFFFFF000) + (pte * 4));
+  *((uint32_t *) ptr) = pa | flags;
 
   return 1;
 }
