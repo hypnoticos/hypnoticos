@@ -34,6 +34,7 @@
 
 IdtGate_t IdtGates[IDT_GATE_COUNT] __attribute__((aligned(8)));
 extern uint32_t IdtCallVector;
+uint8_t IdtFull = 0;
 
 extern void Idt0();
 extern void Idt1();
@@ -124,7 +125,12 @@ void IdtCall() {
     }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_TIMER) {
     DispatcherSetUpNext();
-    ApicLocalSetUpTimer();
+
+    if(!IdtFull) {
+      // Now that the local APIC has been called, map all IRQs
+      ApicIoMapIrqs();
+      IdtFull = 1;
+    }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_SPURIOUS) {
     HALT();
 

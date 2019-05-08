@@ -39,14 +39,17 @@ uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
 }
 
 uint8_t ApicIoInit() {
+  // TODO
+  return 1;
+}
+
+void ApicIoMapIrqs() {
   uint32_t i;
 
   // TODO Max redirection entry
   for(i = 0; i <= 23; i++) {
     ApicIoIrq(i, 0x30 + i);
   }
-
-  return 1;
 }
 
 #define APIC_IO_IOREGSEL          0x00

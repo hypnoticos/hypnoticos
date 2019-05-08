@@ -60,8 +60,9 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   }
 
 
-  ApicLocalSetUpTimer();
+  printf("Starting...\n");
   asm("sti");
+  ApicLocalSetUpTimer();
 
   while(1) {
     asm("hlt");

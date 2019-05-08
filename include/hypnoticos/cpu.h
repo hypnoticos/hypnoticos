@@ -128,6 +128,8 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
 
+#define APIC_LOCAL_TIMER_PERIODIC       0x20000
+
 #define IDT_IRQ_1                       49
 #define IDT_IRQ_2                       50
 
@@ -151,6 +153,7 @@ void *AcpiFindTable(const char *signature);
 uint8_t AcpiParseApic();
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();
+void ApicIoMapIrqs();
 uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr);
 uint8_t ApicLocalCheck();
 void ApicLocalEoi();
