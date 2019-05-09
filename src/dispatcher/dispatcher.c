@@ -30,6 +30,8 @@ uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
 
+uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore);
+
 DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   uint32_t i;
 
@@ -75,6 +77,7 @@ void DispatcherSetUpNext() {
 
   // Find next process
   next_pid = DispatcherCurrentPid + 1;
+  i = 0;
   while(1) {
     if((p = DispatcherFind(next_pid)) != NULL && p->run == 1) {
       break;
@@ -82,8 +85,14 @@ void DispatcherSetUpNext() {
 
     if(next_pid == 0xFFFF) {
       next_pid = 1;
+      i++;
     } else {
       next_pid++;
+    }
+
+    if(i == 2) {
+      printf("No processes found.\n");
+      HALT();
     }
   }
 
@@ -127,6 +136,7 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
 
   p->stack = malloc_align(alloc_size, ALIGN_4KB);
   if(p->stack == NULL) {
+    WARNING();
     return 0;
   }
   memset(p->stack, 0, alloc_size);
@@ -137,6 +147,7 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
   count = (size / 4096) + 1;
   for(i = 0; i < count; i++) {
     if(!DispatcherProcessMap(p, 0xFFFF0000 + (i * 4096), (uint32_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+      WARNING();
       return 0;
     }
   }
@@ -205,22 +216,42 @@ void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip) {
   p->save.eip = eip;
 }
 
+uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore) {
+  uint32_t i;
+
+  for(i = 0; p->va[i] != NULL; i++) {
+    if(p->va[i]->va == va) {
+      if(kernel_function_ignore == 1 && p->va[i]->ignore == 1) {
+        // Found, but to be ignored
+        return 2;
+      } else {
+        // Found
+        return 1;
+      }
+    }
+  }
+
+  return 0;
+}
+
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint8_t kernel_function_ignore, uint32_t flags) {
   uint32_t i;
 
   // Check if va and pa are 4KB aligned
   if((va & 0xFFF) || (pa & 0xFFF)) {
+    WARNING();
     return 0;
   }
 
   // Check for duplicates in p->va
-  for(i = 0; p->va[i] != NULL; i++) {
-    if(p->va[i]->va == va) {
-      return 0;
-    }
+  i = DispatcherProcessCheckVa(p, va, kernel_function_ignore);
+  if(i != 0) {
+    WARNING();
+    return 0;
   }
 
   // Add to p->va
+  for(i = 0; p->va[i] != NULL; i++);
   p->va = realloc(p->va, sizeof(DispatcherProcessVa_t *) * (i + 2));
   p->va[i] = malloc(sizeof(DispatcherProcessVa_t));
   p->va[i + 1] = NULL;
@@ -242,6 +273,7 @@ void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore
     if(p->va[i]->va == va_range) {
       if(ignore == 1 && p->va[i]->ignore == 1) {
         // Found, but to be ignored
+        WARNING();
         return NULL;
       } else {
         // Found
@@ -251,6 +283,7 @@ void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore
   }
 
   // Not found
+  WARNING();
   return NULL;
 }
 
@@ -264,45 +297,50 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
     break;
 
     case DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED:
+    WARNING();
     return NULL;
 
     case DISPATCHER_DETECT_FORMAT_NOT_DETECTED:
+    WARNING();
     break;
   }
 
   if(format == 0) {
+    WARNING();
     return NULL;
   }
 
   p = DispatcherProcessNew(name);
   if(p == NULL) {
+    WARNING();
     return NULL;
   }
   p->data = data;
   p->size = size;
 
-  switch(format) {
-    case DISPATCHER_FORMAT_ELF:
+  if(format == DISPATCHER_FORMAT_ELF) {
     if(!DispatcherFormatElfSetUp(p)) {
       // TODO Clean up
+      WARNING();
       return NULL;
     }
-    break;
-
-    default:
+  } else {
     // TODO Clean up
+    WARNING();
     return NULL;
   }
 
   // Check if EIP is set
   if(p->save.eip == 0) {
     // TODO Clean up
+    WARNING();
     return NULL;
   }
 
   // Set up a stack
   if(!DispatcherProcessSetUpStack(p, 4096)) {
     // TODO Clean up
+    WARNING();
     return NULL;
   }
 
@@ -317,11 +355,13 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t
 
   ptr = malloc_align(4096, ALIGN_4KB);
   if(ptr == NULL) {
+    WARNING();
     return NULL;
   }
 
   if(!DispatcherProcessMap(p, va, (uint32_t) ptr, kernel_function_ignore, flags)) {
     free(ptr);
+    WARNING();
     return NULL;
   }
 
@@ -337,26 +377,42 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t
 }
 
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags) {
-  uint32_t i, memory_count, file_count;
+  uint32_t i, memory_count, file_count, page_min_addr, page_max_addr, pages, initial_offset;
   void **ptrs;
 
   memory_count = (memory_size / 4096) + 1;
   file_count = (file_size / 4096) + 1;
   if(memory_count < file_count) {
+    WARNING();
     return 0;
   }
 
-  ptrs = malloc(sizeof(void *) * memory_count);
-  for(i = 0; i < memory_count; i++) {
-    if((ptrs[i] = DispatcherProcessAllocatePage(p, va + (i * 4096), 0, flags)) == NULL) {
+  page_min_addr = va & 0xFFFFF000;
+  page_max_addr = (va + memory_size) | 0xFFF;
+  pages = ((page_max_addr + 1) - page_min_addr) / 4096;
+
+  ptrs = malloc(sizeof(void *) * pages);
+  for(i = 0; i < pages; i++) {
+    // TODO Check if page is already allocated.
+
+    if((ptrs[i] = DispatcherProcessAllocatePage(p, page_min_addr + (i * 4096), 0, flags)) == NULL) {
       // TODO Clean up
+      WARNING();
       return 0;
     }
   }
 
   if(file_size != 0) {
+    initial_offset = va & 0xFFF;
     for(i = 0; i < file_count; i++) {
-      memcpy(ptrs[i], &data[(i * 4096)], (i == file_count - 1 ? file_size % 4096 : 4096));
+      // TODO 09/05/2019, start copying to va
+      if(i == 0) {
+        memcpy(ptrs[i] + initial_offset, data, 4096 - initial_offset);
+      } else if(i != file_count - 1) {
+        memcpy(ptrs[i], &data[(i * 4096) - (4096 - initial_offset)], 4096);
+      } else {
+        memcpy(ptrs[i], &data[(i * 4096) - (4096 - initial_offset)], file_size % 4096);
+      }
     }
   }
 

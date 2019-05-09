@@ -16,11 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <hypnoticos/function-codes.h>
-#include <hypnoticos/interface.h>
+#include <stdio.h>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
-  const char *t = "Test";
-  KernelFunctionInterface(1, (uint32_t) t, 4, 0, 0, KERNEL_FUNCTION_WRITE);
+  puts("Testing");
   while(1);
 }

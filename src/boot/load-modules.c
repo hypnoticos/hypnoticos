@@ -19,6 +19,7 @@
 #include <multiboot.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/boot.h>
+#include <hypnoticos/hypnoticos.h>
 
 uint8_t BootLoadModules() {
   multiboot_module_t *module;
@@ -28,7 +29,8 @@ uint8_t BootLoadModules() {
   for(i = 0; i < BootModulesCount; i++) {
     module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
     if(!(p = DispatcherProcessNewFromFormat("module", (char *) module->mod_start, module->mod_end - module->mod_start))) {
-      return 0;
+      WARNING();
+      continue;
     }
   }
 

@@ -16,10 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
+#ifndef UNISTD_H
+#define UNISTD_H
 
-int fputs(const char *s, FILE *f) {
-  return write(fileno(f), s, strlen(s));
-}
+#include <sys/types.h>
+
+#define STDIN_FILENO      0
+#define STDOUT_FILENO     1
+#define STDERR_FILENO     2
+
+ssize_t write(int fd, const void *buffer, size_t count);
+
+#endif

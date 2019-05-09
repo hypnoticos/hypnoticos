@@ -17,9 +17,7 @@
 //
 
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 
-int fputs(const char *s, FILE *f) {
-  return write(fileno(f), s, strlen(s));
+int fileno(FILE *f) {
+  return f->fd;
 }

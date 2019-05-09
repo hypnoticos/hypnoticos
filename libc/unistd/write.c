@@ -16,10 +16,35 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 
-int fputs(const char *s, FILE *f) {
-  return write(fileno(f), s, strlen(s));
+#ifdef _HYPNOTICOS_KERNEL
+
+#include <stdint.h>
+#include <hypnoticos/video-memory.h>
+
+ssize_t write(int fd, const void *buffer, size_t count) {
+  uint32_t i;
+
+  // TODO
+  if(fd != STDOUT_FILENO && fd != STDERR_FILENO) {
+    return -1;
+  }
+
+  for(i = 0; ((char *) buffer)[i] != 0; i++) {
+    VideoMemoryPutc(((char *) buffer)[i]);
+  }
+
+  return count;
 }
+
+#else
+
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
+
+ssize_t write(int fd, const void *buffer, size_t count) {
+  return KernelFunctionInterface(fd, (uint32_t) buffer, count, 0, 0, KERNEL_FUNCTION_WRITE);
+}
+
+#endif

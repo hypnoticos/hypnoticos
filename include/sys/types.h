@@ -16,10 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
+#ifndef SYS_TYPES_H
+#define SYS_TYPES_H
 
-int fputs(const char *s, FILE *f) {
-  return write(fileno(f), s, strlen(s));
-}
+typedef unsigned int size_t;
+typedef signed int ssize_t;
+
+#endif

@@ -16,29 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
+#include <stddef.h>
+#include <unistd.h>
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
+#include <hypnoticos/hypnoticos.h>
 
 uint32_t KernelFunctionWrite(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
-  uint32_t i;
   char *pa;
-
-  // Check output buffer
-  if(eax != 1) {
-    return 0;
-  }
 
   // Translate va to pa
   pa = GET_PA(ebx);
   if(pa == NULL) {
-    return 0;
+    WARNING();
+    return -1;
   }
 
   // Send to output buffer
-  for(i = 0; i < ecx; i++) {
-    fputc(pa[i], stdout);
-  }
-
-  return 0;
+  return write(eax, pa, ecx);
 }

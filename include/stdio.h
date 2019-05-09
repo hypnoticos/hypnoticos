@@ -22,12 +22,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-// TODO. unistd.h?
-#define STDIN_FILENO      0
-#define STDOUT_FILENO     1
-#define STDERR_FILENO     2
-
-#define NULL              0
 #define stdin             (&stdstreams[0])
 #define stdout            (&stdstreams[1])
 #define stderr            (&stdstreams[2])
@@ -36,12 +30,13 @@
 
 // TODO
 typedef struct {
-  uint32_t file_no;
+  uint32_t fd;
 } FILE;
 
 int fclose(FILE *f);
 int feof(FILE *f);
 char *fgets(char *buffer, int count, FILE *f);
+int fileno(FILE *f);
 FILE *fopen(const char *path, const char *mode);
 int fprintf(FILE *f, const char *format, ...);
 int fputc(int chr, FILE *f);

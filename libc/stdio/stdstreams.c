@@ -17,5 +17,6 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
 
-FILE stdstreams[3] = {{.file_no=STDIN_FILENO}, {.file_no=STDOUT_FILENO}, {.file_no=STDERR_FILENO}};
+FILE stdstreams[3] = {{.fd=STDIN_FILENO}, {.fd=STDOUT_FILENO}, {.fd=STDERR_FILENO}};

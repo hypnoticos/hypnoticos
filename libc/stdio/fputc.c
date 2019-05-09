@@ -17,12 +17,12 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
 
 int fputc(int chr, FILE *f) {
-  // TODO
-  if(f != stdout && f != stderr) {
-    return 0;
+  if(write(fileno(f), &chr, 1) != 1) {
+    return EOF;
+  } else {
+    return chr;
   }
-
-  return putchar(chr);
 }
