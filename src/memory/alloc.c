@@ -67,8 +67,7 @@ void *__malloc_align(size_t size, uint8_t align, const char function[200], uint3
 
   // Find space
   if((addr = MemoryFindSpace(size, align)) == NULL) {
-    printf("malloc: couldn't allocate %u bytes (%s %u)\n", (uint32_t) size, function, line);
-    HALT();
+    INFO("couldn't allocate %u bytes (%s %u)\n", (uint32_t) size, function, line);
     return NULL;
   }
 

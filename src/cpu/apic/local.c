@@ -35,6 +35,7 @@ uint8_t ApicLocalCheck() {
   // Check CPUID EAX=1, return value of EDX (bit 9 - APIC)
   r = Cpuid(0x01);
   if(!(r[3] & 0x200)) {
+    WARNING();
     return 0;
   }
 

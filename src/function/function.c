@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
+#include <hypnoticos/hypnoticos.h>
 
 #define CALL_FUNCTION(f)                return f(p, eax, ebx, ecx, edx, esi, edi)
 
@@ -30,6 +31,7 @@ uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint
 
     default:
     // TODO Terminate process
+    WARNING();
     return 0;
   }
 }

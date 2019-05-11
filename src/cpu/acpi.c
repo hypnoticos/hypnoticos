@@ -99,7 +99,8 @@ void *AcpiFindTable(const char *signature) {
   uint32_t i, sum;
 
   if(AcpiRsdt == NULL || strlen(signature) != 4) {
-    HALT();
+    WARNING();
+    return NULL;
   }
 
   for(ptr = (AcpiTableHeader_t **) ((uint32_t) AcpiRsdt + 36); ptr < (AcpiTableHeader_t **) ((uint32_t) AcpiRsdt + AcpiRsdt->hdr.length); ptr = (AcpiTableHeader_t **) ((uint32_t) ptr + 4)) {
@@ -135,11 +136,13 @@ uint8_t AcpiParseApic() {
     } else if(structure_type == 0x00) {
       // Local APIC
       if(!ApicLocalAdd((AcpiApicLocal_t *) ((uint32_t) apic + i))) {
+        WARNING();
         return 0;
       }
     } else if(structure_type == 0x01) {
       // I/O APIC
       if(!ApicIoAdd((AcpiApicIo_t *) ((uint32_t) apic + i))) {
+        WARNING();
         return 0;
       }
     } else if(structure_type == 0x02) {
@@ -170,6 +173,7 @@ uint8_t AcpiParseApic() {
   }
 
   if(i != apic->hdr.length) {
+    WARNING();
     return 0;
   }
 

@@ -19,6 +19,7 @@
 #include <string.h>
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/unimplemented.h> // TODO Remove once implemented
+#include <hypnoticos/hypnoticos.h>
 
 uint8_t ApicIoOkay = 0;
 AcpiApicIo_t ApicIo;
@@ -30,6 +31,7 @@ void ApicIoIrq(uint8_t no, uint8_t vector);
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
   if(ApicIoOkay != 0) {
     // TODO Support multiple I/O APICs
+    WARNING();
     return 0;
   }
 

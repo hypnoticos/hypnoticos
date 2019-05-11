@@ -104,6 +104,7 @@ uint8_t DispatcherFormatElfSetUp(DispatcherProcess_t *p) {
       }
       if(!DispatcherProcessLoadAt(p, program_header->va, (char *) ptr, program_header->file_size, program_header->memory_size, PAGING_PRESENT | PAGING_RW | PAGING_USER)) { // TODO Flags
         // TODO Clean up
+        WARNING();
         return 0;
       }
       break;
@@ -116,7 +117,7 @@ uint8_t DispatcherFormatElfSetUp(DispatcherProcess_t *p) {
   }
   if(offset != program_header_max) {
     // TODO Clean up
-    HALT();
+    WARNING();
     return 0;
   }
 

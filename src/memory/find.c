@@ -44,6 +44,7 @@ inline MemoryTable_t *MemoryFind(void *addr) {
     }
   }
 
+  WARNING();
   return NULL;
 }
 
@@ -92,6 +93,7 @@ inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align) {
   r = (*addr) - r;
 
   if(r < min) {
+    WARNING();
     return 0;
   } else {
     *addr = r;
@@ -133,5 +135,6 @@ void *MemoryFindSpace(size_t size, uint8_t align) {
     } while(addr >= block->start);
   }
 
+  WARNING();
   return NULL;
 }

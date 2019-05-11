@@ -80,6 +80,7 @@ void KeyboardBufferQueue(uint8_t key) {
 
   if(i == KEYBOARD_BUFFER_SIZE) {
     // Buffer is full, discard this key
+    WARNING();
     return;
   }
 
