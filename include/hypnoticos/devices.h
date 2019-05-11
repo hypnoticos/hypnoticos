@@ -46,4 +46,49 @@ uint8_t KeyboardBufferGet();
 void KeyboardInit();
 void KeyboardIrq();
 
+typedef struct _PciHdr_t PciHdr_t;
+typedef struct _PciHdr0_t PciHdr0_t;
+typedef struct _PciCache_t PciCache_t;
+
+struct _PciHdr_t {
+  uint16_t vendor_id;
+  uint16_t device_id;
+  uint16_t command;
+  uint16_t status;
+  uint8_t revision_id;
+  uint8_t prog_if;
+  uint8_t subclass;
+  uint8_t class;
+  uint8_t cache_line_size;
+  uint8_t latency_timer;
+  uint8_t header_type;
+  uint8_t bist;
+} __attribute__((packed));
+
+struct _PciHdr0_t {
+  PciHdr_t hdr;
+  uint32_t bar[6];
+  uint32_t cardbus_cis_pointer;
+  uint16_t subsystem_vendor_id;
+  uint16_t subsystem_id;
+  uint32_t expansion_base_rom_address;
+  uint8_t capabilities_ptr;
+  uint8_t reserved_1[3];
+  uint32_t reserved_2;
+  uint8_t int_line;
+  uint8_t int_pin;
+  uint8_t min_grant;
+  uint8_t max_latency;
+} __attribute__((packed));
+
+struct _PciCache_t {
+  uint32_t bus;
+  uint32_t device;
+  uint32_t function;
+  PciHdr0_t hdr0;
+  uint8_t handler; /*!< 0 = Not handled. 1 = Handled by kernel. 2 = Handled by driver. */
+};
+
+extern PciCache_t **PciCache;
+
 #endif
