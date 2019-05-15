@@ -23,9 +23,13 @@
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/hypnoticos.h>
 #include <hypnoticos/memory.h>
+#include <hypnoticos/devices.h>
+#include <hypnoticos/keyboard-codes.h>
+#include <hypnoticos/function.h>
 
 // TODO Save all registers
 
+uint32_t DispatcherCycle = 0;
 uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
@@ -46,7 +50,6 @@ DispatcherProcess_t *DispatcherFind(uint16_t pid) {
 
 void DispatcherSetUpNext() {
   DispatcherProcess_t *p;
-  uint16_t next_pid;
   uint32_t i, byte_offset, bit_offset, bit_operation;
 
   if(DispatcherCurrentPid != 0) {
@@ -76,27 +79,24 @@ void DispatcherSetUpNext() {
   }
 
   // Find next process
-  next_pid = DispatcherCurrentPid + 1;
-  i = 0;
-  while(1) {
-    if((p = DispatcherFind(next_pid)) != NULL && p->run == 1) {
-      break;
-    }
-
-    if(next_pid == 0xFFFF) {
-      next_pid = 1;
-      i++;
-    } else {
-      next_pid++;
-    }
-
-    if(i == 2) {
-      printf("No processes found.\n");
-      HALT();
+restart:
+  for(p = NULL, i = 0; DispatcherProcesses[i] != NULL; i++) {
+    p = DispatcherProcesses[i];
+    if(p->run != 1 || p->last_cycle == DispatcherCycle) {
+      p = NULL;
+      continue;
     }
   }
 
-  DispatcherCurrentPid = next_pid;
+
+  if(p == NULL) {
+    DispatcherCycle++; // TODO Handle overflow
+    goto restart;
+  }
+
+  p->last_cycle = DispatcherCycle;
+
+  DispatcherCurrentPid = p->pid;
 
   // Restore registers
   IdtCallSavedCr3 = p->save.cr3;
@@ -177,6 +177,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
 
   p->stack = NULL;
   p->run = 0;
+  p->last_cycle = 0;
 
   p->save.cr3 = (uint32_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 

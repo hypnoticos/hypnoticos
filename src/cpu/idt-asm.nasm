@@ -91,6 +91,9 @@ IdtCallManage:
     mov eax, [MemoryPD]
     mov cr3, eax
 
+    ; Reset stack
+    mov esp, IdtStackTop
+
     call IdtCall
     call ApicLocalEoi
 

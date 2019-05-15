@@ -31,6 +31,7 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 #define DISPATCHER_DETECT_FORMAT_NOT_DETECTED         0
 #define DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED 1
 #define DISPATCHER_DETECT_FORMAT_DETECTED             2
+
 struct _DispatcherProcessSave_t {
   uint32_t esp;
   uint32_t ebp;
@@ -45,17 +46,20 @@ struct _DispatcherProcessSave_t {
   uint32_t esi;
   uint32_t edi;
 };
+
 struct _DispatcherProcessVa_t {
   uint32_t va;
   void *pa;
   uint8_t ignore; /*!< 0 = Kernel functions will not ignore this virtual address range. 1 = Kernel funtions will ignore this virtual address range. */
 };
+
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
   void *stack;
   DispatcherProcessSave_t save;
   uint8_t run;
+  uint32_t last_cycle;
 
   char *data; /*!< Optional parameter - a copy of the original file. Set to NULL if not present. */
   uint32_t size; /*!< Data size */
