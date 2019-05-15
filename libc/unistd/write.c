@@ -31,7 +31,7 @@ ssize_t write(int fd, const void *buffer, size_t count) {
     return -1;
   }
 
-  for(i = 0; ((char *) buffer)[i] != 0; i++) {
+  for(i = 0; i < count; i++) {
     VideoMemoryPutc(((char *) buffer)[i]);
   }
 
