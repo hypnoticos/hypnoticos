@@ -43,6 +43,7 @@ extern uint8_t KeyboardPresent;
 extern uint8_t KeyboardState;
 
 uint8_t KeyboardBufferGet();
+uint8_t KeyboardBufferGet_Keep();
 void KeyboardInit();
 void KeyboardIrq();
 

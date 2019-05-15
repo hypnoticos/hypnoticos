@@ -98,6 +98,10 @@ uint8_t KeyboardBufferGet() {
   return key;
 }
 
+uint8_t KeyboardBufferGet_Keep() {
+  return KeyboardBuffer[0];
+}
+
 void KeyboardIrq() {
   uint8_t key[6] = {0, 0, 0, 0, 0, 0};
 
