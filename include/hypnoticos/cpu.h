@@ -112,7 +112,7 @@ struct _AcpiApicIo_t {
 struct _AcpiApicLocal_t {
   uint8_t type;
   uint8_t length;
-  uint16_t acpi_processor_id;
+  uint8_t acpi_processor_id;
   uint8_t apic_id;
   uint32_t flags;
 } __attribute__((packed));
