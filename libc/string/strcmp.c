@@ -1,4 +1,4 @@
-// 
+//
 // HypnoticOS
 // Copyright (C) 2019  jk30
 //
@@ -16,17 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef STRING_H
-#define STRING_H
+#include <stdint.h>
+#include <string.h>
 
-#include <stddef.h>
-#include <sys/types.h>
+// TODO Return value
+int strcmp(const char *str1, const char *str2) {
+  uint32_t i;
 
-int memcmp(const void *addr1, const void *addr2, size_t count);
-void *memcpy(void *destination, const void *source, size_t count);
-void *memset(void *addr, int chr, size_t count);
-int strcmp(const char *str1, const char *str2);
-char *strcpy(char *d, const char *s);
-size_t strlen(const char *s);
+  if(strlen(str1) != strlen(str2)) {
+    return 1;
+  }
 
-#endif
+  for(i = 0; i < strlen(str1); i++) {
+    if(str1[i] != str2[i]) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
