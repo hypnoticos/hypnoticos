@@ -55,13 +55,15 @@ void CpuChecks() {
     HALT();
   }
 
-  // Vendor identification string -  EBX, EDX, ECX
+  // Check vendor identification string -  EBX, EDX, ECX
   r = Cpuid(0x00);
   memcpy(s, &r[1], 4);
   memcpy(s + 4, &r[3], 4);
   memcpy(s + 8, &r[2], 4);
   s[12] = 0;
-  printf("Vendor identification string: %s\n", s);
+  if(strcmp(s, "GenuineIntel") != 0 && strcmp(s, "AuthenticAMD") != 0) {
+    HALT();
+  }
 
   if(!ApicLocalCheck()) {
     HALT();
