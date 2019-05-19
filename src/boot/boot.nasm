@@ -17,7 +17,7 @@
 ;
 
 global Start, Stack
-extern Main, GdtInit
+extern Main, GdtInit, TssUpdateGdt
 
 section .text
 Start:
@@ -35,6 +35,7 @@ Start:
   out byte 0x21, al
 
   ; Init GDT
+  call TssUpdateGdt
   call GdtInit
 
   ; Enter protected mode (set PE bit [bit 0] of CR0)

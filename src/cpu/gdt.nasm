@@ -16,17 +16,9 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global GdtInit
-extern Tss
+global GdtInit, TssBaseLow, TssBaseMiddle, TssBaseHigh, Gdt
 
 GdtInit:
-  ; Update the TSS entry in the GDT
-  mov eax, Tss
-  mov word [TssBaseLow], ax
-  shr eax, 16
-  mov byte [TssBaseMiddle], al
-  mov byte [TssBaseHigh], ah
-
   lgdt [Gdt]    ; Load the GDT
   mov ax, 0x10  ; GDT entry 0x10
   mov ds, ax

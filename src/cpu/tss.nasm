@@ -16,9 +16,19 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global TssSet
+global TssSet, TssUpdateGdt
+extern Tss, TssBaseLow, TssBaseMiddle, TssBaseHigh
 
 TssSet:
   mov ax, 0x28
   ltr ax              ; Load task register
+  ret
+
+TssUpdateGdt:
+  ; Update the TSS entry in the GDT
+  mov eax, Tss
+  mov word [TssBaseLow], ax
+  shr eax, 16
+  mov byte [TssBaseMiddle], al
+  mov byte [TssBaseHigh], ah
   ret
