@@ -137,6 +137,9 @@ struct _AcpiApicLocal_t {
 #define IDT_IRQ_1                       49
 #define IDT_IRQ_2                       50
 
+#define CPU_BSP                         1
+#define CPU_AP                          0
+
 extern uint8_t ApInitDone;
 extern volatile void *ApicLocalBspBase;
 extern uint8_t IdtCallCurrentPrivilegeLevel;
@@ -163,10 +166,10 @@ uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();
 void ApicIoMapIrqs();
 uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr);
-uint8_t ApicLocalCheck();
+uint8_t ApicLocalInit(uint8_t bsp);
 void ApicLocalEoi();
 void ApicLocalSetUpTimer();
-void CpuChecks();
+void CpuChecks(uint8_t bsp);
 uint32_t *Cpuid(uint32_t eax_input);
 extern uint32_t EflagsGet();
 void IdtInit();

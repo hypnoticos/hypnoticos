@@ -18,8 +18,9 @@
 
 #include <stdio.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/hypnoticos.h>
 
 void ApStart() {
-  printf("Test. This code is being run by an AP.\n");
+  CpuChecks(CPU_AP);
   ApInitDone = 1;
 }

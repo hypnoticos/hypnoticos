@@ -25,6 +25,7 @@
 #include <hypnoticos/hypnoticos.h>
 
 uint32_t CpuidTest();
+uint8_t CpuCheckVendorIdString();
 
 extern void *IdtStackTop;
 
@@ -47,13 +48,9 @@ void TssInit() {
   TssSet();
 }
 
-void CpuChecks() {
-  uint32_t *r;
+uint8_t CpuCheckVendorIdString() {
   char s[13];
-
-  if(!CpuidTest()) {
-    HALT();
-  }
+  uint32_t *r;
 
   // Check vendor identification string -  EBX, EDX, ECX
   r = Cpuid(0x00);
@@ -62,14 +59,27 @@ void CpuChecks() {
   memcpy(s + 8, &r[2], 4);
   s[12] = 0;
   if(strcmp(s, "GenuineIntel") != 0 && strcmp(s, "AuthenticAMD") != 0) {
+    WARNING();
+    return 0;
+  }
+
+  return 1;
+}
+
+void CpuChecks(uint8_t bsp) {
+  if(!CpuidTest()) {
+    HALT();
+  } else if(!CpuCheckVendorIdString()) {
+    HALT();
+  } else if(!ApicLocalInit(bsp)) {
     HALT();
   }
 
-  if(!ApicLocalCheck()) {
-    HALT();
-  } else if(!AcpiParse()) { // This function finds the I/O APIC
-    HALT();
-  } else if(!ApicIoInit()) {
-    HALT();
+  if(bsp == CPU_BSP) {
+    if(!AcpiParse()) { // This function finds the I/O APIC
+      HALT();
+    } else if(!ApicIoInit()) {
+      HALT();
+    }
   }
 }

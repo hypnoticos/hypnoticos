@@ -27,10 +27,12 @@
 volatile void *ApicLocalBspBase = NULL;
 uint8_t ApInitDone = 0;
 
-void ApicLocalEnable();
-
-uint8_t ApicLocalCheck() {
+uint8_t ApicLocalInit(uint8_t bsp) {
   uint32_t *r;
+
+  if(bsp != CPU_BSP && bsp != CPU_AP) {
+    HALT();
+  }
 
   // Check CPUID EAX=1, return value of EDX (bit 9 - APIC)
   r = Cpuid(0x01);
@@ -42,29 +44,31 @@ uint8_t ApicLocalCheck() {
   // TODO Implement x2APIC support in addition
   // Check CPUID EAX=1, return value of ECX (bit 21 - x2APIC)
 
-  ApicLocalEnable();
-  return 1;
-}
-
-void ApicLocalEnable() {
-  uint32_t *r;
-
   r = MsrRead(MSR_IA32_APIC_BASE);
 
-  if((r[1] & 0x800)) {
-    // APIC not enabled
-    r[1] = r[1] | 0x800;
-    MsrWrite(MSR_IA32_APIC_BASE, r[0], r[1]);
-  } else if(!(r[1] & 0x100)) {
-    // BSP not set
-    HALT();
+  if(!(r[1] & 0x800)) {
+    // APIC enabled
+    return 1;
+  } else if(bsp == CPU_BSP && !(r[1] & 0x100)) {
+    // BSP not set, and this processor is the BSP
+    WARNING();
+    return 0;
+  } else if(bsp == CPU_AP && (r[1] & 0x100)) {
+    // BSP set, and this processor is not the BSP
+    WARNING();
+    return 0;
   }
+
+  r[1] = r[1] | 0x800;
+  MsrWrite(MSR_IA32_APIC_BASE, r[0], r[1]);
 
   // TODO MAXPHYSADDR
   // TODO Look at this code again. The documents refer to using CPUID, and potentially only part of r[1] should be considered.
   ApicLocalBspBase = (void *) ((uint32_t) r[1] & 0xFFFFF000);
 
   APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
+
+  return 1;
 }
 
 uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr) {
