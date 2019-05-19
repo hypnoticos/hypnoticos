@@ -65,7 +65,6 @@ ApStart32Bit:
   call ApStart
 
 ApStartLoop:
-  ud2
   hlt
   jmp ApStartLoop
 
