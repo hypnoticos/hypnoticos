@@ -117,7 +117,7 @@ void *AcpiFindTable(const char *signature) {
   return NULL;
 }
 
-uint8_t AcpiParseApic() {
+uint8_t AcpiParse() {
   AcpiApic_t *apic;
   uint8_t structure_type, structure_length;
   uint32_t i;
@@ -135,7 +135,7 @@ uint8_t AcpiParseApic() {
       continue;
     } else if(structure_type == 0x00) {
       // Local APIC
-      if(!ApicLocalAdd((AcpiApicLocal_t *) ((uint32_t) apic + i))) {
+      if(!ApicLocalParseAcpi((AcpiApicLocal_t *) ((uint32_t) apic + i))) {
         WARNING();
         return 0;
       }

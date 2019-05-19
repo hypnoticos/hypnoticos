@@ -24,8 +24,8 @@
 
 #define MSR_IA32_APIC_BASE          0x1B
 
-AcpiApicLocal_t **ApicLocal = NULL;
-void *ApicLocalBspBase = NULL;
+volatile void *ApicLocalBspBase = NULL;
+uint8_t ApInitDone = 0;
 
 void ApicLocalEnable();
 
@@ -64,43 +64,60 @@ void ApicLocalEnable() {
   // TODO Look at this code again. The documents refer to using CPUID, and potentially only part of r[1] should be considered.
   ApicLocalBspBase = (void *) ((uint32_t) r[1] & 0xFFFFF000);
 
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
 }
 
-uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr) {
+uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr) {
   uint32_t i;
+  uint8_t retry = 0;
 
-  if(ApicLocal == NULL) {
-    ApicLocal = malloc(sizeof(AcpiApicLocal_t *) * 2);
-    i = 0;
-  } else {
-    for(i = 0; ApicLocal[i] != NULL; i++);
-    ApicLocal = realloc(ApicLocal, sizeof(AcpiApicLocal_t *) * (i + 2));
+  // Is this the BSP?
+  if(APIC_LOCAL_READ(ApicLocalBspBase, APIC_LOCAL_OFFSET_ID) == ptr->apic_id) {
+    return 1;
   }
 
-  ApicLocal[i] = malloc(sizeof(AcpiApicLocal_t));
-  memcpy(ApicLocal[i], ptr, sizeof(AcpiApicLocal_t));
-  ApicLocal[i + 1] = NULL;
+  if(!(ptr->flags & 0x1) || (ptr->flags & 0x2)) {
+    // Not supported
+    WARNING();
+    return 1;
+  }
 
-  // TODO Process flags
+  ApInitDone = 0;
+
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_ICR_H, ptr->apic_id << 24);
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_ICR_L, 0 | (0x5 << 8) | (0x1 << 14));
+
+  // TODO Replace with sleep()
+  for(i = 0; i < 0xFFFFFF; i++) {
+    asm("pause");
+  }
+
+  while(!ApInitDone) {
+    APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_ICR_H, ptr->apic_id << 24);
+    APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_ICR_L, APIC_LOCAL_VECTOR_AP_START | (0x6 << 8) | (0x1 << 14));
+
+    for(i = 0; i < 0xFFFFFF && ApInitDone == 0; i++) {
+      asm("pause");
+    }
+
+    if(retry) {
+      // Already retried
+      WARNING();
+      return 0;
+    }
+
+    retry = 1;
+  }
 
   return 1;
 }
 
 void ApicLocalSetUpTimer() {
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_DCR, APIC_LOCAL_DCR_2);
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_ICR, 0xFFFFFFFF);
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_LVT, APIC_LOCAL_TIMER_PERIODIC | APIC_LOCAL_VECTOR_TIMER);
-}
-
-void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value) {
-  *((uint32_t *) ((uint32_t) base_addr + offset)) = value;
-}
-
-uint32_t ApicLocalRead(void *base_addr, uint32_t offset) {
-  return *((uint32_t *) ((uint32_t) base_addr + offset));
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_DCR, APIC_LOCAL_DCR_2);
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_ICR, 0xFFFFFFFF);
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_TIMER_LVT, APIC_LOCAL_TIMER_PERIODIC | APIC_LOCAL_VECTOR_TIMER);
 }
 
 void ApicLocalEoi() {
-  ApicLocalWrite(ApicLocalBspBase, APIC_LOCAL_OFFSET_EOI, 0x0);
+  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_EOI, 0x0);
 }

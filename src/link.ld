@@ -20,25 +20,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ENTRY(Start)
 
+MEMORY {
+  multiboot_header : ORIGIN = 0x500, LENGTH = 0x500
+  ap_start_code : ORIGIN = 0x1000, LENGTH = 0x1000
+  other : ORIGIN = 1M, LENGTH = 4M
+}
+
 SECTIONS {
+  multiboot_header.rodata 0x500 : {
+    boot/multiboot.o
+  } >multiboot_header
+
+  ap_start_code 0x1000 : ALIGN(4K) {
+    /* .text must go first */
+    cpu/ap-start-prepare.o(.text)
+    cpu/ap-start-prepare.o(.data)
+    cpu/ap-start-prepare.o(.bss)
+  } >ap_start_code
+
   . = 1M;
   AddrStart = .;
 
   .text : ALIGN(4K) {
     *(.text)
-  }
+  } >other
 
   .data : ALIGN(4K) {
     *(.data)
-  }
+  } >other
 
   .rodata : ALIGN(4K) {
     *(.rodata)
-  }
+  } >other
 
   .bss : ALIGN(4K) {
     *(.bss)
-  }
+  } >other
 
   AddrEnd = .;
 }

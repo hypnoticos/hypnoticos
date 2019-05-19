@@ -117,8 +117,11 @@ struct _AcpiApicLocal_t {
   uint32_t flags;
 } __attribute__((packed));
 
+#define APIC_LOCAL_OFFSET_ID            0x020
 #define APIC_LOCAL_OFFSET_EOI           0x0B0
 #define APIC_LOCAL_OFFSET_SIVR          0x0F0
+#define APIC_LOCAL_OFFSET_ICR_L         0x300
+#define APIC_LOCAL_OFFSET_ICR_H         0x310
 #define APIC_LOCAL_OFFSET_TIMER_DCR     0x3E0
 #define APIC_LOCAL_OFFSET_TIMER_LVT     0x320
 #define APIC_LOCAL_OFFSET_TIMER_ICR     0x380
@@ -126,6 +129,7 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_DCR_2                0x00
 
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
+#define APIC_LOCAL_VECTOR_AP_START      0x01
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
 
 #define APIC_LOCAL_TIMER_PERIODIC       0x20000
@@ -133,7 +137,8 @@ struct _AcpiApicLocal_t {
 #define IDT_IRQ_1                       49
 #define IDT_IRQ_2                       50
 
-extern void *ApicLocalBspBase;
+extern uint8_t ApInitDone;
+extern volatile void *ApicLocalBspBase;
 extern uint8_t IdtCallCurrentPrivilegeLevel;
 extern uint32_t IdtCallSavedCr3;
 extern uint32_t IdtCallSavedEbp;
@@ -148,18 +153,19 @@ extern uint32_t IdtCallSavedEdi;
 extern uint32_t IdtCallSavedEflags;
 extern Tss_t Tss;
 
+#define APIC_LOCAL_READ(base_addr, offset)                (*((volatile uint32_t *) ((volatile uint32_t) (base_addr) + (offset))))
+#define APIC_LOCAL_WRITE(base_addr, offset, value)        (*((volatile uint32_t *) ((volatile uint32_t) (base_addr) + (offset))) = (value))
+
 void AcpiFindRsdp();
 void *AcpiFindTable(const char *signature);
-uint8_t AcpiParseApic();
+uint8_t AcpiParse();
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();
 void ApicIoMapIrqs();
-uint8_t ApicLocalAdd(AcpiApicLocal_t *ptr);
+uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr);
 uint8_t ApicLocalCheck();
 void ApicLocalEoi();
-uint32_t ApicLocalRead(void *base_addr, uint32_t offset);
 void ApicLocalSetUpTimer();
-void ApicLocalWrite(void *base_addr, uint32_t offset, uint32_t value);
 void CpuChecks();
 uint32_t *Cpuid(uint32_t eax_input);
 extern uint32_t EflagsGet();

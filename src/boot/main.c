@@ -41,11 +41,12 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   TssInit();
   IdtInit();
   AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
+  CpuChecks();
+
+  // *** Free memory not utilised before this point ***
 
   MultibootCheck(magic, multiboot);
   DispatcherInit();
-
-  CpuChecks();
 
   KeyboardInit();
   if(!KeyboardPresent) {

@@ -67,7 +67,7 @@ void CpuChecks() {
 
   if(!ApicLocalCheck()) {
     HALT();
-  } else if(!AcpiParseApic()) { // This function finds the I/O APIC
+  } else if(!AcpiParse()) { // This function finds the I/O APIC
     HALT();
   } else if(!ApicIoInit()) {
     HALT();
