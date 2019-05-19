@@ -34,6 +34,8 @@
 
 IdtGate_t IdtGates[IDT_GATE_COUNT] __attribute__((aligned(8)));
 extern uint32_t IdtCallVector;
+extern uint16_t IdtLimit;
+extern uint32_t IdtBase;
 uint8_t IdtFull = 0;
 
 extern void Idt0();
@@ -86,7 +88,6 @@ extern void Idt241();
 extern void IdtReserved();
 void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t ss, uint16_t flags);
 void IdtCall();
-extern void IdtSet(uint16_t limit);
 
 void IdtCall() {
   DispatcherProcess_t *p;
@@ -223,5 +224,6 @@ void IdtInit() {
   // Software interrupt
   IdtCreateGate(241, Idt241, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_3);
 
-  IdtSet((IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1);
+  IdtLimit = (IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1;
+  IdtBase = &IdtGates;
 }

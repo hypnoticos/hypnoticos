@@ -20,7 +20,7 @@
 
 bits 16
 
-extern ApStart
+extern ApStart, Gdt
 
 section .text
 ApStartPrepare:
@@ -56,13 +56,16 @@ ApStartGdtInit:
   mov gs, ax
   mov ss, ax
 
-  jmp 0x08:ApStartCall
+  jmp 0x08:ApStart32Bit
 
 bits 32
-ApStartCall:
+ApStart32Bit:
+  lgdt [Gdt]
+
   call ApStart
 
 ApStartLoop:
+  ud2
   hlt
   jmp ApStartLoop
 

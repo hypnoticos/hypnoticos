@@ -22,5 +22,6 @@
 
 void ApStart() {
   CpuChecks(CPU_AP);
+  IdtSet();
   ApInitDone = 1;
 }

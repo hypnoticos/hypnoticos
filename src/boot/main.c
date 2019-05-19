@@ -40,6 +40,7 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
 
   TssInit();
   IdtInit();
+  IdtSet();
   AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
   CpuChecks(CPU_BSP);
 

@@ -173,6 +173,8 @@ void CpuChecks(uint8_t bsp);
 uint32_t *Cpuid(uint32_t eax_input);
 extern uint32_t EflagsGet();
 void IdtInit();
+extern void IdtInit();
+extern void IdtSet();
 uint8_t IoPort8In(uint16_t port);
 void IoPort8Out(uint16_t port, uint8_t data);
 uint16_t IoPort16In(uint16_t port);

@@ -17,7 +17,7 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedEsp, IdtCallSavedEbp, IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi, IdtCallSavedEip, IdtCallSavedEflags, IdtCallCurrentPrivilegeLevel, IdtStackTop
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedEsp, IdtCallSavedEbp, IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi, IdtCallSavedEip, IdtCallSavedEflags, IdtStackTop, IdtLimit, IdtBase
 extern IdtGates, IdtCall, MemoryPD, ApicLocalEoi
 
 section .data
@@ -39,17 +39,7 @@ section .data
 
 section .text
 IdtSet:
-  push ebp
-  mov ebp, esp
-
-  mov word ax, [ebp + 8]
-  mov word [IdtLimit], ax
-  mov dword [IdtBase], IdtGates
-
   lidt [Idt]
-
-  mov esp, ebp
-  pop ebp
   ret
 
 IdtCallManage:
