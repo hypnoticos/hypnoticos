@@ -43,7 +43,7 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
   CpuChecks();
 
-  // *** Free memory not utilised before this point ***
+  // *** Free memory should not be used before this point ***
 
   MultibootCheck(magic, multiboot);
   DispatcherInit();
