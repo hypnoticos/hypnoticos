@@ -25,7 +25,6 @@ export INCDIR=$(PWD)/include
 export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
 export ISODIR=$(PWD)/iso
 ISONAME=hypnoticos.iso
-ARCHIVENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION).tar.xz
 SUBDIRS=libc src modules
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
@@ -75,7 +74,7 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 clean: $(CLEANDIRS)
-	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME) $(ARCHIVENAME)
+	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME)
 
 iso: prepare subdirs
 	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
@@ -87,6 +86,3 @@ iso: prepare subdirs
 	echo "}" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISONAME) $(ISODIR)
-
-compress: iso
-	cd src && tar -cJf ../$(ARCHIVENAME) $(KERNELFILENAME) ../$(ISONAME)
