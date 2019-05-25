@@ -39,12 +39,17 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
   MemoryTable_t *table;
   multiboot_module_t *module;
 
+  if(start < 0x100000) {
+    // Ignore < 1MB
+    return;
+  }
+
   for(current = &MemoryBlocks; current->next != NULL; current = current->next);
 
   if(current == &MemoryBlocks && MemoryBlocks.type == 0) {
     // There are no other entries in the list
-    current->start = (start == 0 ? start + 1 : start);
-    current->length = (start == 0 ? length - 1 : length);
+    current->start = start;
+    current->length = length;
     current->type = type;
   } else {
     // Create a new entry
