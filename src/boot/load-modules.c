@@ -28,7 +28,7 @@ uint8_t BootLoadModules() {
 
   for(i = 0; i < BootModulesCount; i++) {
     module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-    if(!(p = DispatcherProcessNewFromFormat("module", (char *) module->mod_start, module->mod_end - module->mod_start))) {
+    if(!(p = DispatcherProcessNewFromFormat("module", (char *) ((uint64_t) module->mod_start), module->mod_end - module->mod_start))) {
       WARNING();
       continue;
     }

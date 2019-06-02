@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 char *strcpy(char *d, const char *s) {
-  uint32_t i;
+  size_t i;
 
   for(i = 0; s[i] != 0; i++) {
     d[i] = s[i];

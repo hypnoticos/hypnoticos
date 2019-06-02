@@ -33,22 +33,30 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 #define DISPATCHER_DETECT_FORMAT_DETECTED             2
 
 struct _DispatcherProcessSave_t {
-  uint32_t esp;
-  uint32_t ebp;
-  uint32_t cr3;
-  uint32_t eip;
-  uint32_t eflags;
+  uint64_t rsp;
+  uint64_t rbp;
+  uint64_t cr3;
+  uint64_t rip;
+  uint64_t rflags;
 
-  uint32_t eax;
-  uint32_t ebx;
-  uint32_t ecx;
-  uint32_t edx;
-  uint32_t esi;
-  uint32_t edi;
+  uint64_t rax;
+  uint64_t rbx;
+  uint64_t rcx;
+  uint64_t rdx;
+  uint64_t rsi;
+  uint64_t rdi;
+  uint64_t r8;
+  uint64_t r9;
+  uint64_t r10;
+  uint64_t r11;
+  uint64_t r12;
+  uint64_t r13;
+  uint64_t r14;
+  uint64_t r15;
 };
 
 struct _DispatcherProcessVa_t {
-  uint32_t va;
+  uint64_t va;
   void *pa;
   uint8_t ignore; /*!< 0 = Kernel functions will not ignore this virtual address range. 1 = Kernel funtions will ignore this virtual address range. */
 };
@@ -59,10 +67,10 @@ struct _DispatcherProcess_t {
   void *stack;
   DispatcherProcessSave_t save;
   uint8_t run;
-  uint32_t last_cycle;
+  uint64_t last_cycle;
 
   char *data; /*!< Optional parameter - a copy of the original file. Set to NULL if not present. */
-  uint32_t size; /*!< Data size */
+  uint64_t size; /*!< Data size */
   uint32_t format;
   void *format_header;
 
@@ -80,15 +88,15 @@ DispatcherProcess_t *DispatcherFind(uint16_t pid);
 uint8_t DispatcherInit();
 extern void DispatcherInterrupt();
 void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port);
-void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore, uint32_t flags);
-void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore);
-uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags);
-uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint8_t kernel_function_ignore, uint32_t flags);
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore, uint32_t flags);
+void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore);
+uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags);
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags);
 DispatcherProcess_t *DispatcherProcessNew(char *name);
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size);
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
-void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip);
+void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
 void DispatcherSetUpNext();
-uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size);
+uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size);
 
 #endif

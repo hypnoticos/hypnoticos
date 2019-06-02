@@ -21,10 +21,10 @@
 #include <hypnoticos/function.h>
 #include <hypnoticos/hypnoticos.h>
 
-#define CALL_FUNCTION(f)                return f(p, eax, ebx, ecx, edx, esi, edi)
+#define CALL_FUNCTION(f)                return f(p, rax, rbx, rcx, rdx, rsi, rdi)
 
-uint32_t KernelFunction(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
-  switch(edi) {
+uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+  switch(rdi) {
     case KERNEL_FUNCTION_WRITE:
     CALL_FUNCTION(KernelFunctionWrite);
     break;

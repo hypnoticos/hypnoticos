@@ -25,43 +25,39 @@ typedef struct _Tss_t Tss_t;
 typedef struct _IdtGate_t IdtGate_t;
 
 struct _Tss_t {
-   uint32_t prev_tss;
-   uint32_t esp0;
-   uint32_t ss0;
-   uint32_t esp1;
-   uint32_t ss1;
-   uint32_t esp2;
-   uint32_t ss2;
-   uint32_t cr3;
-   uint32_t eip;
-   uint32_t eflags;
-   uint32_t eax;
-   uint32_t ecx;
-   uint32_t edx;
-   uint32_t ebx;
-   uint32_t esp;
-   uint32_t ebp;
-   uint32_t esi;
-   uint32_t edi;
-   uint32_t es;
-   uint32_t cs;
-   uint32_t ss;
-   uint32_t ds;
-   uint32_t fs;
-   uint32_t gs;
-   uint32_t ldt;
-   uint16_t trap;
-   uint16_t iomap_base;
-   uint8_t int_redirection[32];
-   uint8_t io_permission[8192];
-   uint8_t io_permission_final;
+  uint32_t reserved1;
+
+  uint64_t rsp0;
+  uint64_t rsp1;
+  uint64_t rsp2;
+
+  uint64_t reserved2;
+
+  uint64_t ist1;
+  uint64_t ist2;
+  uint64_t ist3;
+  uint64_t ist4;
+  uint64_t ist5;
+  uint64_t ist6;
+  uint64_t ist7;
+
+  uint64_t reserved3;
+  uint16_t reserved4;
+
+  uint16_t io_map_base;
+  uint8_t int_redirection[32];
+  uint8_t io_permission[8192];
+  uint8_t io_permission_final;
 } __attribute__((packed)) __attribute__((aligned(4096)));
 
 struct _IdtGate_t {
-  uint16_t offset_low;
-  uint16_t ss;
-  uint16_t flags;
-  uint16_t offset_high;
+  uint16_t offset_0_15;
+  uint16_t cs;
+  uint8_t ist; // NOTE: bits 3 to 7 (inclusive) must be set to 0
+  uint8_t flags;
+  uint16_t offset_16_31;
+  uint32_t offset_32_63;
+  uint32_t reserved;
 } __attribute__((packed));
 
 typedef struct _AcpiRsdp_t AcpiRsdp_t;
@@ -129,7 +125,7 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_DCR_2                0x00
 
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
-#define APIC_LOCAL_VECTOR_AP_START      0x01
+#define APIC_LOCAL_VECTOR_AP_START      0x02
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
 
 #define APIC_LOCAL_TIMER_PERIODIC       0x20000
@@ -143,21 +139,29 @@ struct _AcpiApicLocal_t {
 extern uint8_t ApInitDone;
 extern volatile void *ApicLocalBspBase;
 extern uint8_t IdtCallCurrentPrivilegeLevel;
-extern uint32_t IdtCallSavedCr3;
-extern uint32_t IdtCallSavedEbp;
-extern uint32_t IdtCallSavedEsp;
-extern uint32_t IdtCallSavedEip;
-extern uint32_t IdtCallSavedEax;
-extern uint32_t IdtCallSavedEbx;
-extern uint32_t IdtCallSavedEcx;
-extern uint32_t IdtCallSavedEdx;
-extern uint32_t IdtCallSavedEsi;
-extern uint32_t IdtCallSavedEdi;
-extern uint32_t IdtCallSavedEflags;
 extern Tss_t Tss;
+extern uint64_t IdtCallSavedCr3;
+extern uint64_t IdtCallSavedRbp;
+extern uint64_t IdtCallSavedRsp;
+extern uint64_t IdtCallSavedRip;
+extern uint64_t IdtCallSavedRax;
+extern uint64_t IdtCallSavedRbx;
+extern uint64_t IdtCallSavedRcx;
+extern uint64_t IdtCallSavedRdx;
+extern uint64_t IdtCallSavedRsi;
+extern uint64_t IdtCallSavedRdi;
+extern uint64_t IdtCallSavedRflags;
+extern uint64_t IdtCallSavedR8;
+extern uint64_t IdtCallSavedR9;
+extern uint64_t IdtCallSavedR10;
+extern uint64_t IdtCallSavedR11;
+extern uint64_t IdtCallSavedR12;
+extern uint64_t IdtCallSavedR13;
+extern uint64_t IdtCallSavedR14;
+extern uint64_t IdtCallSavedR15;
 
-#define APIC_LOCAL_READ(base_addr, offset)                (*((volatile uint32_t *) ((volatile uint32_t) (base_addr) + (offset))))
-#define APIC_LOCAL_WRITE(base_addr, offset, value)        (*((volatile uint32_t *) ((volatile uint32_t) (base_addr) + (offset))) = (value))
+#define APIC_LOCAL_READ(base_addr, offset)                (*((volatile uint32_t *) ((volatile uint64_t) (base_addr) + (offset))))
+#define APIC_LOCAL_WRITE(base_addr, offset, value)        (*((volatile uint32_t *) ((volatile uint64_t) (base_addr) + (offset))) = (value))
 
 void AcpiFindRsdp();
 void *AcpiFindTable(const char *signature);
@@ -169,9 +173,10 @@ uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr);
 uint8_t ApicLocalInit(uint8_t bsp);
 void ApicLocalEoi();
 void ApicLocalSetUpTimer();
+void CpuApic(uint8_t bsp);
 void CpuChecks(uint8_t bsp);
-uint32_t *Cpuid(uint32_t eax_input);
-extern uint32_t EflagsGet();
+uint32_t *Cpuid(uint64_t rax_input);
+extern uint64_t RflagsGet();
 void IdtInit();
 extern void IdtInit();
 extern void IdtSet();
@@ -184,6 +189,5 @@ void IoPort32Out(uint16_t port, uint32_t data);
 uint32_t *MsrRead(uint32_t ecx_input);
 void MsrWrite(uint32_t ecx, uint32_t edx, uint32_t eax);
 uint8_t PciInit();
-void TssInit();
 
 #endif

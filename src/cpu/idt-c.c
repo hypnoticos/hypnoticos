@@ -25,17 +25,17 @@
 
 #define IDT_GATE_COUNT              256
 
-#define IDT_GATE_INTGATE_DEFAULT    0x0E00        // Default flags for an interrupt gate (0b111000000000)
-#define IDT_GATE_INTGATE_PRESENT    0x8000        // Present bit (1000000000000000)
-#define IDT_GATE_INTGATE_PRIV_0     0x0000
-#define IDT_GATE_INTGATE_PRIV_1     0x2000        // 10000000000000
-#define IDT_GATE_INTGATE_PRIV_2     0x4000        // 100000000000000
-#define IDT_GATE_INTGATE_PRIV_3     0x6000        // 110000000000000
+#define IDT_GATE_INTGATE_DEFAULT    0x0E        // Default flags for an interrupt gate
+#define IDT_GATE_INTGATE_PRESENT    0x80
+#define IDT_GATE_INTGATE_PRIV_0     0x00
+#define IDT_GATE_INTGATE_PRIV_1     0x20
+#define IDT_GATE_INTGATE_PRIV_2     0x40
+#define IDT_GATE_INTGATE_PRIV_3     0x60
 
 IdtGate_t IdtGates[IDT_GATE_COUNT] __attribute__((aligned(8)));
 extern uint32_t IdtCallVector;
 extern uint16_t IdtLimit;
-extern uint32_t IdtBase;
+extern uint64_t IdtBase;
 uint8_t IdtFull = 0;
 
 extern void Idt0();
@@ -86,7 +86,7 @@ extern void Idt160();
 extern void Idt240();
 extern void Idt241();
 extern void IdtReserved();
-void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t ss, uint16_t flags);
+void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t cs, uint8_t flags);
 void IdtCall();
 
 void IdtCall() {
@@ -142,16 +142,17 @@ void IdtCall() {
       HALT();
     }
 
-    IdtCallSavedEax = KernelFunction(p, IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi);
+    IdtCallSavedRax = KernelFunction(p, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi);
   }
 }
 
-inline void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t ss, uint16_t flags) {
-  IdtGates[vector].ss = ss;
+inline void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t cs, uint8_t flags) {
+  IdtGates[vector].cs = cs;
   IdtGates[vector].flags = (flags | IDT_GATE_INTGATE_DEFAULT);
 
-  IdtGates[vector].offset_low = (uint16_t) ((uint32_t) offset & 0xFFFF);
-  IdtGates[vector].offset_high = (uint16_t) ((uint32_t) offset >> 16);
+  IdtGates[vector].offset_0_15 = (uint16_t) ((uint64_t) offset & 0xFFFF);
+  IdtGates[vector].offset_16_31 = (uint16_t) ((uint64_t) offset >> 16);
+  IdtGates[vector].offset_32_63 = ((uint64_t) offset >> 32);
 }
 
 void IdtInit() {
@@ -225,5 +226,5 @@ void IdtInit() {
   IdtCreateGate(241, Idt241, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_3);
 
   IdtLimit = (IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1;
-  IdtBase = &IdtGates;
+  IdtBase = (uint64_t) &IdtGates;
 }

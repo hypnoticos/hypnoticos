@@ -17,6 +17,7 @@
 ;
 
 align 4
+section .rodata
 MultibootHeader:
   dd 0x1BADB002                   ; Magic value
   dd 0x00000002                   ; Flags: MULTIBOOT_MEMORY_INFO

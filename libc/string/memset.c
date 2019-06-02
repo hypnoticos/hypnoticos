@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 void *memset(void *addr, int chr, size_t count) {
-  uint32_t i;
+  size_t i;
 
   for(i = 0; i < count; i++) {
     *((char *) addr + i) = (char) chr;

@@ -18,11 +18,10 @@
 
 ; This code is to be run in real mode
 
-bits 16
-
-extern ApStart, Gdt
+extern MemoryKernelPML4, ApStart, Gdt
 
 section .text
+bits 16
 ApStartPrepare:
   cli
 
@@ -42,6 +41,29 @@ ApStartPrepare:
 
 ApStartGdtInit:
   ; Set up a temporary GDT
+  mov word [ApStartGdt], (3 * 8) - 1
+  mov dword [ApStartGdt + 2], ApStartGdtEntries
+
+  ; Null
+  mov dword [ApStartGdtNull_0_31], 0
+  mov dword [ApStartGdtNull_32_63], 0
+
+  ; CS
+  mov dword [ApStartGdtCs_0_15], 0xFFFF
+  mov dword [ApStartGdtCs_16_31], 0
+  mov byte [ApStartGdtCs_32_39], 0
+  mov byte [ApStartGdtCs_40_47], 0x9A
+  mov byte [ApStartGdtCs_48_55], 0xCF
+  mov byte [ApStartGdtCs_56_63], 0
+
+  ; DS
+  mov dword [ApStartGdtDs_0_15], 0xFFFF
+  mov dword [ApStartGdtDs_16_31], 0
+  mov byte [ApStartGdtDs_32_39], 0
+  mov byte [ApStartGdtDs_40_47], 0x92
+  mov byte [ApStartGdtDs_48_55], 0xCF
+  mov byte [ApStartGdtDs_56_63], 0
+
   lgdt [ApStartGdt]
 
   ; Enter protected mode (set PE bit [bit 0] of CR0)
@@ -60,50 +82,76 @@ ApStartGdtInit:
 
 bits 32
 ApStart32Bit:
+  ; Enable PAE
+  mov eax, cr4
+  or eax, 0x20
+  mov cr4, eax
+
+  ; Load PML4
+  mov eax, MemoryKernelPML4
+  mov cr3, eax
+
+  ; Set IA32_EFER.LME = 1
+  ; C000_0080H
+  ; Bit 8
+  mov ecx, 0xC0000080
+  rdmsr
+  or eax, (0x1 << 8)
+  wrmsr
+
+  ; Enable paging
+  mov eax, cr0
+  or eax, 0x80000000        ; Set PG bit (bit 31)
+  mov cr0, eax
+
+  ;;; Now in IA-32e Mode
+
+  ; Update kernel code segment
+  mov byte [ApStartGdtCs_48_55], 0xA0
+  mov ax, 0x10
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  mov ss, ax
+
+  jmp 0x08:.GdtDone_2
+
+  .GdtDone_2:
+  ;;; Now in 64-bit mode
+bits 64
   lgdt [Gdt]
 
-  call ApStart
 
-ApStartLoop:
-  hlt
-  jmp ApStartLoop
+  call ApStart
 
 section .data
 align 4
 ApStartGdt:
-  dw (3 * 8) - 1
-  dd ApStartGdtEntries
+  dw 0
+  dd 0
 
+align 4
 ApStartGdtEntries:
   ; NULL - 0x00
-  dw 0          ; Limit low
-  dw 0          ; Base low
-  db 0          ; Base middle
-  db 0          ; Access
-  db 0          ; Flags and limit middle
-  db 0          ; Base high
+  ApStartGdtNull_0_31  dd 0
+  ApStartGdtNull_32_63 dd 0
 
   ; Kernel code segment (CS) - 0x08
-  ; Base = 0x0
-  ; Limit = 0xFFFFF (with granularity so that this spans the full 4GB address space)
-  ; Flags = 0b1100 (0xC)
-  dw 0xFFFF     ; Limit low
-  dw 0          ; Base low
-  db 0          ; Base middle
-  db 0x9A       ; 0b10011010
-  db 0xCF       ; Flags = 0xC, limit middle = 0xF
-  db 0          ; Base high
+  ApStartGdtCs_0_15 dw 0
+  ApStartGdtCs_16_31 dw 0
+  ApStartGdtCs_32_39 db 0
+  ApStartGdtCs_40_47 db 0
+  ApStartGdtCs_48_55 db 0
+  ApStartGdtCs_56_63 db 0
 
   ; Kernel data segment (DS) - 0x10
-  ; Base = 0x0
-  ; Limit = 0xFFFFF (with granularity so that this spans the full 4GB address space)
-  ; Flags = 0b1100 (0xC)
-  dw 0xFFFF     ; Limit low
-  dw 0          ; Base low
-  db 0          ; Base middle
-  db 0x92       ; 0b10010010
-  db 0xCF       ; Flags = 0xC, limit middle = 0xF
-  db 0          ; Base high
+  ApStartGdtDs_0_15 dw 0
+  ApStartGdtDs_16_31 dw 0
+  ApStartGdtDs_32_39 db 0
+  ApStartGdtDs_40_47 db 0
+  ApStartGdtDs_48_55 db 0
+  ApStartGdtDs_56_63 db 0
 
 section .bss
 align 4

@@ -17,23 +17,33 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedEsp, IdtCallSavedEbp, IdtCallSavedEax, IdtCallSavedEbx, IdtCallSavedEcx, IdtCallSavedEdx, IdtCallSavedEsi, IdtCallSavedEdi, IdtCallSavedEip, IdtCallSavedEflags, IdtStackTop, IdtLimit, IdtBase
-extern IdtGates, IdtCall, MemoryPD, ApicLocalEoi
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedRsp, IdtCallSavedRbp, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi, IdtCallSavedRip, IdtCallSavedRflags, IdtCallSavedR8, IdtCallSavedR9, IdtCallSavedR10, IdtCallSavedR11, IdtCallSavedR12, IdtCallSavedR13, IdtCallSavedR14, IdtCallSavedR15, IdtStackTop, IdtLimit, IdtBase
+extern IdtGates, IdtCall, MemoryKernelPML4, ApicLocalEoi
 
 section .data
+align 8
   IdtCallVector dd 0
-  IdtCallSavedCr3 dd 0
-  IdtCallSavedEsp dd 0
-  IdtCallSavedEbp dd 0
+align 8
+  IdtCallSavedCr3 dq 0
+  IdtCallSavedRsp dq 0
+  IdtCallSavedRbp dq 0
 
-  IdtCallSavedEax dd 0
-  IdtCallSavedEbx dd 0
-  IdtCallSavedEcx dd 0
-  IdtCallSavedEdx dd 0
-  IdtCallSavedEsi dd 0
-  IdtCallSavedEdi dd 0
-  IdtCallSavedEip dd 0
-  IdtCallSavedEflags dd 0
+  IdtCallSavedRax dq 0
+  IdtCallSavedRbx dq 0
+  IdtCallSavedRcx dq 0
+  IdtCallSavedRdx dq 0
+  IdtCallSavedRsi dq 0
+  IdtCallSavedRdi dq 0
+  IdtCallSavedRip dq 0
+  IdtCallSavedRflags dq 0
+  IdtCallSavedR8 dq 0
+  IdtCallSavedR9 dq 0
+  IdtCallSavedR10 dq 0
+  IdtCallSavedR11 dq 0
+  IdtCallSavedR12 dq 0
+  IdtCallSavedR13 dq 0
+  IdtCallSavedR14 dq 0
+  IdtCallSavedR15 dq 0
 
   IdtCallErrorCode db 0
 
@@ -43,7 +53,7 @@ IdtSet:
   ret
 
 IdtCallManage:
-  mov [IdtCallSavedEbp], ebp
+  mov [IdtCallSavedRbp], rbp
 
   cmp byte [IdtCallErrorCode], 0
   jne .Continue
@@ -51,24 +61,32 @@ IdtCallManage:
   push 0    ; False error code so that the stack is added to
 
   .Continue:
-    push eax
-    mov eax, [esp + 8]
-    mov [IdtCallSavedEip], eax
-    mov eax, [esp + 16]
-    mov [IdtCallSavedEflags], eax
-    pop eax
+    push rax
+    mov rax, [rsp + 16]
+    mov [IdtCallSavedRip], rax
+    mov eax, [rsp + 32]
+    mov [IdtCallSavedRflags], rax
+    pop rax
 
-    push eax
-    mov eax, [esp + 20]
-    mov [IdtCallSavedEsp], eax
-    pop eax
+    push rax
+    mov rax, [rsp + 40]
+    mov [IdtCallSavedRsp], rax
+    pop rax
 
-    mov [IdtCallSavedEax], eax
-    mov [IdtCallSavedEbx], ebx
-    mov [IdtCallSavedEcx], ecx
-    mov [IdtCallSavedEdx], edx
-    mov [IdtCallSavedEsi], esi
-    mov [IdtCallSavedEdi], edi
+    mov [IdtCallSavedRax], rax
+    mov [IdtCallSavedRbx], rbx
+    mov [IdtCallSavedRcx], rcx
+    mov [IdtCallSavedRdx], rdx
+    mov [IdtCallSavedRsi], rsi
+    mov [IdtCallSavedRdi], rdi
+    mov [IdtCallSavedR8], r8
+    mov [IdtCallSavedR9], r9
+    mov [IdtCallSavedR10], r10
+    mov [IdtCallSavedR11], r11
+    mov [IdtCallSavedR12], r12
+    mov [IdtCallSavedR13], r13
+    mov [IdtCallSavedR14], r14
+    mov [IdtCallSavedR15], r15
 
     mov ax, 0x10
     mov ds, ax
@@ -76,42 +94,50 @@ IdtCallManage:
     mov fs, ax
     mov gs, ax
 
-    mov eax, cr3
-    mov [IdtCallSavedCr3], eax
-    mov eax, [MemoryPD]
-    mov cr3, eax
+    mov rax, cr3
+    mov [IdtCallSavedCr3], rax
+    mov rax, [MemoryKernelPML4]
+    mov cr3, rax
 
     ; Reset stack
-    mov esp, IdtStackTop
+    mov rsp, IdtStackTop
 
     call IdtCall
     call ApicLocalEoi
 
-    mov eax, [IdtCallSavedCr3]
-    mov cr3, eax
+    mov rax, [IdtCallSavedCr3]
+    mov cr3, rax
 
-    mov eax, [IdtCallSavedEax]
-    mov ebx, [IdtCallSavedEbx]
-    mov ecx, [IdtCallSavedEcx]
-    mov edx, [IdtCallSavedEdx]
-    mov esi, [IdtCallSavedEsi]
-    mov edi, [IdtCallSavedEdi]
+    mov rax, [IdtCallSavedRax]
+    mov rbx, [IdtCallSavedRbx]
+    mov rcx, [IdtCallSavedRcx]
+    mov rdx, [IdtCallSavedRdx]
+    mov rsi, [IdtCallSavedRsi]
+    mov rdi, [IdtCallSavedRdi]
+    mov r8, [IdtCallSavedR8]
+    mov r9, [IdtCallSavedR9]
+    mov r10, [IdtCallSavedR10]
+    mov r11, [IdtCallSavedR11]
+    mov r12, [IdtCallSavedR12]
+    mov r13, [IdtCallSavedR13]
+    mov r14, [IdtCallSavedR14]
+    mov r15, [IdtCallSavedR15]
 
-    mov ebp, [IdtCallSavedEbp]
+    mov rbp, [IdtCallSavedRbp]
 
-    push eax
+    push rax
     mov ax, 0x20 | 0x3
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
-    pop eax
+    pop rax
 
     push 0x23 ; SS
-    push dword [IdtCallSavedEsp] ; ESP
-    push dword [IdtCallSavedEflags] ; EFLAGS
+    push qword [IdtCallSavedRsp] ; RSP
+    push qword [IdtCallSavedRflags] ; RFLAGS
     push 0x1b ; CS
-    push dword [IdtCallSavedEip] ; EIP
+    push qword [IdtCallSavedRip] ; RIP
 
     cmp byte [IdtCallErrorCode], 0
     je .SkipErrorCode
@@ -119,7 +145,7 @@ IdtCallManage:
     push 0   ; An error code will be pop'd
 
   .SkipErrorCode:
-    iretd
+    iretq
 
 Idt0:
   mov byte [IdtCallErrorCode], 0
@@ -362,12 +388,13 @@ IdtReserved:
   jmp IdtCallManage
 
 section .data
+align 4
 Idt:
   IdtLimit dw 0         ; Limit
-  IdtBase dd 0          ; Base address
+  IdtBase dq 0          ; Base address
 
 section .bss
-align 4
+align 8
 IdtStack:
   resb 8192
 IdtStackTop:

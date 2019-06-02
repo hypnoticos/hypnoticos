@@ -19,9 +19,9 @@
 #ifndef LIMITS_H
 #define LIMITS_H
 
-#if defined(ARCHITECTURE_I686) || 1         // 32-bit is the default
-#define HYPNOTICOS_MAX_DIGITS       10                      // E.g. used by vfprintf
-#define UINT_MAX                    (uint32_t) 4294967295
+#if defined(ARCHITECTURE_X86_64) || 1         // 64-bit is the default
+#define HYPNOTICOS_MAX_DIGITS       20                      // E.g. used by vfprintf
+#define UINT_MAX                    ((uint64_t) 0xFFFFFFFFFFFFFFFF)
 #endif
 
 #endif

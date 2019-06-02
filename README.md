@@ -1,9 +1,9 @@
-# HypnoticOS: 32-bit Hobby Operating System
+# HypnoticOS: 64-bit Hobby Operating System
 
 ## Prerequisites
 
 You will need:
-* an i686 cross-compiler (and other build tools, like `make`)
+* an x86_64 cross-compiler (and other build tools, like `make`)
 * grub-mkrescue
 
 ## Installing

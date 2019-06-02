@@ -30,16 +30,22 @@
 #define PAGING_PRESENT          0x1
 #define PAGING_RW               0x2
 #define PAGING_USER             0x4
+#define PAGING_PAGE_FRAME       (0x1 << 7)
+
+#define PAGE_SIZE_4KB           0x1
+#define PAGE_SIZE_2MB           0x2
+#define PAGE_SIZE_1GB           0x3
 
 #define MEMORYBLOCK_TYPE_AVAILABLE        1
+#define MEMORYBLOCK_TYPE_UNAVAILABLE      2
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100       // It may be better to have a smaller number here to make try to avoid a conflict with the kernel/mmap (this is relevant for now - TODO)
 #define MEMORY_TABLE_NEW_TABLE_ENTRIES        1000
 
 typedef struct _MemoryBlock_t MemoryBlock_t;
 struct _MemoryBlock_t {
-  uint32_t start; /*!< The start of the memory block */
-  uint32_t length; /*!< The length of the memory block */
+  uint64_t start; /*!< The start of the memory block */
+  uint64_t length; /*!< The length of the memory block */
   uint8_t type; /*!< The memory block's type */
 
   MemoryBlock_t *prev; /*!< Previous in the linked list (NULL if this is the first entry) */
@@ -57,8 +63,8 @@ struct _MemoryTableIndex_t {
   MemoryTableIndex_t *next; /*!< Next entry in the linked list (NULL if this is the last) */
 } __attribute__((packed));
 struct _MemoryTable_t {
-  uint32_t addr; /*!< Address of this memory allocation */
-  uint32_t size; /*!< Size of this memory allocation */
+  uint64_t addr; /*!< Address of this memory allocation */
+  uint64_t size; /*!< Size of this memory allocation */
   uint8_t status; /*!< Status of this entry in the table (0 = empty, 1 = in use) */
 
   char function[200];
@@ -66,9 +72,9 @@ struct _MemoryTable_t {
 } __attribute__((packed));
 extern MemoryTableIndex_t MemoryTableIndices;
 
-extern void *MemoryPD;
+extern uint64_t MemoryKernelPML4[512];
 
-#define MemoryPagingSetPageImitate(pd, pa, flags)     MemoryPagingSetPage(pd, pa, pa, flags)
+#define MemoryPagingSetPageImitate(pd, pa, flags, page_size)     MemoryPagingSetPage(pd, pa, pa, flags, page_size)
 
 void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line);
 void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
@@ -78,6 +84,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();
-uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t va, uint32_t pa, uint32_t flags);
+uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va);
+uint8_t MemoryPagingSetPage(uint64_t *pml4, uint64_t va, uint64_t pa, uint32_t flags, uint8_t page_size);
 
 #endif

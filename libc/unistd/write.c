@@ -24,7 +24,7 @@
 #include <hypnoticos/video-memory.h>
 
 ssize_t write(int fd, const void *buffer, size_t count) {
-  uint32_t i;
+  size_t i;
 
   // TODO
   if(fd != STDOUT_FILENO && fd != STDERR_FILENO) {
@@ -44,7 +44,7 @@ ssize_t write(int fd, const void *buffer, size_t count) {
 #include <hypnoticos/function-codes.h>
 
 ssize_t write(int fd, const void *buffer, size_t count) {
-  return KernelFunctionInterface(fd, (uint32_t) buffer, count, 0, 0, KERNEL_FUNCTION_WRITE);
+  return KernelFunctionInterface(fd, (uint64_t) buffer, count, 0, 0, KERNEL_FUNCTION_WRITE);
 }
 
 #endif

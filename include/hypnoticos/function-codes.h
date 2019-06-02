@@ -25,7 +25,7 @@
 
 #include <hypnoticos/dispatcher.h>
 
-uint32_t KernelFunctionWrite(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi);
+uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 
 #endif
 

@@ -20,7 +20,7 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
-inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align);
+inline uint8_t MemoryAlign(uint64_t *addr, uint64_t min, uint64_t align);
 uint8_t MemoryIsFree(void *addr, size_t size);
 
 /*!
@@ -33,7 +33,7 @@ inline MemoryTable_t *MemoryFind(void *addr) {
   MemoryTable_t *mt;
 
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
-    for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *) ((uint32_t) mt + sizeof(MemoryTable_t))) {
+    for(mt = mti->addr; (uint64_t) mt < (uint64_t) mti->addr + mti->size; mt = (MemoryTable_t *) ((uint64_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
         // Not allocated
         continue;
@@ -60,19 +60,19 @@ uint8_t MemoryIsFree(void *addr, size_t size) {
 
   // Iterate through every memory allocation
   for(mti = &MemoryTableIndices; mti != NULL; mti = mti->next) {
-    for(mt = mti->addr; (uint32_t) mt < (uint32_t) mti->addr + mti->size; mt = (MemoryTable_t *)((uint32_t) mt + sizeof(MemoryTable_t))) {
+    for(mt = mti->addr; (uint64_t) mt < (uint64_t) mti->addr + mti->size; mt = (MemoryTable_t *)((uint64_t) mt + sizeof(MemoryTable_t))) {
       if(mt->status != 1) {
         // Not allocated
         continue;
       }
 
       // new block's end is less than this block's start
-      if((void *) ((uint32_t) addr + size) < (void *) mt->addr) {
+      if((void *) ((uint64_t) addr + size) < (void *) mt->addr) {
         continue;
       }
 
       // new block's start is greater than this block's end
-      if(addr > (void *) ((uint32_t) mt->addr + mt->size)) {
+      if(addr > (void *) ((uint64_t) mt->addr + mt->size)) {
         continue;
       }
 
@@ -85,7 +85,7 @@ uint8_t MemoryIsFree(void *addr, size_t size) {
   return 1;
 }
 
-inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align) {
+inline uint8_t MemoryAlign(uint64_t *addr, uint64_t min, uint64_t align) {
   uint32_t r;
 
   r = *addr;
@@ -103,11 +103,16 @@ inline uint8_t MemoryAlign(uint32_t *addr, uint32_t min, uint32_t align) {
 
 void *MemoryFindSpace(size_t size, uint8_t align) {
   MemoryBlock_t *block;
-  uint32_t addr = 0;
+  uint64_t addr = 0, max_addr;
 
-  // For each memory block, find the highest address possible
+  // Iterate through each memory block
   for(block = &MemoryBlocks; block != NULL; block = block->next) {
-    addr = block->start + block->length - 1 - size;
+    if(block->type != MEMORYBLOCK_TYPE_AVAILABLE) {
+      continue;
+    }
+
+    addr = block->start;
+    max_addr = block->start + block->length;
     if(align == ALIGN_4KB) {
       if(!MemoryAlign(&addr, block->start, 4096)) {
         continue;
@@ -122,17 +127,14 @@ void *MemoryFindSpace(size_t size, uint8_t align) {
           if(addr < 4096) {
             break;
           }
-          addr -= 4096;
+          addr += 4096;
         } else {
-          if(addr < size) {
-            break;
-          }
-          addr -= size;
+          addr += size;
         }
       } else {
         return (void *) addr;
       }
-    } while(addr >= block->start);
+    } while(addr < max_addr);
   }
 
   WARNING();

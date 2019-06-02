@@ -30,7 +30,7 @@
 
 // TODO
 typedef struct {
-  uint32_t fd;
+  int fd;
 } FILE;
 
 int fclose(FILE *f);

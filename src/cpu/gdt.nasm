@@ -16,25 +16,20 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global GdtInit, TssBaseLow, TssBaseMiddle, TssBaseHigh, Gdt
+global TssBase_0_15, TssBase_16_23, TssBase_24_31, TssBase_32_63, GdtTemp, Gdt, GdtKernelCS_48_55
 
-GdtInit:
-  lgdt [Gdt]    ; Load the GDT
-  mov ax, 0x10  ; GDT entry 0x10
-  mov ds, ax
-  mov es, ax
-  mov fs, ax
-  mov gs, ax
-  mov ss, ax
-  jmp 0x08:GdtRet  ; GDT entry 0x08
-
-GdtRet:
-  ret
-
-Gdt:
-  dw (6 * 8) - 1
+section .data
+align 8
+GdtTemp:
+  dw (3 * 8) - 1
   dd GdtEntries
 
+align 8
+Gdt:
+  dw (7 * 8) - 1
+  dq GdtEntries
+
+align 8
 GdtEntries:
   ; NULL - 0x00
   dw 0          ; Limit low
@@ -52,7 +47,7 @@ GdtEntries:
   dw 0          ; Base low
   db 0          ; Base middle
   db 0x9A       ; 0b10011010
-  db 0xCF       ; Flags = 0xC, limit middle = 0xF
+  GdtKernelCS_48_55 db 0xCF       ; Flags = 0xC, limit middle = 0xF
   db 0          ; Base high
 
   ; Kernel data segment (DS) - 0x10
@@ -92,11 +87,13 @@ GdtEntries:
 
   ; TSS - 0x28
   ; Base = &Tss
-  ; Limit = 0x20AA (size of TSS)
+  ; Limit = 0x2089 (size of TSS)
   ; Flags = 0x4
-  dw 0x20AA                 ; TSS length (limit low)
-  TssBaseLow dw 0           ; TSS address low (base low, load later)
-  TssBaseMiddle db 0        ; TSS address middle (base middle, load later)
-  db 0x89                   ; 0b10001001
-  db 0x40                   ; Flags = 0x4, TSS length middle (limit middle) = 0x0
-  TssBaseHigh db 0          ; TSS address high (base high, load later)
+  dw 0x2089           ; TSS length (limit low)
+  TssBase_0_15 dw 0   ; TSS address (load later)
+  TssBase_16_23 db 0  ; TSS address (load later)
+  db 0x89             ; 0b10001001
+  db 0x40             ; Flags = 0x4, TSS length middle (limit middle) = 0x0
+  TssBase_24_31 db 0  ; TSS address (load later)
+  TssBase_32_63 dd 0  ; TSS address (load later)
+  dd 0

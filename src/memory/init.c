@@ -26,7 +26,7 @@
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100
 
-#define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint32_t) table) + sizeof(MemoryTable_t)); if((uint32_t) table + sizeof(MemoryTable_t) >= start + table_size) { HALT(); }
+#define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint64_t) table) + sizeof(MemoryTable_t)); if((uint64_t) table + sizeof(MemoryTable_t) >= mt_start + mt_size) { HALT(); }
 
 /*!< A linked list containing the known available memory blocks */
 MemoryBlock_t MemoryBlocks = {.start=0, .length=0, .type=0, .prev=NULL, .next=NULL};
@@ -35,7 +35,7 @@ MemoryTableIndex_t MemoryTableIndices = {.addr=NULL, .size=NULL, .prev=NULL, .ne
 
 void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type) {
   MemoryBlock_t *current, *next;
-  uint32_t table_size, i;
+  uint64_t mt_start, mt_size, i;
   MemoryTable_t *table;
   multiboot_module_t *module;
 
@@ -48,6 +48,10 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 
   if(current == &MemoryBlocks && MemoryBlocks.type == 0) {
     // There are no other entries in the list
+    if(type == MEMORYBLOCK_TYPE_UNAVAILABLE) {
+      HALT();
+    }
+
     current->start = start;
     current->length = length;
     current->type = type;
@@ -56,37 +60,43 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     next = malloc(sizeof(MemoryBlock_t)); // TODO What if this (or something that this function does - like creating a new table) overwrites mmap_addr or mmap_length?
     current->next = next;
 
-    next->start = (start == 0 ? start + 1 : start);
-    next->length = (start == 0 ? length - 1 : length);
+    next->start = start;
+    next->length = length;
     next->type = type;
     next->prev = current;
     next->next = NULL;
   }
 
-#if defined(MT_START) || defined(MT_END) || defined(MMAP_START) || defined(MMAP_END)
+#if defined(MMAP_START) || defined(MMAP_END)
 #error Macro conflict
 #endif
-#define MT_START        (void *) start
-#define MT_END          (void *) (start + table_size)
-#define MMAP_START      (void *) mmap_addr
-#define MMAP_END        (void *) (mmap_addr + mmap_length)
+#define MMAP_START      (mmap_addr)
+#define MMAP_END        (mmap_addr + mmap_length)
 
   // Check if there is a memory table
   if(MemoryTableIndices.size == 0) {
-    table_size = sizeof(MemoryTable_t) * MEMORY_TABLE_INITIAL_ENTRIES;
+    mt_start = start;
+    mt_size = sizeof(MemoryTable_t) * MEMORY_TABLE_INITIAL_ENTRIES;
+
+    if(mt_start < (uint64_t) &AddrEnd) {
+      mt_start = ((uint64_t) &AddrEnd) + 1;
+      if(((uint64_t) &AddrEnd) + mt_size >= start + length) {
+        HALT();
+      }
+    }
 
     // Is the block big enough to create a table?
-    if(length < table_size) {
+    if(length < mt_size) {
       HALT();
     }
 
     // Create a memory table
-    // First check if creating it at the start of this block would create a problem
-    if(!((void **) MT_START < &AddrStart && (void **) MT_END < &AddrStart)) {
+    // First check if creating it here would create a problem
+    if(((void **) mt_start < &AddrStart && (void **) (mt_start + mt_size) < &AddrStart)) {
       // TODO Place the memory table elsewhere
       // May overwrite the kernel
       HALT();
-    } else if(!(MT_START < MMAP_START && MT_END < MMAP_START)) {
+    } else if((mt_start < MMAP_START && (mt_start + mt_size) < MMAP_START)) {
       // TODO Place the memory table elsewhere
       // May overwrite mmap entries (which are currently being processed)
       HALT();
@@ -94,15 +104,15 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 
     // Check if the memory table would overlap with module information or the modules themselves
     if(BootModulesCount != 0 && BootModulesAddr != 0) {
-      if(!((uint32_t) MT_START < BootModulesAddr && (uint32_t) MT_END < BootModulesAddr)) {
+      if((mt_start < BootModulesAddr && mt_start + mt_size < BootModulesAddr)) {
         // TODO Place the memory table elsewhere
         // May overwrite module information entries
         HALT();
       }
 
       for(i = 0; i < BootModulesCount; i++) {
-        module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-        if(!((uint32_t) MT_START < module->mod_start && (uint32_t) MT_END < module->mod_start)) {
+        module = (multiboot_module_t *) ((uint64_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
+        if(!(mt_start < module->mod_start && mt_start + mt_size < module->mod_start)) {
           // TODO Place the memory table elsewhere
           // May overwrite this module
           HALT();
@@ -111,23 +121,23 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     }
 
     // Clear the area
-    memset((void *) start, 0, table_size);
+    memset((void *) mt_start, 0, mt_size);
 
 #if MEMORY_TABLE_INITIAL_ENTRIES < 2
 #error Initial memory table is too small
 #endif
 
     // Create an entry in the table for the table, for the kernel, the module information and the modules
-    table = (MemoryTable_t *) start;
-    table->addr = (uint32_t) start;
-    table->size = table_size;
+    table = (MemoryTable_t *) mt_start;
+    table->addr = mt_start;
+    table->size = mt_size;
     strcpy(table->function, "-");
     table->line = 0;
     table->status = 1;
 
     NEXT_ENTRY();
-    table->addr = (uint32_t) &AddrStart;
-    table->size = (uint32_t) &AddrEnd - (uint32_t) &AddrStart + 1;
+    table->addr = (uint64_t) &AddrStart;
+    table->size = (uint64_t) &AddrEnd - (uint64_t) &AddrStart + 1;
     strcpy(table->function, "-");
     table->line = 0;
     table->status = 1;
@@ -140,7 +150,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     table->status = 1;
 
     for(i = 0; i < BootModulesCount; i++) {
-      module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
+      module = (multiboot_module_t *) ((uint64_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
 
       NEXT_ENTRY();
       table->addr = module->mod_start;
@@ -151,8 +161,8 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
     }
 
     // Create an entry in the memory table index
-    MemoryTableIndices.addr = (MemoryTable_t *) start;
-    MemoryTableIndices.size = table_size;
+    MemoryTableIndices.addr = (MemoryTable_t *) mt_start;
+    MemoryTableIndices.size = mt_size;
     MemoryTableIndices.next = NULL;
     MemoryTableIndices.prev = NULL;
   }

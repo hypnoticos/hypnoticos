@@ -20,29 +20,29 @@ global KernelFunctionInterface
 
 section .text
 KernelFunctionInterface:
-  push ebp
-  mov ebp, esp
+  push rbp
+  mov rbp, rsp
 
-  push ebx
-  push ecx
-  push edx
-  push esi
-  push edi
+  push rbx
+  push rcx
+  push rdx
+  push rsi
+  push rdi
 
-  mov eax, [ebp+8]
-  mov ebx, [ebp+12]
-  mov ecx, [ebp+16]
-  mov edx, [ebp+20]
-  mov esi, [ebp+24]
-  mov edi, [ebp+28]
+  mov rax, rdi
+  mov rbx, rsi
+  mov rcx, rdx
+  mov rdx, rcx
+  mov rsi, r8
+  mov rdi, r9
 
   int 241
 
-  pop edi
-  pop esi
-  pop edx
-  pop ecx
-  pop ebx
+  pop rdi
+  pop rsi
+  pop rdx
+  pop rcx
+  pop rbx
 
-  pop ebp
+  pop rbp
   ret

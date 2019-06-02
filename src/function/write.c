@@ -22,16 +22,16 @@
 #include <hypnoticos/function.h>
 #include <hypnoticos/hypnoticos.h>
 
-uint32_t KernelFunctionWrite(DispatcherProcess_t *p, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi) {
+uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
   char *pa;
 
   // Translate va to pa
-  pa = GET_PA(ebx);
+  pa = GET_PA(rbx);
   if(pa == NULL) {
     WARNING();
     return -1;
   }
 
   // Send to output buffer
-  return write(eax, pa, ecx);
+  return write(rax, pa, rcx);
 }

@@ -38,15 +38,17 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   VideoMemoryInit();
   puts(_HYPNOTICOS);
 
-  TssInit();
   IdtInit();
   IdtSet();
-  AcpiFindRsdp(); // Needs access to BIOS Data Area (which may be overwritten when memory management starts)
   CpuChecks(CPU_BSP);
 
   // *** Free memory should not be used before this point ***
 
   MultibootCheck(magic, multiboot);
+  MemoryPagingInit();
+  AcpiFindRsdp(); // Needs access to BIOS Data Area
+  CpuApic(CPU_BSP);
+
   DispatcherInit();
 
   KeyboardInit();
@@ -54,13 +56,11 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
     printf("No PS/2 keyboard detected\n");
   }
 
-  MemoryPagingInit();
   BootLoadModules();
 
   if(!PciInit()) {
     HALT();
   }
-
 
   printf("Starting...\n");
   asm("sti");

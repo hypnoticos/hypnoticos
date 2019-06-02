@@ -27,27 +27,6 @@
 uint32_t CpuidTest();
 uint8_t CpuCheckVendorIdString();
 
-extern void *IdtStackTop;
-
-Tss_t Tss;
-
-void TssSet();
-
-void TssInit() {
-  memset(&Tss, 0, sizeof(Tss_t));
-
-  Tss.ss0 = 0x10;
-  Tss.esp0 = (uint32_t) &IdtStackTop;
-
-  Tss.iomap_base = (uint32_t) &Tss.io_permission - (uint32_t) &Tss;
-
-  memset(&Tss.int_redirection, 0, sizeof(Tss.int_redirection));
-  memset(&Tss.io_permission, 0xFF, sizeof(Tss.io_permission));
-  Tss.io_permission_final = 0xFF;
-
-  TssSet();
-}
-
 uint8_t CpuCheckVendorIdString() {
   char s[13];
   uint32_t *r;
@@ -71,7 +50,11 @@ void CpuChecks(uint8_t bsp) {
     HALT();
   } else if(!CpuCheckVendorIdString()) {
     HALT();
-  } else if(!ApicLocalInit(bsp)) {
+  }
+}
+
+void CpuApic(uint8_t bsp) {
+  if(!ApicLocalInit(bsp)) {
     HALT();
   }
 

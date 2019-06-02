@@ -58,7 +58,7 @@ uint8_t PciInit() {
             PciCache[count + 1] = NULL;
 
             for(i = 0; i < 16; i++) {
-              *((uint32_t *) ((uint32_t) &PciCache[count]->hdr0 + (i * 4))) = PciRead(PCI_ADDRESS(bus, device, function, i));
+              *((uint32_t *) ((uint64_t) &PciCache[count]->hdr0 + (i * 4))) = PciRead(PCI_ADDRESS(bus, device, function, i));
             }
 
             PciCache[count]->bus = bus;

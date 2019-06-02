@@ -63,7 +63,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
   // Parse each mmap entry in the buffer
   offset = 0;
   while(offset < mmap_length) {
-    mmap_entry = (multiboot_memory_map_t *) ((uint32_t) mmap_addr + offset);
+    mmap_entry = (multiboot_memory_map_t *) ((uint64_t) mmap_addr + offset);
 
     // Check if the size parameter is invalid
     if(offset + mmap_entry->size > mmap_length || mmap_entry->size < 20) {
@@ -88,6 +88,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
         case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE: // TODO
         case MULTIBOOT_MEMORY_NVS: // TODO Must be preserved on hibernation
         case MULTIBOOT_MEMORY_BADRAM:
+        MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_UNAVAILABLE);
         break;
 
         default:

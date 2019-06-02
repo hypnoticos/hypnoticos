@@ -18,58 +18,61 @@
 
 global Cpuid, CpuidTest
 
+section .text
 CpuidTest:
   ; Attempt to clear the ID bit in the EFLAGS register
-  pushfd
-  pop eax
-  and eax, 0xFFDFFFFF
-  push eax
-  popfd
+  pushfq
+  pop rax
+  and rax, 0xFFFFFFFFFFDFFFFF
+  push rax
+  popfq
 
   ; Test if cleared
-  pushfd
-  pop eax
-  mov edx, eax
-  push eax
-  popfd
+  pushfq
+  pop rax
+  mov rdx, rax
+  push rax
+  popfq
 
-  and edx, 0x200000
-  cmp edx, 0
+  and rdx, 0x200000
+  cmp rdx, 0
   jne .Failure
 
   ; Attempt to set the ID bit in the EFLAGS register
-  pushfd
-  pop eax
-  or eax, 0x200000
-  push eax
-  popfd
+  pushfq
+  pop rax
+  or rax, 0x200000
+  push rax
+  popfq
 
   ; Test if set
-  pushfd
-  pop eax
-  mov edx, eax
-  push eax
-  popfd
+  pushfq
+  pop rax
+  mov rdx, rax
+  push rax
+  popfq
 
-  and edx, 0x200000
-  cmp edx, 0
+  and rdx, 0x200000
+  cmp rdx, 0
   je .Failure
 
   jmp .Success
 
   .Success:
-    mov eax, 1
+    mov rax, 1
     ret
 
   .Failure:
-    mov eax, 0
+    mov rax, 0
     ret
 
 Cpuid:
-  push ebp
-  mov ebp, esp
+  push rbp
+  mov rbp, rsp
 
-  mov eax, [ebp + 8]
+  push rbx
+
+  mov rax, rdi
   cpuid
 
   mov [_CpuidOutput_eax], eax
@@ -77,11 +80,15 @@ Cpuid:
   mov [_CpuidOutput_ecx], ecx
   mov [_CpuidOutput_edx], edx
 
-  mov esp, ebp
-  pop ebp
-  mov eax, _CpuidOutput
+  pop rbx
+
+  mov rsp, rbp
+  pop rbp
+  mov rax, _CpuidOutput
   ret
 
+section .data
+align 4
 _CpuidOutput:
   _CpuidOutput_eax dd 0
   _CpuidOutput_ebx dd 0

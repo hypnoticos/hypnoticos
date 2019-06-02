@@ -24,33 +24,48 @@
 
 #define PROGRAM_HEADER_LOAD               0x1
 
-inline char *DispatcherFormatElfRead(DispatcherProcess_t *p, uint32_t start, uint32_t size);
 
-uint8_t DispatcherFormatElfDetect(char *data, uint32_t size) {
-  if(size <= 54) {
+inline char *DispatcherFormatElfRead(DispatcherProcess_t *p, uint64_t start, uint64_t size);
+
+uint8_t DispatcherFormatElfDetect(char *data, uint64_t size) {
+  DispatcherFormatElfHeader_t *hdr;
+
+  hdr = (DispatcherFormatElfHeader_t *) data;
+
+  if(size <= 64) {
     return DISPATCHER_DETECT_FORMAT_NOT_DETECTED;
-  } else if(data[0] != 0x7F && data[1] != 'E' && data[2] != 'L' && data[3] != 'F') {
+  }
+
+  if(hdr->magic[0] != 0x7F && hdr->magic[1] != 'E' && hdr->magic[2] != 'L' && hdr->magic[3] != 'F') {
     return DISPATCHER_DETECT_FORMAT_NOT_DETECTED;
-  } else if(data[4] != 1) {
-    // Not 32-bit
+  }
+
+  if(hdr->file_class != 2) {
+    // Not 64-bit
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(data[5] != 1) {
+  }
+
+  if(hdr->bit_direction != 1) {
     // Not little endian
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(data[6] != 1) {
+  }
+
+  if(hdr->elf_version != 1) {
     // Version not 1
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(data[7] != 0) {
+  }
+
+  if(hdr->abi != 0) {
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(*((uint16_t *) &(data[16])) != 2) {
+  } else if(hdr->type != 2) {
     // Not an executable
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(*((uint16_t *) &(data[18])) != 3) {
+  } else if(hdr->architecture != 0x3E) {
     // Not x86
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(*((uint32_t *) &(data[20])) != 1) {
+  } else if(hdr->version != 1) {
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
-  } else if(*((uint16_t *) &(data[40])) < 52) {
+  } else if(hdr->header_size < 64) {
     return DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED;
   }
 
@@ -59,7 +74,7 @@ uint8_t DispatcherFormatElfDetect(char *data, uint32_t size) {
   return DISPATCHER_DETECT_FORMAT_DETECTED;
 }
 
-inline char *DispatcherFormatElfRead(DispatcherProcess_t *p, uint32_t start, uint32_t size) {
+inline char *DispatcherFormatElfRead(DispatcherProcess_t *p, uint64_t start, uint64_t size) {
   if(p->data == NULL) {
     HALT();
   } else if(start + size >= p->size) {
@@ -70,26 +85,23 @@ inline char *DispatcherFormatElfRead(DispatcherProcess_t *p, uint32_t start, uin
 }
 
 uint8_t DispatcherFormatElfSetUp(DispatcherProcess_t *p) {
-  uint32_t program_header_addr, offset, program_header_max;
-  uint16_t program_header_entry_size, program_header_entry_count;
+  uint64_t offset, program_header_max;
+  DispatcherFormatElfHeader_t *elf;
   DispatcherFormatElfProgramHeader_t *program_header;
   void *ptr;
 
-  // Set EIP
-  DispatcherProcessSetEip(p, *((uint32_t *) &(p->data[24])));
+  elf = (DispatcherFormatElfHeader_t *) p->data;
 
-  // Parse the program headers
-  program_header_addr = *((uint32_t *) DispatcherFormatElfRead(p, 28, sizeof(uint32_t)));
-  program_header_entry_size = *((uint16_t *) DispatcherFormatElfRead(p, 42, sizeof(uint16_t)));
-  program_header_entry_count = *((uint16_t *) DispatcherFormatElfRead(p, 44, sizeof(uint16_t)));
+  // Set RIP
+  DispatcherProcessSetRip(p, elf->entry_point);
 
-  if(program_header_addr == 0) {
+  if(elf->program_header_offset == 0) {
     // No program header table
     HALT();
   }
 
-  program_header_max = program_header_addr + ((uint32_t) program_header_entry_size * (uint32_t) program_header_entry_count);
-  for(offset = program_header_addr; offset < program_header_max; offset = offset + (uint32_t) program_header_entry_size) {
+  program_header_max = elf->program_header_offset + ((uint64_t) elf->program_header_entry_size * (uint64_t) elf->program_header_entry_count);
+  for(offset = elf->program_header_offset; offset < program_header_max; offset = offset + (uint32_t) elf->program_header_entry_size) {
     program_header = (DispatcherFormatElfProgramHeader_t *) DispatcherFormatElfRead(p, offset, sizeof(DispatcherFormatElfProgramHeader_t));
 
     if(program_header->align != 0x1000) {

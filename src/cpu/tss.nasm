@@ -16,19 +16,34 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global TssSet, TssUpdateGdt
-extern Tss, TssBaseLow, TssBaseMiddle, TssBaseHigh
+global Tss
+extern IdtStackTop
 
-TssSet:
-  mov ax, 0x28
-  ltr ax              ; Load task register
-  ret
+section .data
+align 4096
+Tss:
+  _Tss_Start equ $
+  dd 0                  ; Reserved
 
-TssUpdateGdt:
-  ; Update the TSS entry in the GDT
-  mov eax, Tss
-  mov word [TssBaseLow], ax
-  shr eax, 16
-  mov byte [TssBaseMiddle], al
-  mov byte [TssBaseHigh], ah
-  ret
+  dq IdtStackTop        ; RSP0
+  dq 0                  ; RSP1
+  dq 0                  ; RSP2
+
+  dq 0                  ; Reserved
+
+  dq 0                  ; IST1
+  dq 0                  ; IST2
+  dq 0                  ; IST3
+  dq 0                  ; IST4
+  dq 0                  ; IST5
+  dq 0                  ; IST6
+  dq 0                  ; IST7
+
+  dq 0                  ; Reserved
+  dw 0                  ; Reserved
+
+  dw _Tss_IoMap - _Tss_Start  ; I/O Map Base
+  times 32 db 0         ; Int. redirection
+  _Tss_IoMap equ $
+  times 8192 db 0xFF    ; I/O Map
+  db 0xFF               ; Final byte of I/O Map

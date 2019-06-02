@@ -58,18 +58,27 @@ void DispatcherSetUpNext() {
     }
 
     // Do not save CR3
-    p->save.esp = IdtCallSavedEsp;
-    p->save.ebp = IdtCallSavedEbp;
-    p->save.eip = IdtCallSavedEip;
+    p->save.rsp = IdtCallSavedRsp;
+    p->save.rbp = IdtCallSavedRbp;
+    p->save.rip = IdtCallSavedRip;
 
-    p->save.eax = IdtCallSavedEax;
-    p->save.ebx = IdtCallSavedEbx;
-    p->save.ecx = IdtCallSavedEcx;
-    p->save.edx = IdtCallSavedEdx;
-    p->save.esi = IdtCallSavedEsi;
-    p->save.edi = IdtCallSavedEdi;
+    p->save.rax = IdtCallSavedRax;
+    p->save.rbx = IdtCallSavedRbx;
+    p->save.rcx = IdtCallSavedRcx;
+    p->save.rdx = IdtCallSavedRdx;
+    p->save.rsi = IdtCallSavedRsi;
+    p->save.rdi = IdtCallSavedRdi;
 
-    p->save.eflags = IdtCallSavedEflags;
+    p->save.r8 = IdtCallSavedR8;
+    p->save.r9 = IdtCallSavedR9;
+    p->save.r10 = IdtCallSavedR10;
+    p->save.r11 = IdtCallSavedR11;
+    p->save.r12 = IdtCallSavedR12;
+    p->save.r13 = IdtCallSavedR13;
+    p->save.r14 = IdtCallSavedR14;
+    p->save.r15 = IdtCallSavedR15;
+
+    p->save.rflags = IdtCallSavedRflags;
 
     // Reset I/O port bitmap
     for(i = 0; i < p->io_count; i++) {
@@ -101,17 +110,25 @@ restart:
   // Restore registers
   IdtCallSavedCr3 = p->save.cr3;
 
-  IdtCallSavedEip = p->save.eip;
+  IdtCallSavedRip = p->save.rip;
 
-  IdtCallSavedEsp = p->save.esp;
-  IdtCallSavedEbp = p->save.ebp;
+  IdtCallSavedRsp = p->save.rsp;
+  IdtCallSavedRbp = p->save.rbp;
 
-  IdtCallSavedEax = p->save.eax;
-  IdtCallSavedEbx = p->save.ebx;
-  IdtCallSavedEcx = p->save.ecx;
-  IdtCallSavedEdx = p->save.edx;
-  IdtCallSavedEsi = p->save.esi;
-  IdtCallSavedEdi = p->save.edi;
+  IdtCallSavedRax = p->save.rax;
+  IdtCallSavedRbx = p->save.rbx;
+  IdtCallSavedRcx = p->save.rcx;
+  IdtCallSavedRdx = p->save.rdx;
+  IdtCallSavedRsi = p->save.rsi;
+  IdtCallSavedRdi = p->save.rdi;
+  IdtCallSavedR8 = p->save.r8;
+  IdtCallSavedR9 = p->save.r9;
+  IdtCallSavedR10 = p->save.r10;
+  IdtCallSavedR11 = p->save.r11;
+  IdtCallSavedR12 = p->save.r12;
+  IdtCallSavedR13 = p->save.r13;
+  IdtCallSavedR14 = p->save.r14;
+  IdtCallSavedR15 = p->save.r15;
 
   // Set up I/O port bitmap
   for(i = 0; i < p->io_count; i++) {
@@ -129,7 +146,7 @@ uint8_t DispatcherInit() {
   return 1;
 }
 
-uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
+uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
   uint32_t alloc_size, i, count;
 
   alloc_size = size + (size % 4096);
@@ -141,12 +158,12 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint32_t size) {
   }
   memset(p->stack, 0, alloc_size);
 
-  p->save.ebp = 0xFFFF0000 + alloc_size - 1;
-  p->save.esp = p->save.ebp;
+  p->save.rbp = 0xFFFFFFFFFFFF0000 + alloc_size - 1;
+  p->save.rsp = p->save.rbp;
 
   count = (size / 4096) + 1;
   for(i = 0; i < count; i++) {
-    if(!DispatcherProcessMap(p, 0xFFFF0000 + (i * 4096), (uint32_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+    if(!DispatcherProcessMap(p, 0xFFFFFFFFFFFF0000 + (i * 4096), (uint64_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
       WARNING();
       return 0;
     }
@@ -179,7 +196,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->run = 0;
   p->last_cycle = 0;
 
-  p->save.cr3 = (uint32_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
+  p->save.cr3 = (uint64_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
@@ -213,8 +230,8 @@ void DispatcherProcessRun(DispatcherProcess_t *p) {
   p->run = 1;
 }
 
-void DispatcherProcessSetEip(DispatcherProcess_t *p, uint32_t eip) {
-  p->save.eip = eip;
+void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip) {
+  p->save.rip = rip;
 }
 
 uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore) {
@@ -235,7 +252,7 @@ uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uin
   return 0;
 }
 
-uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, uint8_t kernel_function_ignore, uint32_t flags) {
+uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags) {
   uint32_t i;
 
   // Check if va and pa are 4KB aligned
@@ -261,13 +278,13 @@ uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint32_t va, uint32_t pa, u
   p->va[i]->va = va;
   p->va[i]->pa = (void *) pa;
 
-  return MemoryPagingSetPage((uint32_t *) p->save.cr3, va, pa, flags);
+  return MemoryPagingSetPage((uint64_t *) p->save.cr3, va, pa, flags, PAGE_SIZE_4KB);
 }
 
-void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore) {
+void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore) {
   uint32_t i, va_range, offset;
 
-  va_range = va & 0xFFFFF000;
+  va_range = va & 0xFFFFFFFFFFFFF000;
   offset = va & 0xFFF;
 
   for(i = 0; p->va[i] != NULL; i++) {
@@ -288,7 +305,7 @@ void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint32_t va, uint8_t ignore
   return NULL;
 }
 
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint32_t size) {
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size) {
   uint32_t format = 0;
   DispatcherProcess_t *p;
 
@@ -331,8 +348,8 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
     return NULL;
   }
 
-  // Check if EIP is set
-  if(p->save.eip == 0) {
+  // Check if RIP is set
+  if(p->save.rip == 0) {
     // TODO Clean up
     WARNING();
     return NULL;
@@ -350,7 +367,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
   return p;
 }
 
-void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore, uint32_t flags) {
+void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore, uint32_t flags) {
   uint32_t i;
   void *ptr;
 
@@ -360,7 +377,7 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t
     return NULL;
   }
 
-  if(!DispatcherProcessMap(p, va, (uint32_t) ptr, kernel_function_ignore, flags)) {
+  if(!DispatcherProcessMap(p, va, (uint64_t) ptr, kernel_function_ignore, flags)) {
     free(ptr);
     WARNING();
     return NULL;
@@ -377,7 +394,7 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint32_t va, uint8_t
   return ptr;
 }
 
-uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data, uint32_t file_size, uint32_t memory_size, uint32_t flags) {
+uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags) {
   uint32_t i, memory_count, file_count, page_min_addr, page_max_addr, pages, initial_offset;
   void **ptrs;
 
@@ -388,7 +405,7 @@ uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint32_t va, char *data,
     return 0;
   }
 
-  page_min_addr = va & 0xFFFFF000;
+  page_min_addr = va & 0xFFFFFFFFFFFFF000;
   page_max_addr = (va + memory_size) | 0xFFF;
   pages = ((page_max_addr + 1) - page_min_addr) / 4096;
 

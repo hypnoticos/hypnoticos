@@ -21,17 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ENTRY(Start)
 
 MEMORY {
-  multiboot_header : ORIGIN = 0x500, LENGTH = 0x500
-  ap_start_code : ORIGIN = 0x1000, LENGTH = 0x1000
+  multiboot_header : ORIGIN = 0x1000, LENGTH = 0x1000
+  ap_start_code : ORIGIN = 0x2000, LENGTH = 0x1000
   other : ORIGIN = 1M, LENGTH = 4M
 }
 
 SECTIONS {
-  multiboot_header.rodata 0x500 : {
+  multiboot_header.rodata 0x1000 : {
     boot/multiboot.o
   } >multiboot_header
 
-  ap_start_code 0x1000 : ALIGN(4K) {
+  ap_start_code 0x2000 : ALIGN(4K) {
     /* .text must go first */
     cpu/ap-start-prepare.o(.text)
     cpu/ap-start-prepare.o(.data)

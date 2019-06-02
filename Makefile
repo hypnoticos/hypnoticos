@@ -17,7 +17,7 @@
 #
 
 export VERSION=0.1
-export ARCHITECTURE=i686
+export ARCHITECTURE=x86_64
 export ARCHITECTURE_UPPERCASE=$(shell echo $(ARCHITECTURE) | tr "[:lower:]" "[:upper:]")
 export HYPNOTICOS=HypnoticOS-$(ARCHITECTURE)-$(VERSION)-$(shell date +"%D-%T")
 export SYSROOT=$(PWD)/sysroot
@@ -36,20 +36,21 @@ export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
 export CC=$(TARGET)-gcc
-export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR)
-export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -nostdlib
+export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -mno-sse
+# TODO Support larger page sizes for modules
+export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -nostdlib -mno-sse -zmax-page-size=0x1000
 
 export AR=$(TARGET)-ar
 
 export LD=$(TARGET)-ld
-export LDFLAGS=
+export LDFLAGS=-zmax-page-size=0x1000
 export LDFLAGS_MODULES=-nostdlib -L$(PWD)/libc
 
 export LIBS=
 export LIBS_MODULES=-lgcc -lc
 
 export NASM=nasm
-export NASMFLAGS=-f elf
+export NASMFLAGS=-f elf64
 export NASMFLAGS_MODULES=$(NASMFLAGS)
 
 .PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)

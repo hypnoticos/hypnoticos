@@ -16,20 +16,15 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global MemoryPagingEnable
+global MemoryKernelPML4, MemoryKernelPDPTE_0, MemoryKernelPDE_0
 
- MemoryPagingEnable:
-  push ebp
-  mov ebp, esp
+section .data
+align 4096
+MemoryKernelPML4:
+  times 512 dq 0
 
-  mov eax, [ebp + 8]
-  mov cr3, eax
+MemoryKernelPDPTE_0:
+  times 512 dq 0
 
-  mov eax, cr0
-  or eax, 0x80000000        ; Set PG bit (bit 31)
-  mov cr0, eax
-
-  mov esp, ebp
-  pop ebp
-
-  ret
+MemoryKernelPDE_0:
+  times 512 dq 0

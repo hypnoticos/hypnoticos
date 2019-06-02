@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
 #define MSR_IA32_APIC_BASE          0x1B
@@ -29,6 +30,7 @@ uint8_t ApInitDone = 0;
 
 uint8_t ApicLocalInit(uint8_t bsp) {
   uint32_t *r;
+  void *addr;
 
   if(bsp != CPU_BSP && bsp != CPU_AP) {
     HALT();
@@ -59,14 +61,24 @@ uint8_t ApicLocalInit(uint8_t bsp) {
     return 0;
   }
 
+  // TODO MAXPHYSADDR
+  // TODO Look at this code again. The documents refer to using CPUID, and potentially only part of r[1] should be considered.
+  addr = (void *) ((uint64_t) r[1] & 0xFFFFF000);
+  if(bsp == CPU_BSP) {
+    ApicLocalBspBase = addr;
+  }
+
+  // Ensure local APIC address is present in the PML4
+  if(!MemoryPagingPagePresent(MemoryKernelPML4, (uint64_t) ApicLocalBspBase)) {
+    if(!MemoryPagingSetPageImitate(MemoryKernelPML4, (uint64_t) addr, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_4KB)) {
+      HALT();
+    }
+  }
+
   r[1] = r[1] | 0x800;
   MsrWrite(MSR_IA32_APIC_BASE, r[0], r[1]);
 
-  // TODO MAXPHYSADDR
-  // TODO Look at this code again. The documents refer to using CPUID, and potentially only part of r[1] should be considered.
-  ApicLocalBspBase = (void *) ((uint32_t) r[1] & 0xFFFFF000);
-
-  APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
+  APIC_LOCAL_WRITE(addr, APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
 
   return 1;
 }

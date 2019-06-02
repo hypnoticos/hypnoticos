@@ -17,43 +17,40 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
 #include <hypnoticos/memory.h>
+#include <hypnoticos/cpu.h>
 #include <hypnoticos/hypnoticos.h>
 
-// Retrieve the top 10 bits
-#define VA_TO_PD(va)                  ((va) >> 22)
+#define PAGE_ENTRY_SIZE               (512 * sizeof(uint64_t))
 
-// Get the bottom 10 of the top 20 bits
-#define VA_TO_PT(va)                  (((va) >> 12) & 0x3FF)
-
-#define PD_VA_BASE(pd)                (((1024 * 4) * (pd)) << 10)
-#define PT_VA_OFFSET(pt)              ((1024 * 4) * (pt))
-
-extern void MemoryPagingEnable(uint32_t cr3);
-
-void *MemoryPD;
+#define VA_GET_PML4_ENTRY(va)         ((va) >> 39)
+#define VA_GET_PDPTE(va)              (((va) >> 30) & 0x1FF)
+#define VA_GET_PDE(va)                (((va) >> 21) & 0x1FF)
+#define VA_GET_PTE(va)                (((va) >> 12) & 0x1FF)
 
 void MemoryPagingInit() {
-  uint32_t pde, pte, va;
+  uint64_t max_addr = 0, max_page, i;
 
-  // Allocate kernel page directory
-  MemoryPD = malloc_align(4096, ALIGN_4KB);
-
-  // Allocate every page
-  for(pde = 0; pde < 1024; pde++) {
-    for(pte = 0; pte < 1024; pte++) {
-      va = PD_VA_BASE(pde) | PT_VA_OFFSET(pte);
-      MemoryPagingSetPageImitate(MemoryPD, va, PAGING_PRESENT | ((va == (uint32_t) MemoryPD || va == 0x800000) ? 0 : PAGING_RW));
+  for(MemoryBlock_t *mb = &MemoryBlocks; mb != NULL; mb = mb->next) {
+    if((uint64_t) mb->start + (uint64_t) mb->length > max_addr) {
+      max_addr = (uint64_t) mb->start + (uint64_t) mb->length;
     }
   }
 
-  // Enable paging
-  // (the CR3 value to be given as a parameter will already have bits 0 to 11 set to 0 because it is 4KB aligned)
-  MemoryPagingEnable((uint32_t) MemoryPD);
+  // Allocate remaining pages in 2MB blocks
+  max_page = (max_addr / 0x200000) + 1;
+  for(i = 0; i < max_page; i++) {
+    if(!MemoryPagingPagePresent(MemoryKernelPML4, i * 0x200000)) {
+      if(!MemoryPagingSetPageImitate(MemoryKernelPML4, i * 0x200000, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_2MB)) {
+        HALT();
+      }
+    }
+  }
 }
 
 void *MemoryPagingNewPD() {
-  uint32_t pde, start, end, i, *ret;
+  uint64_t pde, start, end, i, *ret;
 
   // Initialise each PDE
   ret = malloc_align(4096, ALIGN_4KB);
@@ -62,43 +59,153 @@ void *MemoryPagingNewPD() {
   }
 
   // Reserve the kernel's pages
-  start = ((uint32_t) &AddrStart) / 4096;
-  end = (((uint32_t) &AddrEnd) + 4096) / 4096;
+  start = ((uint64_t) &AddrStart) / 4096;
+  end = (((uint64_t) &AddrEnd) + 4096) / 4096;
   for(i = start; i < end; i++) {
-    MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT);
+    MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
   }
 
   return ret;
 }
 
-uint8_t MemoryPagingSetPage(uint32_t *pd, uint32_t va, uint32_t pa, uint32_t flags) {
-  uint32_t pde, pte, i;
-  void *ptr;
+uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
+  uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr;
+  uint16_t pml4e, pdpte, pde, pte;
 
-  if((pa & 0xFFF) != 0) {
+  pml4e = VA_GET_PML4_ENTRY(va);
+  pdpte = VA_GET_PDPTE(va);
+  pde = VA_GET_PDE(va);
+  pte = VA_GET_PTE(va);
+
+  // Check if PML4E is allocated
+  if((pml4[pml4e] & PAGING_PRESENT)) {
+    pdpte_ptr = (uint64_t **) (pml4[pml4e] & 0xFFFFFFFFFFFFF000);
+  } else {
+    return 0;
+  }
+
+  if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT) && (((uint64_t) pdpte_ptr[pdpte]) & PAGING_PAGE_FRAME)) {
+    return 1;
+  } else if(!(((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT)) {
+    return 0;
+  } else {
+    pde_ptr = (uint64_t **) ((uint64_t) pdpte_ptr[pdpte] & 0xFFFFFFFFFFFFF000);
+  }
+
+  if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT) && (((uint64_t) pde_ptr[pde]) & PAGING_PAGE_FRAME)) {
+    return 1;
+  } else if(!(((uint64_t) pde_ptr[pde]) & PAGING_PRESENT)) {
+    return 0;
+  } else {
+    pte_ptr = (uint64_t **) ((uint64_t) pde_ptr[pde] & 0xFFFFFFFFFFFFF000);
+  }
+
+  if(((uint64_t) pte_ptr[pte] & PAGING_PRESENT)) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+uint8_t inline MemoryPagingSetPage(uint64_t *pml4, uint64_t va, uint64_t pa, uint32_t flags, uint8_t page_size) {
+  uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr, temp;
+  uint16_t pml4e, pdpte, pde, pte;
+
+  if(page_size == PAGE_SIZE_4KB && ((va & 0xFFF) != 0 || (pa & 0xFFF) != 0)) {
     WARNING();
     return 0;
-  } else if((flags & 0xFFFFF000) != 0) {
+  } else if(page_size == PAGE_SIZE_2MB && ((va & 0x1FFFFF) != 0 || (pa & 0x1FFFFF) != 0)) {
+    WARNING();
+    return 0;
+  } else if(page_size == PAGE_SIZE_1GB && ((va & (0x3FFFFFFF)) != 0 || (pa & 0x3FFFFFFF) != 0)) {
     WARNING();
     return 0;
   }
 
-  // Get PDE & PTE
-  pde = VA_TO_PD(va);
-  pte = VA_TO_PT(va);
+  if(page_size != PAGE_SIZE_4KB && page_size != PAGE_SIZE_2MB && page_size != PAGE_SIZE_1GB) {
+    // Unknown page size
+    WARNING();
+    return 0;
+  }
 
-  // Check if PDE is allocated
-  if(!(pd[pde] & PAGING_PRESENT)) {
-    ptr = malloc_align(4096, ALIGN_4KB);
-    for(i = 0; i < 1024; i++) {
-      *((uint32_t *) ((uint32_t) ptr + (i * 4))) = 0;
+  pml4e = VA_GET_PML4_ENTRY(va);
+  pdpte = VA_GET_PDPTE(va);
+  pde = VA_GET_PDE(va);
+  pte = VA_GET_PTE(va);
+
+  // Check if PML4E is allocated
+  if((pml4[pml4e] & PAGING_PRESENT)) {
+    pdpte_ptr = (uint64_t **) (pml4[pml4e] & 0xFFFFFFFFFFFFF000);
+  } else {
+    // Allocate PDPTE
+    pml4[pml4e] = (uint64_t) malloc_align(PAGE_ENTRY_SIZE, ALIGN_4KB);
+    pdpte_ptr = (uint64_t **) pml4[pml4e];
+
+    // Set default flags
+    pml4[pml4e] = ((uint64_t) pml4[pml4e] | PAGING_PRESENT | PAGING_RW | PAGING_USER);
+
+    // Clear PDPTE
+    memset(pdpte_ptr, 0, PAGE_ENTRY_SIZE);
+  }
+
+  if(page_size == PAGE_SIZE_1GB) {
+    if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT)) {
+      // Already present
+      WARNING();
+      return 0;
+    } else {
+      pdpte_ptr[pdpte] = (uint64_t *) (pa | flags | PAGING_PAGE_FRAME);
+      return 1;
     }
-    pd[pde] = (uint32_t) ptr | PAGING_PRESENT | PAGING_RW | PAGING_USER;
+  } else {
+    if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT) && (((uint64_t) pdpte_ptr[pdpte]) & PAGING_PAGE_FRAME)) {
+      WARNING();
+      return 0;
+    } else if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT) && !(((uint64_t) pdpte_ptr[pdpte]) & PAGING_PAGE_FRAME)) {
+      pde_ptr = (uint64_t **) ((uint64_t) pdpte_ptr[pdpte] & 0xFFFFFFFFFFFFF000);
+    } else {
+      // Allocate PDE
+      pdpte_ptr[pdpte] = malloc_align(PAGE_ENTRY_SIZE, ALIGN_4KB);
+      pde_ptr = (uint64_t **) pdpte_ptr[pdpte];
+
+      // Set default flags
+      temp = (uint64_t *) ((uint64_t) pdpte_ptr[pdpte] | PAGING_PRESENT | PAGING_RW | PAGING_USER);
+      pdpte_ptr[pdpte] = temp;
+
+      // Clear PDPTE
+      memset(pde_ptr, 0, PAGE_ENTRY_SIZE);
+    }
   }
 
-  // Set PTE entry
-  ptr = (void *) ((uint32_t) (pd[pde] & 0xFFFFF000) + (pte * 4));
-  *((uint32_t *) ptr) = pa | flags;
+  if(page_size == PAGE_SIZE_2MB) {
+    if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT)) {
+      // Already present
+      WARNING();
+      return 0;
+    } else {
+      pde_ptr[pde] = (uint64_t *) (pa | flags | PAGING_PAGE_FRAME);
+      return 1;
+    }
+  } else {
+    if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT) && (((uint64_t) pde_ptr[pde]) & PAGING_PAGE_FRAME)) {
+      WARNING();
+      return 0;
+    } else if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT) && !(((uint64_t) pde_ptr[pde]) & PAGING_PAGE_FRAME)) {
+      pte_ptr = (uint64_t **) ((uint64_t) pde_ptr[pde] & 0xFFFFFFFFFFFFF000);
+    } else {
+      // Allocate PTE
+      pde_ptr[pde] = malloc_align(PAGE_ENTRY_SIZE, ALIGN_4KB);
+      pte_ptr = (uint64_t **) pde_ptr[pde];
 
+      // Set default flags
+      pde_ptr[pde] = (uint64_t *) ((uint64_t) pde_ptr[pde] | PAGING_PRESENT | PAGING_RW | PAGING_USER);
+
+      // Clear PDPTE
+      memset(pte_ptr, 0, PAGE_ENTRY_SIZE);
+    }
+  }
+
+  // Page size is therefore 4KB
+  pte_ptr[pte] = (uint64_t *) (pa | flags);
   return 1;
 }

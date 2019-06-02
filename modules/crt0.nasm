@@ -21,7 +21,7 @@ extern main
 
 section .text
 _start:
-  mov ebp, esp
+  mov rbp, rsp
   push 0
   push 0
   call main

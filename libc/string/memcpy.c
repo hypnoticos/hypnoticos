@@ -20,7 +20,7 @@
 #include <string.h>
 
 void *memcpy(void *destination, const void *source, size_t count) {
-  uint32_t i;
+  size_t i;
 
   for(i = 0; i < count; i++) {
     ((char *) destination)[i] = ((char *) source)[i];

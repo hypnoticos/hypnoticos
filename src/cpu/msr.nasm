@@ -21,32 +21,32 @@ global MsrRead, MsrWrite
 ; TODO Check if MSR is supported
 
 MsrWrite:
-  push ebp
-  mov ebp, esp
+  push rbp
+  mov rbp, rsp
 
-  mov ecx, [ebp + 8]
-  mov edx, [ebp + 12]
-  mov eax, [ebp + 16]
+  mov ecx, edi
+  mov edx, esi
+  mov eax, edx
   wrmsr
 
-  mov esp, ebp
-  pop ebp
-  mov eax, 0
+  mov rsp, rbp
+  pop rbp
+  mov rax, 0
   ret
 
 MsrRead:
-  push ebp
-  mov ebp, esp
+  push rbp
+  mov rbp, rsp
 
-  mov ecx, [ebp + 8]
+  mov ecx, edi
   rdmsr
 
   mov [_MsrReadOutput_edx], edx
   mov [_MsrReadOutput_eax], eax
 
-  mov esp, ebp
-  pop ebp
-  mov eax, _MsrReadOutput
+  mov rsp, rbp
+  pop rbp
+  mov rax, _MsrReadOutput
   ret
 
 _MsrReadOutput:

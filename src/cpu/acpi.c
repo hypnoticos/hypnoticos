@@ -43,7 +43,7 @@ inline uint8_t AcpiTestRsdp(void *ptr) {
     return 0;
   }
 
-  for(i = 0, sum = 0; i < 20; sum += *((uint8_t *) ((uint32_t) ptr + i)), i++);
+  for(i = 0, sum = 0; i < 20; sum += *((uint8_t *) ((uint64_t) ptr + i)), i++);
   if((sum & 0xFF) != 0x00) {
     return 0;
   } else {
@@ -57,8 +57,8 @@ void AcpiFindRsdp() {
 
   // Search first in the first 1KB of the EBDA
   // 16 byte boundaries
-  BiosEbda = (void *) ((*((uint16_t *) 0x40E)) << 4);
-  for(ptr = BiosEbda; ptr < (uint16_t *) ((uint32_t) BiosEbda + 1024); ptr = (void *) ((uint32_t) ptr + 16)) {
+  BiosEbda = (void *) ((uint64_t) (*((uint16_t *) 0x40E)) << 4);
+  for(ptr = BiosEbda; ptr < (uint16_t *) ((uint64_t) BiosEbda + 1024); ptr = (void *) ((uint64_t) ptr + 16)) {
     if(AcpiTestRsdp(ptr)) {
       AcpiRsdp = (AcpiRsdp_t *) ptr;
       break;
@@ -67,7 +67,7 @@ void AcpiFindRsdp() {
 
   if(AcpiRsdp == NULL) {
     // Search 0xE0000 to 0xFFFFF if not found in the EBDA
-    for(ptr = (uint16_t *) 0xE0000; ptr < (uint16_t *) 0xFFFFF; ptr = (void *) ((uint32_t) ptr + 16)) {
+    for(ptr = (uint16_t *) 0xE0000; ptr < (uint16_t *) 0xFFFFF; ptr = (void *) ((uint64_t) ptr + 16)) {
       if(AcpiTestRsdp(ptr)) {
         AcpiRsdp = (AcpiRsdp_t *) ptr;
         break;
@@ -80,7 +80,7 @@ void AcpiFindRsdp() {
     HALT();
   }
 
-  AcpiRsdt = (AcpiRsdt_t *) AcpiRsdp->rsdt_addr;
+  AcpiRsdt = (AcpiRsdt_t *) ((uint64_t) AcpiRsdp->rsdt_addr);
   if(memcmp("RSDT", AcpiRsdt->hdr.signature, 4) != 0) {
     HALT();
   } else if(AcpiRsdt->hdr.length < 36 || (AcpiRsdt->hdr.length - 36) % 4 != 0) {
@@ -88,29 +88,35 @@ void AcpiFindRsdp() {
   }
 
   // RSDT checksum
-  for(i = 0, sum = 0; i < AcpiRsdt->hdr.length; sum += *((uint8_t *) ((uint32_t) AcpiRsdt + i)), i++);
+  for(i = 0, sum = 0; i < AcpiRsdt->hdr.length; sum += *((uint8_t *) ((uint64_t) AcpiRsdt + i)), i++);
   if((sum & 0xFF) != 0x00) {
     HALT();
   }
 }
 
 void *AcpiFindTable(const char *signature) {
-  AcpiTableHeader_t **ptr;
-  uint32_t i, sum;
+  AcpiTableHeader_t *ptr;
+  uint64_t i, sum;
+  uint32_t ptr_int, ptr_int_2;
 
   if(AcpiRsdt == NULL || strlen(signature) != 4) {
     WARNING();
     return NULL;
   }
 
-  for(ptr = (AcpiTableHeader_t **) ((uint32_t) AcpiRsdt + 36); ptr < (AcpiTableHeader_t **) ((uint32_t) AcpiRsdt + AcpiRsdt->hdr.length); ptr = (AcpiTableHeader_t **) ((uint32_t) ptr + 4)) {
-    if(memcmp((*ptr)->signature, signature, 4) == 0) {
-      // Checksum
-      for(i = 0, sum = 0; i < (*ptr)->length; sum += *((uint8_t *) ((uint32_t) *ptr + i)), i++);
+  if((void *) AcpiRsdt >= (void *) 0xFFFFFFFF) {
+    HALT();
+  }
+
+  for(ptr_int = (uint32_t) ((uint64_t) AcpiRsdt + 36); ptr_int < (uint32_t) ((uint64_t) AcpiRsdt + AcpiRsdt->hdr.length); ptr_int = ptr_int + 4) {
+    ptr_int_2 = *((uint32_t *) ((uint64_t) ptr_int));
+    ptr = (AcpiTableHeader_t *) ((uint64_t) ptr_int_2);
+    if(memcmp(signature, ptr->signature, 4) == 0) {
+      for(i = 0, sum = 0; i < ptr->length; sum += *((uint8_t *) ((uint64_t) ptr + i)), i++);
       if((sum & 0xFF) != 0x00) {
         HALT();
       }
-      return (*ptr);
+      return ptr;
     }
   }
 
@@ -135,13 +141,13 @@ uint8_t AcpiParse() {
       continue;
     } else if(structure_type == 0x00) {
       // Local APIC
-      if(!ApicLocalParseAcpi((AcpiApicLocal_t *) ((uint32_t) apic + i))) {
+      if(!ApicLocalParseAcpi((AcpiApicLocal_t *) ((uint64_t) apic + i))) {
         WARNING();
         return 0;
       }
     } else if(structure_type == 0x01) {
       // I/O APIC
-      if(!ApicIoAdd((AcpiApicIo_t *) ((uint32_t) apic + i))) {
+      if(!ApicIoAdd((AcpiApicIo_t *) ((uint64_t) apic + i))) {
         WARNING();
         return 0;
       }

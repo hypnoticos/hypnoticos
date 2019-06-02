@@ -58,13 +58,13 @@ void ApicIoMapIrqs() {
 #define APIC_IO_IOWIN             0x10
 
 inline uint32_t ApicIoRead(AcpiApicIo_t *io_apic, uint8_t r) {
-  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
-  return *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOWIN));
+  *((uint32_t *) ((uint64_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
+  return *((uint32_t *) ((uint64_t) io_apic->addr + APIC_IO_IOWIN));
 }
 
 inline void ApicIoWrite(AcpiApicIo_t *io_apic, uint8_t r, uint32_t data) {
-  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
-  *((uint32_t *) ((uint32_t) io_apic->addr + APIC_IO_IOWIN)) = data;
+  *((uint32_t *) ((uint64_t) io_apic->addr + APIC_IO_IOREGSEL)) = (uint32_t) r;
+  *((uint32_t *) ((uint64_t) io_apic->addr + APIC_IO_IOWIN)) = data;
 }
 
 void ApicIoIrq(uint8_t no, uint8_t vector) {

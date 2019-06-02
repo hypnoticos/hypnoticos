@@ -21,7 +21,7 @@
 
 // TODO Return value
 int strcmp(const char *str1, const char *str2) {
-  uint32_t i;
+  size_t i;
 
   if(strlen(str1) != strlen(str2)) {
     return 1;

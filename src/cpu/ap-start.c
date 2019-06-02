@@ -22,6 +22,13 @@
 
 void ApStart() {
   CpuChecks(CPU_AP);
+  CpuApic(CPU_AP);
   IdtSet();
   ApInitDone = 1;
+
+  while(1) {
+    asm("hlt");
+  }
+
+  __builtin_unreachable();
 }

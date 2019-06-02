@@ -16,10 +16,10 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global EflagsGet
+global RflagsGet
 
 section .text
-EflagsGet:
-  pushf
-  pop eax
+RflagsGet:
+  pushfq
+  pop rax
   ret
