@@ -127,17 +127,18 @@ bits 64
   lgdt [Gdt]
 
   ; Update the TSS entry in the GDT
-  mov eax, Tss
+  mov rax, Tss
   mov word [TssBase_0_15], ax
-  shr eax, 16
+  shr rax, 16
   mov byte [TssBase_16_23], al
-  shr eax, 8
+  shr rax, 8
   mov byte [TssBase_24_31], al
-  mov eax, Tss + 4
+  mov rax, Tss
+  shr rax, 32
   mov dword [TssBase_32_63], eax
 
   ; Load task register
-  mov ax, 0x28 ; TODO TSS is expanded to 16 bytes
+  mov ax, 0x28
   ltr ax
 
   pop rdi

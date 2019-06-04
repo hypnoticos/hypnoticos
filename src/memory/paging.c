@@ -108,7 +108,7 @@ uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
 }
 
 uint8_t inline MemoryPagingSetPage(uint64_t *pml4, uint64_t va, uint64_t pa, uint32_t flags, uint8_t page_size) {
-  uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr, temp;
+  uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr;
   uint16_t pml4e, pdpte, pde, pte;
 
   if(page_size == PAGE_SIZE_4KB && ((va & 0xFFF) != 0 || (pa & 0xFFF) != 0)) {
@@ -169,8 +169,7 @@ uint8_t inline MemoryPagingSetPage(uint64_t *pml4, uint64_t va, uint64_t pa, uin
       pde_ptr = (uint64_t **) pdpte_ptr[pdpte];
 
       // Set default flags
-      temp = (uint64_t *) ((uint64_t) pdpte_ptr[pdpte] | PAGING_PRESENT | PAGING_RW | PAGING_USER);
-      pdpte_ptr[pdpte] = temp;
+      pdpte_ptr[pdpte] = (uint64_t *) ((uint64_t) pdpte_ptr[pdpte] | PAGING_PRESENT | PAGING_RW | PAGING_USER);
 
       // Clear PDPTE
       memset(pde_ptr, 0, PAGE_ENTRY_SIZE);

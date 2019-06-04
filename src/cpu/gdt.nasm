@@ -70,7 +70,7 @@ GdtEntries:
   dw 0          ; Base low
   db 0          ; Base middle
   db 0xFA       ; 0b11111010
-  db 0xCF       ; Flags = 0xC, limit middle = 0xF
+  db 0xA0       ; Flags = 0xA, limit middle = 0x0
   db 0          ; Base high
 
   ; TODO Restrict base/limit to user space
@@ -88,12 +88,14 @@ GdtEntries:
   ; TSS - 0x28
   ; Base = &Tss
   ; Limit = 0x2089 (size of TSS)
-  ; Flags = 0x4
+  ; Flags = 0x0
+  ; TODO Update field names on extern/boot.nasm.
+  ; Should this be 0x2089 or 0x2089+1 ? (another reference somewhere else too)
   dw 0x2089           ; TSS length (limit low)
   TssBase_0_15 dw 0   ; TSS address (load later)
   TssBase_16_23 db 0  ; TSS address (load later)
   db 0x89             ; 0b10001001
-  db 0x40             ; Flags = 0x4, TSS length middle (limit middle) = 0x0
+  db 0x00             ; Flags = 0x0, TSS length middle (limit middle) = 0x0
   TssBase_24_31 db 0  ; TSS address (load later)
   TssBase_32_63 dd 0  ; TSS address (load later)
   dd 0

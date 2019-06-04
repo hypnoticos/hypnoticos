@@ -29,12 +29,12 @@
 
 // TODO Save all registers
 
-uint32_t DispatcherCycle = 0;
+uint64_t DispatcherCycle = 0;
 uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
 
-uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore);
+uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore);
 
 DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   uint32_t i;
@@ -94,9 +94,10 @@ restart:
     if(p->run != 1 || p->last_cycle == DispatcherCycle) {
       p = NULL;
       continue;
+    } else {
+      break;
     }
   }
-
 
   if(p == NULL) {
     DispatcherCycle++; // TODO Handle overflow
@@ -147,7 +148,7 @@ uint8_t DispatcherInit() {
 }
 
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
-  uint32_t alloc_size, i, count;
+  uint64_t alloc_size, i, count;
 
   alloc_size = size + (size % 4096);
 
@@ -158,12 +159,12 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
   }
   memset(p->stack, 0, alloc_size);
 
-  p->save.rbp = 0xFFFFFFFFFFFF0000 + alloc_size - 1;
+  p->save.rbp = 0xFFFFFF0000 + alloc_size - 8;
   p->save.rsp = p->save.rbp;
 
   count = (size / 4096) + 1;
   for(i = 0; i < count; i++) {
-    if(!DispatcherProcessMap(p, 0xFFFFFFFFFFFF0000 + (i * 4096), (uint64_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
+    if(!DispatcherProcessMap(p, 0xFFFFFF0000 + (i * 4096), (uint64_t) p->stack + (i * 4096), 0, PAGING_PRESENT | PAGING_RW | PAGING_USER)) {
       WARNING();
       return 0;
     }
@@ -234,7 +235,7 @@ void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip) {
   p->save.rip = rip;
 }
 
-uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uint8_t kernel_function_ignore) {
+uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore) {
   uint32_t i;
 
   for(i = 0; p->va[i] != NULL; i++) {
@@ -253,7 +254,7 @@ uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint32_t va, uin
 }
 
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags) {
-  uint32_t i;
+  uint64_t i;
 
   // Check if va and pa are 4KB aligned
   if((va & 0xFFF) || (pa & 0xFFF)) {
@@ -282,7 +283,7 @@ uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, u
 }
 
 void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore) {
-  uint32_t i, va_range, offset;
+  uint64_t i, va_range, offset;
 
   va_range = va & 0xFFFFFFFFFFFFF000;
   offset = va & 0xFFF;
@@ -395,7 +396,7 @@ void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint64_t va, uint8_t
 }
 
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags) {
-  uint32_t i, memory_count, file_count, page_min_addr, page_max_addr, pages, initial_offset;
+  uint64_t i, memory_count, file_count, page_min_addr, page_max_addr, pages, initial_offset;
   void **ptrs;
 
   memory_count = (memory_size / 4096) + 1;

@@ -96,7 +96,7 @@ IdtCallManage:
 
     mov rax, cr3
     mov [IdtCallSavedCr3], rax
-    mov rax, [MemoryKernelPML4]
+    mov rax, MemoryKernelPML4
     mov cr3, rax
 
     ; Reset stack
