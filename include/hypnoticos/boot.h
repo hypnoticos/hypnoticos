@@ -23,8 +23,10 @@
 #include <stdint.h>
 
 extern uint32_t BootModulesCount, BootModulesAddr;
+extern uint16_t TssLast;
 
 uint8_t BootLoadModules();
 void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot);
+uint8_t TssNew();
 
 #endif

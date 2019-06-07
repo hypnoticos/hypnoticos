@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <hypnoticos/boot.h>
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
@@ -107,6 +108,8 @@ uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr) {
   for(i = 0; i < 0xFFFFFF; i++) {
     asm("pause");
   }
+
+  TssNew();
 
   while(!ApInitDone) {
     APIC_LOCAL_WRITE(ApicLocalBspBase, APIC_LOCAL_OFFSET_ICR_H, ptr->apic_id << 24);

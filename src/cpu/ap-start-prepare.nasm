@@ -18,7 +18,7 @@
 
 ; This code is to be run in real mode
 
-extern MemoryKernelPML4, ApStart, Gdt
+extern MemoryKernelPML4, ApStart, Gdt, TssLast
 
 section .text
 bits 16
@@ -122,6 +122,8 @@ ApStart32Bit:
 bits 64
   lgdt [Gdt]
 
+  ; Load task register
+  ltr [TssLast]
 
   call ApStart
 

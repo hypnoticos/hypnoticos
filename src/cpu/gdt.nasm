@@ -16,7 +16,7 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-global TssBase_0_15, TssBase_16_23, TssBase_24_31, TssBase_32_63, GdtTemp, Gdt, GdtKernelCS_48_55
+global TssBase_0_15, TssBase_16_23, TssBase_24_31, TssBase_32_63, GdtTemp, Gdt, GdtEntries, GdtKernelCS_48_55
 
 section .data
 align 8
@@ -26,7 +26,7 @@ GdtTemp:
 
 align 8
 Gdt:
-  dw (7 * 8) - 1
+  dw ((7 + (255 * 2)) * 8) - 1
   dq GdtEntries
 
 align 8
@@ -99,3 +99,5 @@ GdtEntries:
   TssBase_24_31 db 0  ; TSS address (load later)
   TssBase_32_63 dd 0  ; TSS address (load later)
   dd 0
+
+  times (255 * 4) dd 0 ; For additional TSS entries
