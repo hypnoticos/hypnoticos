@@ -64,7 +64,9 @@ prepare:
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
-	$(MAKE) -C $@
+	+$(MAKE) -C $@
+
+modules: libc
 
 install: subdirs $(INSTALLDIRS)
 

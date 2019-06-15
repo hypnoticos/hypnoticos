@@ -33,7 +33,7 @@ all: $(CRT0) subdirs
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
-	$(MAKE) -C $@
+	+$(MAKE) -C $@
 
 %.o: %.nasm
 	$(NASM) $(NASMFLAGS) $< -o $@
