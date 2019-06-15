@@ -1,6 +1,4 @@
 // https://www.gnu.org/software/grub/manual/multiboot/html_node/multiboot_002eh.html
-// With some amendments.
-
 /* multiboot.h - Multiboot header file. */
 /* Copyright (C) 1999,2003,2007,2008,2009,2010  Free Software Foundation, Inc.
  *
@@ -24,8 +22,6 @@
 
 #ifndef MULTIBOOT_HEADER
 #define MULTIBOOT_HEADER 1
-
-#include <stdint.h>
 
 /* How many bytes from the start of the file we search for the header. */
 #define MULTIBOOT_SEARCH                        8192
@@ -96,14 +92,10 @@
 
 #ifndef ASM_FILE
 
-/*typedef unsigned char           multiboot_uint8_t;
+typedef unsigned char           multiboot_uint8_t;
 typedef unsigned short          multiboot_uint16_t;
 typedef unsigned int            multiboot_uint32_t;
-typedef unsigned long long      multiboot_uint64_t;*/
-
-#define multiboot_uint8_t       uint8_t
-#define multiboot_uint16_t      uint16_t
-#define multiboot_uint32_t      uint32_t
+typedef unsigned long long      multiboot_uint64_t;
 
 struct multiboot_header
 {
@@ -200,8 +192,7 @@ struct multiboot_info
   multiboot_uint16_t vbe_interface_off;
   multiboot_uint16_t vbe_interface_len;
 
-  multiboot_uint32_t framebuffer_addr_low;
-  multiboot_uint32_t framebuffer_addr_high;
+  multiboot_uint64_t framebuffer_addr;
   multiboot_uint32_t framebuffer_pitch;
   multiboot_uint32_t framebuffer_width;
   multiboot_uint32_t framebuffer_height;
@@ -240,10 +231,8 @@ struct multiboot_color
 struct multiboot_mmap_entry
 {
   multiboot_uint32_t size;
-  multiboot_uint32_t addr_low;
-  multiboot_uint32_t addr_high;
-  multiboot_uint32_t len_low;
-  multiboot_uint32_t len_high;
+  multiboot_uint64_t addr;
+  multiboot_uint64_t len;
 #define MULTIBOOT_MEMORY_AVAILABLE              1
 #define MULTIBOOT_MEMORY_RESERVED               2
 #define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE       3

@@ -70,32 +70,23 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
       HALT();
     }
 
-    // Check for a reference to 64-bit address space
-    if(mmap_entry->addr_high != 0) {
-      // Starts in 64-bit address space. Not supported.
-      printf("WARNING: Some memory ignored as it resides above 32-bit address space.\n");
-    } else if(mmap_entry->len_high != 0) {
-      // Spans into 64-bit address space. Stop at 0xFFFFFFFF.
-      printf("WARNING: Some memory ignored as it spans above 32-bit address space.\n");
-    } else {
-      // Check the type
-      switch(mmap_entry->type) {
-        case MULTIBOOT_MEMORY_AVAILABLE:
-        MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_AVAILABLE);
-        break;
+    // Check the type
+    switch(mmap_entry->type) {
+      case MULTIBOOT_MEMORY_AVAILABLE:
+      MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr, mmap_entry->len, MEMORYBLOCK_TYPE_AVAILABLE);
+      break;
 
-        case MULTIBOOT_MEMORY_RESERVED:
-        case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE: // TODO
-        case MULTIBOOT_MEMORY_NVS: // TODO Must be preserved on hibernation
-        case MULTIBOOT_MEMORY_BADRAM:
-        MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr_low, mmap_entry->len_low, MEMORYBLOCK_TYPE_UNAVAILABLE);
-        break;
+      case MULTIBOOT_MEMORY_RESERVED:
+      case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE: // TODO
+      case MULTIBOOT_MEMORY_NVS: // TODO Must be preserved on hibernation
+      case MULTIBOOT_MEMORY_BADRAM:
+      MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr, mmap_entry->len, MEMORYBLOCK_TYPE_UNAVAILABLE);
+      break;
 
-        default:
-        printf("Unknown type.\n");
-        HALT();
-        break;
-      }
+      default:
+      printf("Unknown type.\n");
+      HALT();
+      break;
     }
 
     offset += mmap_entry->size + sizeof(mmap_entry->size);
