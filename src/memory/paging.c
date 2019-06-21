@@ -81,6 +81,8 @@ void *MemoryPagingNewPD() {
 }
 
 uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va) {
+  // TODO
+}
 void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr;
   uint16_t pml4e, pdpte, pde, pte;
