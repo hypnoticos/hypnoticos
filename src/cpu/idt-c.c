@@ -85,12 +85,15 @@ extern void Idt71();
 extern void Idt160();
 extern void Idt240();
 extern void Idt241();
+extern void Idt242();
 extern void IdtReserved();
 void IdtCreateGate(const uint8_t vector, void (*offset)(), uint16_t cs, uint8_t flags);
 void IdtCall();
 
 void IdtCall() {
   DispatcherProcess_t *p;
+  uint8_t local_apic_id;
+  DispatcherCpu_t *dispatcher_cpu_entry;
   const static char *descriptions[] = {
     "#DE, Divide Error",                                // 0
     "#DB, Debug Exception",                             // 1
@@ -124,7 +127,7 @@ void IdtCall() {
       asm("hlt");
     }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_TIMER) {
-    DispatcherSetUpNext();
+    DispatcherSetUpNext(APIC_LOCAL_GET_ID());
 
     if(!IdtFull) {
       // Now that the local APIC has been called, map all IRQs
@@ -138,7 +141,10 @@ void IdtCall() {
       asm("hlt");
     }
   } else if(IdtCallVector == 241) {
-    if((p = DispatcherFind(DispatcherCurrentPid)) == NULL) {
+    local_apic_id = APIC_LOCAL_GET_ID();
+    dispatcher_cpu_entry = DispatcherGetCpu(local_apic_id);
+
+    if((p = DispatcherFind(dispatcher_cpu_entry->current_pid)) == NULL) {
       HALT();
     }
 
@@ -224,6 +230,9 @@ void IdtInit() {
 
   // Software interrupt
   IdtCreateGate(241, Idt241, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_3);
+
+  // Start interrupts on APs
+  IdtCreateGate(242, Idt242, 0x08, IDT_GATE_INTGATE_PRESENT | IDT_GATE_INTGATE_PRIV_0);
 
   IdtLimit = (IDT_GATE_COUNT * sizeof(IdtGate_t)) - 1;
   IdtBase = (uint64_t) &IdtGates;

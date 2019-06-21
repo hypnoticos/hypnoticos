@@ -19,6 +19,7 @@
 #ifdef _HYPNOTICOS_KERNEL
 
 #include <stdio.h>
+#include <string.h>
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
@@ -31,6 +32,8 @@ void free(void *addr) {
   }
 
   mt->status = 0;
+  memset(mt->function, 0, MEMORY_TABLE_FUNCTION_LABEL_SIZE);
+  mt->line = 0;
 }
 
 #else

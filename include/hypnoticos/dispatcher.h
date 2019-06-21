@@ -80,12 +80,23 @@ struct _DispatcherProcess_t {
 
   uint16_t *io;
   uint32_t io_count;
+
+  uint8_t lock;
 };
 
-extern uint16_t DispatcherCurrentPid;
+typedef struct _DispatcherCpu_t DispatcherCpu_t;
+struct _DispatcherCpu_t {
+  uint8_t apic_id;
+  uint16_t current_pid;
+};
+
+extern DispatcherProcess_t **DispatcherProcesses;
+extern DispatcherCpu_t **DispatcherCpus;
 
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
+DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);
 uint8_t DispatcherInit();
+uint8_t DispatcherInitAddCpu(uint8_t apic_id);
 extern void DispatcherInterrupt();
 void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port);
 void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore, uint32_t flags);
@@ -96,7 +107,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name);
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
 void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
-void DispatcherSetUpNext();
+void DispatcherSetUpNext(uint8_t apic_id);
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size);
 
 #endif

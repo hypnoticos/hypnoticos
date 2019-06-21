@@ -46,23 +46,25 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
 
   MultibootCheck(magic, multiboot);
   MemoryPagingInit();
+  if(!DispatcherInit()) {
+    HALT();
+  }
   AcpiFindRsdp(); // Needs access to BIOS Data Area
-  CpuApic(CPU_BSP);
-
-  DispatcherInit();
+  CpuApic(CPU_BSP); // Needs DispatcherInit() to have been called
 
   KeyboardInit();
   if(!KeyboardPresent) {
     printf("No PS/2 keyboard detected\n");
   }
 
-  BootLoadModules();
+  BootLoadModules(); // Needs TSS structures to have been created
 
   if(!PciInit()) {
     HALT();
   }
 
   printf("Starting...\n");
+  ApicLocalStartInterruptsOnAPs();
   asm("sti");
   ApicLocalSetUpTimer();
 

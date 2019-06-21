@@ -16,29 +16,35 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <hypnoticos/cpu.h>
-#include <hypnoticos/hypnoticos.h>
+#include <string.h>
+#include <hypnoticos/dispatcher.h>
 
-#define STACK_SIZE          8192
+DispatcherCpu_t **DispatcherCpus;
 
-void ApStart() {
-  CpuChecks(CPU_AP);
-  CpuApic(CPU_AP);
-  IdtSet();
-  asm("sti");
-  ApInitDone = 1;
+uint8_t DispatcherInit() {
+  DispatcherProcesses = malloc(sizeof(DispatcherProcess_t *));
+  DispatcherProcesses[0] = NULL;
 
-  while(1) {
-    asm("hlt");
-  }
+  DispatcherCpus = malloc(sizeof(DispatcherCpu_t *));
+  DispatcherCpus[0] = NULL;
 
-  __builtin_unreachable();
+  return 1;
 }
 
-void *ApStartNewStack() {
-  void *stack;
-  stack = malloc_align(STACK_SIZE, ALIGN_4KB);
-  return (void *) ((uint64_t) stack + STACK_SIZE - 8);
+uint8_t DispatcherInitAddCpu(uint8_t apic_id) {
+  uint64_t i;
+  DispatcherCpu_t *entry;
+
+  for(i = 0; DispatcherCpus[i] != NULL; i++);
+
+  entry = malloc(sizeof(DispatcherCpu_t));
+  memset(entry, 0, sizeof(DispatcherCpu_t));
+  entry->apic_id = apic_id;
+
+  DispatcherCpus = realloc(DispatcherCpus, sizeof(DispatcherCpu_t *) * (i + 2));
+  DispatcherCpus[i] = entry;
+  DispatcherCpus[i + 1] = NULL;
+
+  return 1;
 }

@@ -41,7 +41,7 @@ void MemoryPagingInit() {
   // Allocate remaining pages in 2MB blocks
   max_page = (max_addr / 0x200000) + 1;
   for(i = 0; i < max_page; i++) {
-    if(!MemoryPagingPagePresent(MemoryKernelPML4, i * 0x200000)) {
+    if(MemoryPagingPagePresent(MemoryKernelPML4, i * 0x200000) == NULL) {
       if(!MemoryPagingSetPageImitate(MemoryKernelPML4, i * 0x200000, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_2MB)) {
         HALT();
       }
@@ -50,13 +50,10 @@ void MemoryPagingInit() {
 }
 
 void *MemoryPagingNewPD() {
-  uint64_t pde, start, end, i, *ret;
+  uint64_t start, end, i, i2, *ret;
 
-  // Initialise each PDE
   ret = malloc_align(4096, ALIGN_4KB);
-  for(pde = 0; pde < 1024; pde++) {
-    ret[pde] = 0;
-  }
+  memset(ret, 0, 4096);
 
   // Reserve the kernel's pages
   start = ((uint64_t) &AddrStart) / 4096;
@@ -65,10 +62,26 @@ void *MemoryPagingNewPD() {
     MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
   }
 
+  // Reserve the pages needed for the TSS
+  for(i = 0; TssEntriesAPs[i] != NULL; i++) {
+    start = ((uint64_t) TssEntriesAPs[i]->tss) / 4096;
+    end = (((uint64_t) TssEntriesAPs[i]->tss + sizeof(Tss_t)) / 4096) + 1;
+    for(i2 = start; i2 < end; i2++) {
+      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
+    }
+
+    start = ((uint64_t) TssEntriesAPs[i]->stack) / 4096;
+    end = (((uint64_t) TssEntriesAPs[i]->stack + TSS_RSP0_SIZE) / 4096) + 1;
+    for(i2 = start; i2 < end; i2++) {
+      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
+    }
+  }
+
   return ret;
 }
 
 uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
+void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr;
   uint16_t pml4e, pdpte, pde, pte;
 
@@ -81,13 +94,13 @@ uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   if((pml4[pml4e] & PAGING_PRESENT)) {
     pdpte_ptr = (uint64_t **) (pml4[pml4e] & 0xFFFFFFFFFFFFF000);
   } else {
-    return 0;
+    return NULL;
   }
 
   if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT) && (((uint64_t) pdpte_ptr[pdpte]) & PAGING_PAGE_FRAME)) {
     return 1;
   } else if(!(((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT)) {
-    return 0;
+    return NULL;
   } else {
     pde_ptr = (uint64_t **) ((uint64_t) pdpte_ptr[pdpte] & 0xFFFFFFFFFFFFF000);
   }
@@ -95,7 +108,7 @@ uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT) && (((uint64_t) pde_ptr[pde]) & PAGING_PAGE_FRAME)) {
     return 1;
   } else if(!(((uint64_t) pde_ptr[pde]) & PAGING_PRESENT)) {
-    return 0;
+    return NULL;
   } else {
     pte_ptr = (uint64_t **) ((uint64_t) pde_ptr[pde] & 0xFFFFFFFFFFFFF000);
   }
@@ -103,7 +116,7 @@ uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   if(((uint64_t) pte_ptr[pte] & PAGING_PRESENT)) {
     return 1;
   } else {
-    return 0;
+    return NULL;
   }
 }
 

@@ -112,7 +112,11 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, ui
 
       for(i = 0; i < BootModulesCount; i++) {
         module = (multiboot_module_t *) ((uint64_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-        if(!(mt_start < module->mod_start && mt_start + mt_size < module->mod_start)) {
+        if(mt_start > module->mod_end) {
+          continue;
+        } else if(mt_start + mt_size < module->mod_start) {
+          continue;
+        } else {
           // TODO Place the memory table elsewhere
           // May overwrite this module
           HALT();

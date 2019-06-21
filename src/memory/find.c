@@ -21,7 +21,7 @@
 #include <hypnoticos/hypnoticos.h>
 
 inline uint8_t MemoryAlign(uint64_t *addr, uint64_t min, uint64_t align);
-uint8_t MemoryIsFree(void *addr, size_t size);
+uint8_t MemoryIsFree(void *addr, size_t size, void **end);
 
 /*!
    \brief Find an address's MemoryTable_t structure.
@@ -52,9 +52,10 @@ inline MemoryTable_t *MemoryFind(void *addr) {
    \brief Check if the entire block specified is unallocated
    \param addr The start of the block
    \param size The size of the block
+   \param end The end of the block
    \return 1 if unallocated, 0 otherwise.
 */
-uint8_t MemoryIsFree(void *addr, size_t size) {
+uint8_t MemoryIsFree(void *addr, size_t size, void **end) {
   MemoryTableIndex_t *mti;
   MemoryTable_t *mt;
 
@@ -72,11 +73,12 @@ uint8_t MemoryIsFree(void *addr, size_t size) {
       }
 
       // new block's start is greater than this block's end
-      if(addr > (void *) ((uint64_t) mt->addr + mt->size)) {
+      if(addr >= (void *) ((uint64_t) mt->addr + mt->size)) {
         continue;
       }
 
       // Otherwise, this block overlaps with the specified block
+      *end = (void *) ((uint64_t) mt->addr + mt->size);
       return 0;
     }
   }
@@ -104,6 +106,7 @@ inline uint8_t MemoryAlign(uint64_t *addr, uint64_t min, uint64_t align) {
 void *MemoryFindSpace(size_t size, uint8_t align) {
   MemoryBlock_t *block;
   uint64_t addr = 0, max_addr;
+  void *end;
 
   // Iterate through each memory block
   for(block = &MemoryBlocks; block != NULL; block = block->next) {
@@ -120,16 +123,13 @@ void *MemoryFindSpace(size_t size, uint8_t align) {
     }
 
     // Check if this address is available
-    // If not, check before the start of the address occupying that address. Continue until space found, or no space is available.
+    // If not, check after the end of that address
     do {
-      if(!MemoryIsFree((void *) addr, size)) {
+      if(!MemoryIsFree((void *) addr, size, &end)) {
         if(align == ALIGN_4KB) {
-          if(addr < 4096) {
-            break;
-          }
           addr += 4096;
         } else {
-          addr += size;
+          addr = (uint64_t) end;
         }
       } else {
         return (void *) addr;

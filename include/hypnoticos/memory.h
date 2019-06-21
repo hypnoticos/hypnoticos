@@ -19,7 +19,6 @@
 #ifndef HYPNOTICOS_MEMORY_H
 #define HYPNOTICOS_MEMORY_H
 
-#include <multiboot.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -41,6 +40,8 @@
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100       // It may be better to have a smaller number here to make try to avoid a conflict with the kernel/mmap (this is relevant for now - TODO)
 #define MEMORY_TABLE_NEW_TABLE_ENTRIES        1000
+
+#define MEMORY_TABLE_FUNCTION_LABEL_SIZE      200
 
 typedef struct _MemoryBlock_t MemoryBlock_t;
 struct _MemoryBlock_t {
@@ -67,7 +68,7 @@ struct _MemoryTable_t {
   uint64_t size; /*!< Size of this memory allocation */
   uint8_t status; /*!< Status of this entry in the table (0 = empty, 1 = in use) */
 
-  char function[200];
+  char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE];
   uint32_t line;
 } __attribute__((packed));
 extern MemoryTableIndex_t MemoryTableIndices;
@@ -76,15 +77,15 @@ extern uint64_t MemoryKernelPML4[512];
 
 #define MemoryPagingSetPageImitate(pd, pa, flags, page_size)     MemoryPagingSetPage(pd, pa, pa, flags, page_size)
 
-void *__malloc_align(size_t size, uint8_t align, const char function[200], uint32_t line);
-void MemoryAllocated(void *addr, size_t size, const char function[200], uint32_t line);
+void *__malloc_align(size_t size, uint8_t align, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
+uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
 void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();
-uint8_t MemoryPagingPagePresent(uint64_t *pml4, uint64_t va);
+void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va);
 uint8_t MemoryPagingSetPage(uint64_t *pml4, uint64_t va, uint64_t pa, uint32_t flags, uint8_t page_size);
 
 #endif

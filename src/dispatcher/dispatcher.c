@@ -29,10 +29,12 @@
 
 // TODO Save all registers
 
+extern void IdtWait();
+
 uint64_t DispatcherCycle = 0;
-uint16_t DispatcherCurrentPid = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
+DispatcherCpu_t **DispatcherCpus;
 
 uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore);
 
@@ -48,12 +50,28 @@ DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   return NULL;
 }
 
-void DispatcherSetUpNext() {
-  DispatcherProcess_t *p;
-  uint32_t i, byte_offset, bit_offset, bit_operation;
+DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu) {
+  uint16_t i;
 
-  if(DispatcherCurrentPid != 0) {
-    if((p = DispatcherFind(DispatcherCurrentPid)) == NULL) {
+  for(i = 0; DispatcherCpus[i] != NULL; i++) {
+    if(DispatcherCpus[i]->apic_id == cpu) {
+      return DispatcherCpus[i];
+    }
+  }
+
+  HALT();
+  __builtin_unreachable();
+}
+
+void DispatcherSetUpNext(uint8_t apic_id) {
+  DispatcherProcess_t *p;
+  uint8_t no_processes_to_run;
+  uint32_t i, byte_offset, bit_offset, bit_operation;
+  DispatcherCpu_t *dispatcher_cpu;
+
+  dispatcher_cpu = DispatcherGetCpu(apic_id);
+  if(dispatcher_cpu->current_pid != 0) {
+    if((p = DispatcherFind(dispatcher_cpu->current_pid)) == NULL) {
       HALT();
     }
 
@@ -80,6 +98,8 @@ void DispatcherSetUpNext() {
 
     p->save.rflags = IdtCallSavedRflags;
 
+    p->lock = 0;
+
     // Reset I/O port bitmap
     for(i = 0; i < p->io_count; i++) {
       byte_offset = p->io[i] / 8;
@@ -89,9 +109,13 @@ void DispatcherSetUpNext() {
 
   // Find next process
 restart:
+  no_processes_to_run = 1;
   for(p = NULL, i = 0; DispatcherProcesses[i] != NULL; i++) {
     p = DispatcherProcesses[i];
-    if(p->run != 1 || p->last_cycle == DispatcherCycle) {
+    if(p->run != 1 || p->lock != 0 || p->last_cycle == DispatcherCycle) {
+      if(p->last_cycle == DispatcherCycle) {
+        no_processes_to_run = 0;
+      }
       p = NULL;
       continue;
     } else {
@@ -100,13 +124,18 @@ restart:
   }
 
   if(p == NULL) {
+    if(no_processes_to_run) {
+      // Release lock and wait for another process
+      IdtWait();
+      __builtin_unreachable();
+    }
     DispatcherCycle++; // TODO Handle overflow
     goto restart;
   }
 
   p->last_cycle = DispatcherCycle;
-
-  DispatcherCurrentPid = p->pid;
+  p->lock = 1;
+  dispatcher_cpu->current_pid = p->pid;
 
   // Restore registers
   IdtCallSavedCr3 = p->save.cr3;
@@ -138,13 +167,6 @@ restart:
     bit_operation = 0x1 << bit_offset;
     Tss.io_permission[byte_offset] = Tss.io_permission[byte_offset] ^ bit_operation;
   }
-}
-
-uint8_t DispatcherInit() {
-  DispatcherProcesses = malloc(sizeof(DispatcherProcess_t *));
-  DispatcherProcesses[0] = NULL;
-
-  return 1;
 }
 
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
@@ -196,6 +218,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->stack = NULL;
   p->run = 0;
   p->last_cycle = 0;
+  p->lock = 0;
 
   p->save.cr3 = (uint64_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 
@@ -424,7 +447,6 @@ uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data,
   if(file_size != 0) {
     initial_offset = va & 0xFFF;
     for(i = 0; i < file_count; i++) {
-      // TODO 09/05/2019, start copying to va
       if(i == 0) {
         memcpy(ptrs[i] + initial_offset, data, 4096 - initial_offset);
       } else if(i != file_count - 1) {

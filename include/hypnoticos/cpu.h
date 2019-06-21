@@ -113,6 +113,14 @@ struct _AcpiApicLocal_t {
   uint32_t flags;
 } __attribute__((packed));
 
+typedef struct _TssEntries_t TssEntries_t;
+struct _TssEntries_t {
+  Tss_t *tss;
+  void *stack;
+};
+
+#define TSS_RSP0_SIZE                   8192
+
 #define APIC_LOCAL_OFFSET_ID            0x020
 #define APIC_LOCAL_OFFSET_EOI           0x0B0
 #define APIC_LOCAL_OFFSET_SIVR          0x0F0
@@ -127,6 +135,7 @@ struct _AcpiApicLocal_t {
 #define APIC_LOCAL_VECTOR_TIMER         0xA0
 #define APIC_LOCAL_VECTOR_AP_START      0x02
 #define APIC_LOCAL_VECTOR_SPURIOUS      0xF0
+#define APIC_LOCAL_VECTOR_AP_START_INT  242
 
 #define APIC_LOCAL_TIMER_PERIODIC       0x20000
 
@@ -137,7 +146,7 @@ struct _AcpiApicLocal_t {
 #define CPU_AP                          0
 
 extern uint8_t ApInitDone;
-extern volatile void *ApicLocalBspBase;
+extern volatile void *ApicLocalBase;
 extern uint8_t IdtCallCurrentPrivilegeLevel;
 extern Tss_t Tss;
 extern uint64_t IdtCallSavedCr3;
@@ -159,9 +168,12 @@ extern uint64_t IdtCallSavedR12;
 extern uint64_t IdtCallSavedR13;
 extern uint64_t IdtCallSavedR14;
 extern uint64_t IdtCallSavedR15;
+extern TssEntries_t **TssEntriesAPs;
 
-#define APIC_LOCAL_READ(base_addr, offset)                (*((volatile uint32_t *) ((volatile uint64_t) (base_addr) + (offset))))
-#define APIC_LOCAL_WRITE(base_addr, offset, value)        (*((volatile uint32_t *) ((volatile uint64_t) (base_addr) + (offset))) = (value))
+#define APIC_LOCAL_READ(offset)                (*((volatile uint32_t *) ((volatile uint64_t) (ApicLocalBase) + (offset))))
+#define APIC_LOCAL_WRITE(offset, value)        (*((volatile uint32_t *) ((volatile uint64_t) (ApicLocalBase) + (offset))) = (value))
+
+#define APIC_LOCAL_GET_ID()                           ((uint8_t) ((APIC_LOCAL_READ(APIC_LOCAL_OFFSET_ID)) >> 24))
 
 void AcpiFindRsdp();
 void *AcpiFindTable(const char *signature);
@@ -169,10 +181,12 @@ uint8_t AcpiParse();
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();
 void ApicIoMapIrqs();
+void *ApicLocalGetAddr();
 uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr);
 uint8_t ApicLocalInit(uint8_t bsp);
 void ApicLocalEoi();
 void ApicLocalSetUpTimer();
+void ApicLocalStartInterruptsOnAPs();
 void CpuApic(uint8_t bsp);
 void CpuChecks(uint8_t bsp);
 uint32_t *Cpuid(uint64_t rax_input);

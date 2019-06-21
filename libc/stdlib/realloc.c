@@ -30,7 +30,7 @@ void *realloc(void *addr, size_t new_size) {
     return NULL;
   }
 
-  r = malloc(new_size);
+  r = __malloc_align(new_size, ALIGN_NONE, mt->function, mt->line);
 
   if(mt->size > new_size) {
     memcpy(r, addr, new_size);

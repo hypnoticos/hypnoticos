@@ -22,10 +22,6 @@
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/boot.h>
 
-uint16_t TssTotal = 1;
-uint16_t TssLast = 0;
-extern uint32_t GdtEntries;
-
 typedef struct _GdtTss_t GdtTss_t;
 struct _GdtTss_t {
   uint16_t length;
@@ -38,22 +34,44 @@ struct _GdtTss_t {
   uint32_t zero;
 };
 
+uint16_t TssTotal = 1;
+uint16_t TssLast = 0;
+TssEntries_t **TssEntriesAPs = NULL;
+extern uint32_t GdtEntries;
+
 uint8_t TssNew() {
   void *stack;
   Tss_t *new_tss;
   GdtTss_t *gdt_tss;
+  uint64_t tss_pages;
 
   if(TssTotal >= 255) {
     return 0;
   }
 
   // Create a new stack
-  stack = malloc_align(8192, ALIGN_4KB);
+  stack = malloc_align(TSS_RSP0_SIZE, ALIGN_4KB);
+  memset(stack, 0, TSS_RSP0_SIZE);
 
   // Create a new TSS
-  new_tss = malloc(sizeof(Tss_t));
+  tss_pages = (sizeof(Tss_t) / 4096) + 1;
+  new_tss = malloc_align(tss_pages * 4096, ALIGN_4KB);
   memset(new_tss, 0, sizeof(Tss_t));
-  new_tss->rsp0 = (uint64_t) stack;
+  new_tss->rsp0 = (uint64_t) stack + TSS_RSP0_SIZE - 8;
+
+  if(TssEntriesAPs == NULL) {
+    TssEntriesAPs = malloc(sizeof(Tss_t *) * 2);
+    TssEntriesAPs[0] = malloc(sizeof(TssEntries_t));
+    TssEntriesAPs[0]->tss = new_tss;
+    TssEntriesAPs[0]->stack = stack;
+    TssEntriesAPs[1] = NULL;
+  } else {
+    TssEntriesAPs = realloc(TssEntriesAPs, sizeof(Tss_t *) * (TssTotal + 1));
+    TssEntriesAPs[TssTotal - 1] = malloc(sizeof(TssEntries_t));
+    TssEntriesAPs[TssTotal - 1]->tss = new_tss;
+    TssEntriesAPs[TssTotal - 1]->stack = stack;
+    TssEntriesAPs[TssTotal] = NULL;
+  }
 
   // Add to the GDT entry
   gdt_tss = (GdtTss_t *) ((uint64_t) &GdtEntries + (5 * 8) + (TssTotal * 16));
