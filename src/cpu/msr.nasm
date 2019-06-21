@@ -20,6 +20,7 @@ global MsrRead, MsrWrite
 
 ; TODO Check if MSR is supported
 
+section .text
 MsrWrite:
   push rbp
   mov rbp, rsp
@@ -49,6 +50,7 @@ MsrRead:
   mov rax, _MsrReadOutput
   ret
 
+section .data
 _MsrReadOutput:
   _MsrReadOutput_edx dd 0
   _MsrReadOutput_eax dd 0
