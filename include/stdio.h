@@ -21,6 +21,7 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #define stdin             (&stdstreams[0])
 #define stdout            (&stdstreams[1])
@@ -45,7 +46,8 @@ int getchar();
 int printf(const char *format, ...);
 int putchar(int chr);
 int puts(const char *str);
-int vfprintf(FILE *f, const char *format, va_list va); // TODO First parameter must be FILE *f
+int vfprintf(FILE *f, const char *format, va_list va);
+int vsnprintf(char *dest, size_t count, const char *format, va_list va);
 
 extern FILE stdstreams[3];
 

@@ -18,76 +18,19 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
-#include <limits.h>
+#include <stdlib.h>
 
 int vfprintf(FILE *f, const char *format, va_list va) {
-  uint32_t arg_uint, count = 0, i = 0, i2, i3;
-  char *arg_string, buffer[HYPNOTICOS_MAX_DIGITS + 1];
-  int arg_int;
+  int i;
+  char *buffer, buffer_initial;
 
-  while(format[i] != 0) {
-    if(format[i] == '%' && format[i + 1] != 0) {
-      i++;
-      if(format[i] == 'c') {
-        arg_int = va_arg(va, int);
-        fputc(arg_int, f);
-      } else if(format[i] == 'd' || format[i] == 'i') {
-        fputc(format[i], f); // TODO
-        count++;
-      } else if(format[i] == 'p' || format[i] == 'u' || format[i] == 'x' || format[i] == 'X') {
-        arg_uint = va_arg(va, unsigned int);
-        if(arg_uint == 0) {
-          fputc('0', f);
-          count++;
-        } else {
-          memset(buffer, 0, HYPNOTICOS_MAX_DIGITS + 1);
-          i3 = HYPNOTICOS_MAX_DIGITS - 1;
+  i = vsnprintf(&buffer_initial, 0, format, va);
+  buffer = malloc(i + 1);
+  i = vsnprintf(buffer, i + 1, format, va);
 
-          while(arg_uint > 0) {
-            i2 = arg_uint % (format[i] == 'u' ? 10 : 16);
-            if(format[i] == 'u') {
-              buffer[i3] = '0' + i2;
-            } else {
-              buffer[i3] = (i2 < 10 ? '0' : (format[i] == 'X' ? 'A' : 'a')) + i2 - (i2 < 10 ? 0 : 10);
-            }
-            arg_uint = (arg_uint - i2) / (format[i] == 'u' ? 10 : 16);
-
-            if(i3 == 0) {
-              break;
-            } else {
-              i3--;
-            }
-          }
-
-          // Print from the first non-null character
-          for(i3 = 0; i3 < HYPNOTICOS_MAX_DIGITS - 1; i3++) {
-            if(buffer[i3] != 0) {
-              break;
-            }
-          }
-
-          fputs(buffer + i3, f);
-          count += strlen(&buffer[i3]);
-        }
-      } else if(format[i] == 's') {
-        arg_string = va_arg(va, char *);
-        fputs(arg_string, f);
-        count += strlen(arg_string);
-      } else if(format[i] == '%') {
-        fputc('%', f);
-        count++;
-      } else {
-        fputc(format[i], f); // TODO
-        count++;
-      }
-    } else {
-      fputc(format[i], f);
-      count++;
-    }
-
-    i++;
+  if(fputs(buffer, f) >= 0) {
+    return i;
+  } else {
+    return 0;
   }
-
-  return count;
 }
