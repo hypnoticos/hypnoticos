@@ -125,6 +125,7 @@ restart:
 
   if(p == NULL) {
     if(no_processes_to_run) {
+      dispatcher_cpu->current_pid = 0;
       // Release lock and wait for another process
       IdtWait();
       __builtin_unreachable();
