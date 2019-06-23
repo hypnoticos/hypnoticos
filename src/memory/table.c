@@ -24,7 +24,7 @@
 
 void MemoryNewTable() {
   MemoryTableIndex_t *mti, *next;
-  uint32_t table_size = sizeof(MemoryTable_t) * MEMORY_TABLE_NEW_TABLE_ENTRIES;
+  uint64_t table_size = sizeof(MemoryTable_t) * MEMORY_TABLE_NEW_TABLE_ENTRIES;
 
   for(mti = &MemoryTableIndices; mti->next != NULL; mti = mti->next);
 

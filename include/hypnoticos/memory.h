@@ -58,7 +58,7 @@ typedef struct _MemoryTableIndex_t MemoryTableIndex_t;
 typedef struct _MemoryTable_t MemoryTable_t;
 struct _MemoryTableIndex_t {
   MemoryTable_t *addr; /*!< Address of an array of MemoryTable_t structures */
-  uint32_t size; /*!< The size of the table */
+  uint64_t size; /*!< The size of the table */
 
   MemoryTableIndex_t *prev; /*!< Previous entry in the linked list (NULL if this is the first) */
   MemoryTableIndex_t *next; /*!< Next entry in the linked list (NULL if this is the last) */
@@ -81,7 +81,7 @@ void *__malloc_align(size_t size, uint8_t align, const char function[MEMORY_TABL
 uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type);
+void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, uint64_t length, uint8_t type);
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();

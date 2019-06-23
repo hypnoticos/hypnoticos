@@ -33,7 +33,7 @@ MemoryBlock_t MemoryBlocks = {.start=0, .length=0, .type=0, .prev=NULL, .next=NU
 
 MemoryTableIndex_t MemoryTableIndices = {.addr=NULL, .size=NULL, .prev=NULL, .next=NULL};
 
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint32_t start, uint32_t length, uint8_t type) {
+void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, uint64_t length, uint8_t type) {
   MemoryBlock_t *current, *next;
   uint64_t mt_start, mt_size, i;
   MemoryTable_t *table;
