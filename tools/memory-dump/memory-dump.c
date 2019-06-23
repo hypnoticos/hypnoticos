@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   MemoryTable_t *mt, *mt_entry;
 
   fprintf(stdout, "HypnoticOS  Copyright (C) 2019 jk30\n");
-  fprintf(stdout, "Memory dump tool\n");
+  fprintf(stdout, "Memory dump tool v0.1\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "WARNING: The results of this tool should NOT be relied upon.\n");
   fprintf(stdout, "The results may differ from architecture to architecture so may be inaccurate.\n");
