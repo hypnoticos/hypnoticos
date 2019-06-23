@@ -96,6 +96,25 @@ struct _AcpiRsdt_t {
   // Entries are here
 } __attribute__((packed));
 
+typedef struct _AcpiApic_t AcpiApic_t;
+struct _AcpiApic_t {
+  AcpiTableHeader_t hdr;
+  uint32_t local_int_ctrlr_addr;
+  uint32_t flags;
+  // Entries are here
+} __attribute__((packed));
+
+typedef struct _AcpiHpet_t AcpiHpet_t;
+struct _AcpiHpet_t {
+  AcpiTableHeader_t hdr;
+  uint32_t block_id;
+  uint32_t addr_flags;
+  uint64_t addr;
+  uint8_t table;
+  uint16_t minimum_ticks;
+  uint8_t flags;
+} __attribute__((packed));
+
 struct _AcpiApicIo_t {
   uint8_t type;
   uint8_t length;
@@ -176,7 +195,6 @@ extern TssEntries_t **TssEntriesAPs;
 #define APIC_LOCAL_GET_ID()                           ((uint8_t) ((APIC_LOCAL_READ(APIC_LOCAL_OFFSET_ID)) >> 24))
 
 void AcpiFindRsdp();
-void *AcpiFindTable(const char *signature);
 uint8_t AcpiParse();
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr);
 uint8_t ApicIoInit();

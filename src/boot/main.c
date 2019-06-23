@@ -61,6 +61,16 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   INFO("BSP APIC");
   CpuApic(CPU_BSP); // Needs DispatcherInit() to have been called
 
+  INFO("Parse ACPI tables");
+  if(!AcpiParse()) { // This function finds the I/O APIC
+    HALT();
+  }
+
+  INFO("Init I/O APIC");
+  if(!ApicIoInit()) { // Needs AcpiParse() to have been called as AcpiParse() will find the I/O APIC
+    HALT();
+  }
+
   INFO("Keyboard");
   KeyboardInit();
   if(!KeyboardPresent) {

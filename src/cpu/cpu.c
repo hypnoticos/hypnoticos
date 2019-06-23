@@ -57,12 +57,4 @@ void CpuApic(uint8_t bsp) {
   if(!ApicLocalInit(bsp)) {
     HALT();
   }
-
-  if(bsp == CPU_BSP) {
-    if(!AcpiParse()) { // This function finds the I/O APIC
-      HALT();
-    } else if(!ApicIoInit()) {
-      HALT();
-    }
-  }
 }

@@ -25,16 +25,11 @@ void *BiosEbda = NULL;
 
 inline uint8_t AcpiTestRsdp(void *ptr);
 
-typedef struct _AcpiApic_t AcpiApic_t;
-struct _AcpiApic_t {
-  AcpiTableHeader_t hdr;
-  uint32_t local_int_ctrlr_addr;
-  uint32_t flags;
-  // Entries are here
-} __attribute__((packed));
-
 AcpiRsdp_t *AcpiRsdp = NULL;
 AcpiRsdt_t *AcpiRsdt = NULL;
+
+inline uint8_t AcpiParseAPIC(AcpiApic_t *table);
+inline uint8_t AcpiParseHPET(AcpiHpet_t *table);
 
 inline uint8_t AcpiTestRsdp(void *ptr) {
   uint32_t i, sum;
@@ -94,12 +89,18 @@ void AcpiFindRsdp() {
   }
 }
 
-void *AcpiFindTable(const char *signature) {
+#define ACPI_CHECKSUM(ptr)        for(i = 0, sum = 0; i < ptr->length; \
+                                    sum += *((uint8_t *) ((uint64_t) ptr + i)), i++); \
+                                  if((sum & 0xFF) != 0x00) { \
+                                    HALT(); \
+                                  }
+
+uint8_t AcpiParse() {
   AcpiTableHeader_t *ptr;
   uint64_t i, sum;
   uint32_t ptr_int, ptr_int_2;
 
-  if(AcpiRsdt == NULL || strlen(signature) != 4) {
+  if(AcpiRsdt == NULL) {
     WARNING();
     return NULL;
   }
@@ -111,27 +112,36 @@ void *AcpiFindTable(const char *signature) {
   for(ptr_int = (uint32_t) ((uint64_t) AcpiRsdt + 36); ptr_int < (uint32_t) ((uint64_t) AcpiRsdt + AcpiRsdt->hdr.length); ptr_int = ptr_int + 4) {
     ptr_int_2 = *((uint32_t *) ((uint64_t) ptr_int));
     ptr = (AcpiTableHeader_t *) ((uint64_t) ptr_int_2);
-    if(memcmp(signature, ptr->signature, 4) == 0) {
-      for(i = 0, sum = 0; i < ptr->length; sum += *((uint8_t *) ((uint64_t) ptr + i)), i++);
-      if((sum & 0xFF) != 0x00) {
-        HALT();
+
+    INFO("ACPI table %c%c%c%c at 0x%p", ptr->signature[0], ptr->signature[1], ptr->signature[2], ptr->signature[3],  ptr);
+
+    if(memcmp("APIC", ptr->signature, 4) == 0) {
+      ACPI_CHECKSUM(ptr);
+      if(!AcpiParseAPIC((AcpiApic_t *) ptr)) {
+        return 0;
       }
-      return ptr;
+    } else if(memcmp("HPET", ptr->signature, 4) == 0) {
+      INFO("Skipped");
+      ACPI_CHECKSUM(ptr);
+      if(!AcpiParseHPET((AcpiHpet_t *) ptr)) {
+        return 0;
+      }
+    } else {
+      INFO("Table not parsed.");
     }
   }
 
-  return NULL;
+  return 1;
 }
 
-uint8_t AcpiParse() {
-  AcpiApic_t *apic;
-  uint8_t structure_type, structure_length;
+inline uint8_t AcpiParseAPIC(AcpiApic_t *table) {
   uint32_t i;
+  uint8_t structure_type, structure_length;
 
-  apic = AcpiFindTable("APIC");
-  for(i = 44; i < apic->hdr.length; i += structure_length) {
-    structure_type = *((uint8_t *) apic + i);
-    structure_length = *((uint8_t *) apic + i + 1);
+  // TODO Check flags. If 8259 then disable.
+  for(i = 44; i < table->hdr.length; i += structure_length) {
+    structure_type = *((uint8_t *) table + i);
+    structure_length = *((uint8_t *) table + i + 1);
 
     if(structure_type >= 0xD && structure_type <= 0x7F) {
       // Reserved - skip
@@ -141,13 +151,13 @@ uint8_t AcpiParse() {
       continue;
     } else if(structure_type == 0x00) {
       // Local APIC
-      if(!ApicLocalParseAcpi((AcpiApicLocal_t *) ((uint64_t) apic + i))) {
+      if(!ApicLocalParseAcpi((AcpiApicLocal_t *) ((uint64_t) table + i))) {
         WARNING();
         return 0;
       }
     } else if(structure_type == 0x01) {
       // I/O APIC
-      if(!ApicIoAdd((AcpiApicIo_t *) ((uint64_t) apic + i))) {
+      if(!ApicIoAdd((AcpiApicIo_t *) ((uint64_t) table + i))) {
         WARNING();
         return 0;
       }
@@ -178,12 +188,14 @@ uint8_t AcpiParse() {
     }
   }
 
-  if(i != apic->hdr.length) {
+  if(i != table->hdr.length) {
     WARNING();
     return 0;
   }
 
-  // TODO Check flags. If 8259 then disable.
+  return 1;
+}
 
+inline uint8_t AcpiParseHPET(AcpiHpet_t *table) {
   return 1;
 }
