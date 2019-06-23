@@ -21,6 +21,7 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/cpu.h>
 #include <hypnoticos/boot.h>
+#include <hypnoticos/hypnoticos.h>
 
 typedef struct _GdtTss_t GdtTss_t;
 struct _GdtTss_t {
@@ -46,6 +47,7 @@ uint8_t TssNew() {
   uint64_t tss_pages;
 
   if(TssTotal >= 255) {
+    INFO("HypnoticOS does not support this");
     return 0;
   }
 
@@ -85,6 +87,8 @@ uint8_t TssNew() {
 
   TssLast = 0x08 * (5 + (TssTotal * 2));
   TssTotal++;
+
+  INFO("AP TSS set up");
 
   return 1;
 }

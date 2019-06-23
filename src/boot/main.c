@@ -40,32 +40,48 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
 
   IdtInit();
   IdtSet();
+
   CpuChecks(CPU_BSP);
 
   // *** Free memory should not be used before this point ***
 
   MultibootCheck(magic, multiboot);
+
+  INFO("Finish setting up paging");
   MemoryPagingInit();
+
+  INFO("Dispatcher set up");
   if(!DispatcherInit()) {
     HALT();
   }
+
+  INFO("Finding ACPI RSDP");
   AcpiFindRsdp(); // Needs access to BIOS Data Area
+
+  INFO("BSP APIC");
   CpuApic(CPU_BSP); // Needs DispatcherInit() to have been called
 
+  INFO("Keyboard");
   KeyboardInit();
   if(!KeyboardPresent) {
     printf("No PS/2 keyboard detected\n");
   }
 
+  INFO("Load modules");
   BootLoadModules(); // Needs TSS structures to have been created
 
+  INFO("PCI init");
   if(!PciInit()) {
     HALT();
   }
 
   printf("Starting...\n");
+  INFO("Starting interrupts on APs");
   ApicLocalStartInterruptsOnAPs();
+
   asm("sti");
+
+  INFO("BSP: APIC timer");
   ApicLocalSetUpTimer();
 
   while(1) {

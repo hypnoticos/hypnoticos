@@ -35,6 +35,7 @@ uint8_t ApicLocalInit(uint8_t bsp) {
   void *addr;
 
   if(bsp != CPU_BSP && bsp != CPU_AP) {
+    INFO("bsp is invalid");
     HALT();
   }
 
@@ -55,11 +56,11 @@ uint8_t ApicLocalInit(uint8_t bsp) {
     return 1;
   } else if(bsp == CPU_BSP && !(r[1] & 0x100)) {
     // BSP not set, and this processor is the BSP
-    WARNING();
+    INFO("Tried to init the local APIC on AP processor but this processor is the BSP");
     return 0;
   } else if(bsp == CPU_AP && (r[1] & 0x100)) {
     // BSP set, and this processor is not the BSP
-    WARNING();
+    INFO("Tried to init the local APIC on BSP processor but this processor is an AP");
     return 0;
   }
 
@@ -67,6 +68,7 @@ uint8_t ApicLocalInit(uint8_t bsp) {
   // TODO Look at this code again. The documents refer to using CPUID, and potentially only part of r[1] should be considered.
   addr = (void *) ((uint64_t) r[1] & 0xFFFFF000);
   if(bsp != CPU_BSP && addr != ApicLocalBase) {
+    INFO("Unsupported");
     HALT();
   } else {
     ApicLocalBase = addr;
@@ -114,6 +116,8 @@ uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr) {
 
   ApInitDone = 0;
 
+  INFO("Starting AP (APIC ID %u)", ptr->apic_id);
+
   APIC_LOCAL_WRITE(APIC_LOCAL_OFFSET_ICR_H, ptr->apic_id << 24);
   APIC_LOCAL_WRITE(APIC_LOCAL_OFFSET_ICR_L, 0 | (0x5 << 8) | (0x1 << 14));
 
@@ -140,6 +144,8 @@ uint8_t ApicLocalParseAcpi(AcpiApicLocal_t *ptr) {
 
     retry = 1;
   }
+
+  INFO("AP started");
 
   return 1;
 }

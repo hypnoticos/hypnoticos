@@ -29,7 +29,7 @@ BUILD_OBJS+=devices/keyboard.o devices/pci.o
 BUILD_OBJS+=dispatcher/dispatcher.o dispatcher/init.o dispatcher/format-elf.o
 BUILD_OBJS+=function/function.o function/write.o
 BUILD_OBJS+=memory/alloc.o memory/find.o memory/init.o memory/paging.o memory/paging-data.o memory/table.o
-BUILD_OBJS+=video-memory.o
+BUILD_OBJS+=debug.o video-memory.o
 
 CFLAGS+=-D_HYPNOTICOS_KERNEL -ffreestanding -fbuiltin
 LIBS+=-lgcc

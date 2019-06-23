@@ -31,12 +31,13 @@ void ApicIoIrq(uint8_t no, uint8_t vector);
 uint8_t ApicIoAdd(AcpiApicIo_t *ptr) {
   if(ApicIoOkay != 0) {
     // TODO Support multiple I/O APICs
-    WARNING();
+    INFO("Multiple I/O APICs are not supported");
     return 0;
   }
 
   ApicIoOkay = 1;
   memcpy(&ApicIo, ptr, sizeof(AcpiApicIo_t));
+  INFO("I/O APIC");
   return 1;
 }
 
@@ -52,6 +53,8 @@ void ApicIoMapIrqs() {
   for(i = 0; i <= 23; i++) {
     ApicIoIrq(i, 0x30 + i);
   }
+
+  INFO("I/O APIC - IRQs mapped");
 }
 
 #define APIC_IO_IOREGSEL          0x00

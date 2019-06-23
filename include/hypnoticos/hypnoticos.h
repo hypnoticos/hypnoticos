@@ -27,14 +27,15 @@
 #include <stdio.h>
 
 #ifdef _DEBUG
-#define HALT()          printf("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
+#include <hypnoticos/debug.h>
+#define HALT()          INFO("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
                         while(1) { \
                           asm("hlt"); \
                         }
 
-#define WARNING()       printf("DEBUG, WARNING: %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__)
+#define WARNING()       INFO("DEBUG, WARNING: %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__)
 
-#define INFO(s, ...)    printf(s, ##__VA_ARGS__)
+#define INFO(s, ...)    printf_debug(s, ##__VA_ARGS__)
 #else
 #define HALT()          printf("\nKERNEL HALTED"); \
                         while(1) { \
