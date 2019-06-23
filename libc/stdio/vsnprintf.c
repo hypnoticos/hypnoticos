@@ -90,5 +90,14 @@ int vsnprintf(char *dest, size_t count, const char *format, va_list va) {
     i++;
   }
 
+  // Set final byte to NUL
+  if(count > 0) {
+    if(ret > count) {
+      dest[count] = 0;
+    } else {
+      dest[ret] = 0;
+    }
+  }
+
   return ret;
 }
