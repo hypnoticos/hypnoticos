@@ -88,7 +88,7 @@ uint8_t MemoryIsFree(void *addr, size_t size, void **end) {
 }
 
 inline uint8_t MemoryAlign(uint64_t *addr, uint64_t min, uint64_t align) {
-  uint32_t r;
+  uint64_t r;
 
   r = *addr;
   r = r % align;
