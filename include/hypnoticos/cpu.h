@@ -208,7 +208,7 @@ void ApicLocalStartInterruptsOnAPs();
 void CpuApic(uint8_t bsp);
 void CpuChecks(uint8_t bsp);
 uint32_t *Cpuid(uint64_t rax_input);
-extern uint64_t RflagsGet();
+uint8_t HpetInit(void *addr);
 void IdtInit();
 extern void IdtInit();
 extern void IdtSet();
@@ -221,5 +221,6 @@ void IoPort32Out(uint16_t port, uint32_t data);
 uint32_t *MsrRead(uint32_t ecx_input);
 void MsrWrite(uint32_t ecx, uint32_t edx, uint32_t eax);
 uint8_t PciInit();
+extern uint64_t RflagsGet();
 
 #endif

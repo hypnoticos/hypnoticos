@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
 void *BiosEbda = NULL;
@@ -121,7 +122,6 @@ uint8_t AcpiParse() {
         return 0;
       }
     } else if(memcmp("HPET", ptr->signature, 4) == 0) {
-      INFO("Skipped");
       ACPI_CHECKSUM(ptr);
       if(!AcpiParseHPET((AcpiHpet_t *) ptr)) {
         return 0;
@@ -197,5 +197,33 @@ inline uint8_t AcpiParseAPIC(AcpiApic_t *table) {
 }
 
 inline uint8_t AcpiParseHPET(AcpiHpet_t *table) {
+  if((table->addr_flags & 0x1)) {
+    // Unsupported
+    INFO("HPET uses I/O ports");
+    return 0;
+  }
+
+  if(table->table != 0) {
+    INFO("Multiple HPETs are not supported");
+    return 1;
+  }
+
+  if(table->addr >= 0xFFFFFFFF) {
+    INFO("HPET/64-bit address space");
+    return 0;
+  }
+
+  INFO("HPET address = 0x%x", table->addr);
+
+  // Check if address is mapped
+  if(MemoryPagingPagePresent(MemoryKernelPML4, table->addr) == NULL) {
+    if(!MemoryPagingSetPageImitate(MemoryKernelPML4, table->addr & 0xFFFFF000, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_4KB)) {
+      WARNING();
+      return 0;
+    }
+  }
+
+  HpetInit((void *) table->addr);
+
   return 1;
 }

@@ -24,7 +24,7 @@ BUILD=$(KERNELFILENAME)
 # boot/multiboot.o should be at the start
 BUILD_OBJS=boot/multiboot.o
 BUILD_OBJS+=boot/boot.o boot/load-modules.o boot/main.o boot/multiboot-check.o boot/tss-new.o
-BUILD_OBJS+=cpu/acpi.o cpu/ap-start-prepare.o cpu/ap-start.o cpu/apic/io.o cpu/apic/local.o cpu/cpu.o cpu/cpuid.o cpu/rflags.o cpu/gdt.o cpu/idt-c.o cpu/idt-asm.o cpu/io-port.o cpu/msr.o cpu/tss.o
+BUILD_OBJS+=cpu/acpi.o cpu/ap-start-prepare.o cpu/ap-start.o cpu/hpet.o cpu/apic/io.o cpu/apic/local.o cpu/cpu.o cpu/cpuid.o cpu/rflags.o cpu/gdt.o cpu/idt-c.o cpu/idt-asm.o cpu/io-port.o cpu/msr.o cpu/tss.o
 BUILD_OBJS+=devices/keyboard.o devices/pci.o
 BUILD_OBJS+=dispatcher/dispatcher.o dispatcher/init.o dispatcher/format-elf.o
 BUILD_OBJS+=function/function.o function/write.o
