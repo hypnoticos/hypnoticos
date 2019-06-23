@@ -29,8 +29,10 @@ int vfprintf(FILE *f, const char *format, va_list va) {
   i = vsnprintf(buffer, i + 1, format, va);
 
   if(fputs(buffer, f) >= 0) {
+    free(buffer);
     return i;
   } else {
+    free(buffer);
     return 0;
   }
 }
