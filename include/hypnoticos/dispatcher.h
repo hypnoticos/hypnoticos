@@ -32,6 +32,9 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 #define DISPATCHER_DETECT_FORMAT_DETECTED_UNSUPPORTED 1
 #define DISPATCHER_DETECT_FORMAT_DETECTED             2
 
+#define DISPATCHER_SUSPEND_NONE                       0x00
+#define DISPATCHER_SUSPEND_SLEEP                      0x01
+
 struct _DispatcherProcessSave_t {
   uint64_t rsp;
   uint64_t rbp;
@@ -82,6 +85,9 @@ struct _DispatcherProcess_t {
   uint32_t io_count;
 
   uint8_t lock;
+
+  uint32_t suspend;
+  void *suspend_data;
 };
 
 typedef struct _DispatcherCpu_t DispatcherCpu_t;

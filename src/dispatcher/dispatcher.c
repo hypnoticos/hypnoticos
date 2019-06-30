@@ -29,8 +29,6 @@
 
 // TODO Save all registers
 
-extern void IdtWait();
-
 uint64_t DispatcherCycle = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
@@ -112,7 +110,12 @@ restart:
   no_processes_to_run = 1;
   for(p = NULL, i = 0; DispatcherProcesses[i] != NULL; i++) {
     p = DispatcherProcesses[i];
-    if(p->run != 1 || p->lock != 0 || p->last_cycle == DispatcherCycle) {
+
+    if(p->suspend != DISPATCHER_SUSPEND_NONE) {
+      KernelFunctionSuspendTest(p);
+    }
+
+    if(p->run != 1 || p->lock != 0 || p->last_cycle == DispatcherCycle || p->suspend != DISPATCHER_SUSPEND_NONE) {
       if(p->last_cycle == DispatcherCycle) {
         no_processes_to_run = 0;
       }
@@ -220,6 +223,8 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->run = 0;
   p->last_cycle = 0;
   p->lock = 0;
+  p->suspend = 0;
+  p->suspend_data = NULL;
 
   p->save.cr3 = (uint64_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 

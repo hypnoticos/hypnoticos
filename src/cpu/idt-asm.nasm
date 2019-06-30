@@ -98,6 +98,8 @@ IdtWait:
   ; Then find the stack address within the TSS structure
   mov rsp, [r11 + 4]
 
+  pause
+
   call ApicLocalEoi
   mov byte [IdtBusy], 0
   sti

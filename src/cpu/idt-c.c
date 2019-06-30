@@ -38,6 +38,8 @@ extern uint16_t IdtLimit;
 extern uint64_t IdtBase;
 uint8_t IdtFull = 0;
 
+uint64_t __attribute__((aligned(8))) IdtTicks = 0;
+
 extern void Idt0();
 extern void Idt1();
 extern void Idt2();
@@ -127,12 +129,24 @@ void IdtCall() {
       asm("hlt");
     }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_TIMER) {
+    if(APIC_LOCAL_GET_ID() == ApicLocalBspId) {
+      // TODO Implement a more reliable counter
+
+      // Increase ticks
+      IdtTicks++;
+    }
+
     DispatcherSetUpNext(APIC_LOCAL_GET_ID());
 
     if(!IdtFull) {
       // Now that the local APIC has been called, map all IRQs
+      INFO("ApicIoMapIrqs()");
       ApicIoMapIrqs();
       IdtFull = 1;
+
+      // And start interrupts on APs
+      INFO("Starting interrupts on APs");
+      ApicLocalStartInterruptsOnAPs();
     }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_SPURIOUS) {
     HALT();
@@ -154,6 +168,14 @@ void IdtCall() {
     INFO("I/O APIC interrupt %u", IdtCallVector - 0x30);
   } else {
     INFO("Unhandled interrupt");
+  }
+
+  dispatcher_cpu_entry = DispatcherGetCpu(APIC_LOCAL_GET_ID());
+  if(dispatcher_cpu_entry == NULL) {
+    HALT();
+  } else if(dispatcher_cpu_entry->current_pid == 0) {
+    // There is no process currently running on this CPU, so return to IdtWait()
+    IdtWait();
   }
 }
 

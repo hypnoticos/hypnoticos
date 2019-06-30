@@ -25,6 +25,9 @@
 #define STDOUT_FILENO     1
 #define STDERR_FILENO     2
 
+#ifndef _HYPNOTICOS_KERNEL
+unsigned int sleep(unsigned int s);
+#endif
 ssize_t write(int fd, const void *buffer, size_t count);
 
 #endif

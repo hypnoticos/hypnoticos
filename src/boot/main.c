@@ -85,14 +85,12 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
     HALT();
   }
 
-  printf("Starting...\n");
-  INFO("Starting interrupts on APs");
-  ApicLocalStartInterruptsOnAPs();
-
-  asm("sti");
-
   INFO("BSP: APIC timer");
   ApicLocalSetUpTimer();
+
+  printf("Starting...\n");
+
+  asm("sti");
 
   while(1) {
     asm("hlt");

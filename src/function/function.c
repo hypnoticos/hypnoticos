@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
+#include <hypnoticos/cpu.h>
 #include <hypnoticos/hypnoticos.h>
 
 #define CALL_FUNCTION(f)                return f(p, rax, rbx, rcx, rdx, rsi, rdi)
@@ -29,9 +30,33 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     CALL_FUNCTION(KernelFunctionWrite);
     break;
 
+    case KERNEL_FUNCTION_SLEEP:
+    CALL_FUNCTION(KernelFunctionSleep);
+    break;
+
     default:
     // TODO Terminate process
     WARNING();
     return 0;
+  }
+}
+
+void KernelFunctionSuspend(DispatcherProcess_t *p, uint32_t suspend, void *data) {
+  p->suspend = suspend;
+  p->suspend_data = data;
+
+  DispatcherSetUpNext(APIC_LOCAL_GET_ID());
+}
+
+void KernelFunctionSuspendTest(DispatcherProcess_t *p) {
+  switch(p->suspend) {
+    case DISPATCHER_SUSPEND_SLEEP:
+    KernelFunctionSleep_SuspendTest(p);
+    break;
+
+    default:
+    // TODO Terminate process?
+    WARNING();
+    break;
   }
 }

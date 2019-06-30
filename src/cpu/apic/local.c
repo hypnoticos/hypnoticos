@@ -29,6 +29,7 @@
 
 volatile void *ApicLocalBase = NULL;
 uint8_t ApInitDone = 0;
+uint8_t ApicLocalBspId = 0;
 
 uint8_t ApicLocalInit(uint8_t bsp) {
   uint32_t *r;
@@ -91,6 +92,8 @@ uint8_t ApicLocalInit(uint8_t bsp) {
   MsrWrite(MSR_IA32_APIC_BASE, r[0], r[1]);
 
   APIC_LOCAL_WRITE(APIC_LOCAL_OFFSET_SIVR, 0x100 | APIC_LOCAL_VECTOR_SPURIOUS);
+
+  ApicLocalBspId = APIC_LOCAL_GET_ID();
 
   return 1;
 }

@@ -16,16 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef HYPNOTICOS_FUNCTION_H
-#define HYPNOTICOS_FUNCTION_H
+#ifndef _HYPNOTICOS_KERNEL
 
-#include <hypnoticos/dispatcher.h>
-#include <stdint.h>
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
 
-#define GET_PA(va)                    DispatcherProcessGetPa(p, va, 1);
-
-uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-void KernelFunctionSuspend(DispatcherProcess_t *p, uint32_t suspend, void *data);
-void KernelFunctionSuspendTest(DispatcherProcess_t *p);
+unsigned int sleep(unsigned int s) {
+  return KernelFunctionInterface((uint64_t) s, 0, 0, 0, 0, KERNEL_FUNCTION_SLEEP);
+}
 
 #endif

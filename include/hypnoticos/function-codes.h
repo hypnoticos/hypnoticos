@@ -20,12 +20,21 @@
 #define HYPNOTICOS_FUNCTION_CODES_H
 
 #define KERNEL_FUNCTION_WRITE                       0x1
+#define KERNEL_FUNCTION_SLEEP                       0x2
 
 #ifdef _HYPNOTICOS_KERNEL
 
 #include <hypnoticos/dispatcher.h>
 
+typedef struct _FunctionSleep_t FunctionSleep_t;
+struct _FunctionSleep_t {
+  uint64_t tick;
+  uint8_t overflow;
+};
+
 uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
+uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
+void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 
 #endif
 

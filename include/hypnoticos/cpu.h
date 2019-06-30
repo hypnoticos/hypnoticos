@@ -166,6 +166,7 @@ struct _TssEntries_t {
 
 extern uint8_t ApInitDone;
 extern volatile void *ApicLocalBase;
+extern uint8_t ApicLocalBspId;
 extern uint8_t IdtCallCurrentPrivilegeLevel;
 extern Tss_t Tss;
 extern uint64_t IdtCallSavedCr3;
@@ -187,6 +188,7 @@ extern uint64_t IdtCallSavedR12;
 extern uint64_t IdtCallSavedR13;
 extern uint64_t IdtCallSavedR14;
 extern uint64_t IdtCallSavedR15;
+extern uint64_t __attribute__((aligned(8))) IdtTicks;
 extern TssEntries_t **TssEntriesAPs;
 
 #define APIC_LOCAL_READ(offset)                (*((volatile uint32_t *) ((volatile uint64_t) (ApicLocalBase) + (offset))))
@@ -212,6 +214,7 @@ uint8_t HpetInit(void *addr);
 void IdtInit();
 extern void IdtInit();
 extern void IdtSet();
+extern void IdtWait();
 uint8_t IoPort8In(uint16_t port);
 void IoPort8Out(uint16_t port, uint8_t data);
 uint16_t IoPort16In(uint16_t port);
