@@ -149,6 +149,11 @@ void IdtCall() {
     }
 
     IdtCallSavedRax = KernelFunction(p, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi);
+  } else if(IdtCallVector >= 0x30 && IdtCallVector <= 0x30 + 23) {
+    // TODO
+    INFO("I/O APIC interrupt %u", IdtCallVector - 0x30);
+  } else {
+    INFO("Unhandled interrupt");
   }
 }
 
