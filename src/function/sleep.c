@@ -25,7 +25,7 @@
 #include <hypnoticos/hypnoticos.h>
 
 // TODO Implement this fully.
-// NOTE: For now, this function does not wait the requested number of seconds, but instead pauses for a small period of time based upon the number of seconds requested to wait
+// NOTE: For now, this function does not wait the requested number of seconds, but instead suspends the process for a small period of time based upon the number of seconds requested to wait
 uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
   uint64_t ticks_current, ticks_wait;
   FunctionSleep_t *data;
