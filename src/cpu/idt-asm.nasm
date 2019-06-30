@@ -18,7 +18,7 @@
 
 global IdtSet
 global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, Idt242, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedRsp, IdtCallSavedRbp, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi, IdtCallSavedRip, IdtCallSavedRflags, IdtCallSavedR8, IdtCallSavedR9, IdtCallSavedR10, IdtCallSavedR11, IdtCallSavedR12, IdtCallSavedR13, IdtCallSavedR14, IdtCallSavedR15, IdtStackTop, IdtLimit, IdtBase, IdtWait
-extern IdtGates, IdtCall, MemoryKernelPML4, ApicLocalEoi, ApInitDone, ApicLocalSetUpTimer, ApStartNewStack
+extern IdtGates, IdtCall, MemoryKernelPML4, ApicLocalEoi, ApInitDone, ApicLocalSetUpTimer, ApStartNewStack, GdtEntries
 
 section .data
 align 8
@@ -68,6 +68,36 @@ IdtGetLock:
     ret
 
 IdtWait:
+  ; As the next interrupt to be called will not involve a switch from privilege level 3 to level 0, RSP will not be modified when the interrupt occurs. RSP needs to be reset to avoid the stack overflowing.
+  mov rax, 0
+  str ax
+  add rax, GdtEntries
+
+  ; First, find the TSS structure from the GDT entry
+  ; First three bytes
+  mov rdx, [rax]
+  mov r8, rdx
+  shr r8, 16
+  and r8, 0xFFFFFF
+
+  ; Fourth byte
+  mov r9, rdx
+  shr r9, 56
+  and r9, 0xFF000000
+
+  ; Final four bytes
+  mov r10, [rax + 8]
+  shl r10, 32
+
+  ; Collate
+  mov r11, 0
+  or r11, r8
+  or r11, r9
+  or r11, r10
+
+  ; Then find the stack address within the TSS structure
+  mov rsp, [r11 + 4]
+
   call ApicLocalEoi
   mov byte [IdtBusy], 0
   sti

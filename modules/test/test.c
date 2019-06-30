@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-  puts("Testing");
-  while(1);
+  while(1) {
+    puts("Testing");
+  }
 }
