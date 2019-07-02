@@ -166,6 +166,10 @@ void IdtCall() {
   } else if(IdtCallVector >= 0x30 && IdtCallVector <= 0x30 + 23) {
     // TODO
     INFO("I/O APIC interrupt %u", IdtCallVector - 0x30);
+
+    if(IdtCallVector == IDT_IRQ_1) {
+      KeyboardIrq();
+    }
   } else {
     INFO("Unhandled interrupt");
   }
