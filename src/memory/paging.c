@@ -55,7 +55,9 @@ void MemoryPagingInit() {
   i = ((uint64_t) &TextMainStart) / 0x200000;
   max_page = (((uint64_t) &TextMainEnd) / 0x200000) + 1;
   for(; i < max_page; i++) {
-    MemoryPagingPageChangeFlags(MemoryKernelPML4, i * 0x200000, PAGING_RW, 0);
+    if(!MemoryPagingPageChangeFlags(MemoryKernelPML4, i * 0x200000, PAGING_RW, 0)) {
+      HALT();
+    }
   }
 }
 
@@ -105,8 +107,6 @@ uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va, uint32_t flags_
     return 0;
   }
 
-  INFO("ptr=0x%p", ptr);
-
   current_flags = (*ptr & 0xFFF);
   new_flags = current_flags & (~flags_unset);
   new_flags = new_flags | flags_set;
@@ -133,7 +133,7 @@ void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   }
 
   if((((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT) && (((uint64_t) pdpte_ptr[pdpte]) & PAGING_PAGE_FRAME)) {
-    return 1;
+    return &(pdpte_ptr[pdpte]);
   } else if(!(((uint64_t) pdpte_ptr[pdpte]) & PAGING_PRESENT)) {
     return NULL;
   } else {
@@ -141,7 +141,7 @@ void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   }
 
   if((((uint64_t) pde_ptr[pde]) & PAGING_PRESENT) && (((uint64_t) pde_ptr[pde]) & PAGING_PAGE_FRAME)) {
-    return 1;
+    return &(pde_ptr[pde]);
   } else if(!(((uint64_t) pde_ptr[pde]) & PAGING_PRESENT)) {
     return NULL;
   } else {
@@ -149,7 +149,7 @@ void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   }
 
   if(((uint64_t) pte_ptr[pte] & PAGING_PRESENT)) {
-    return 1;
+    return &(pte_ptr[pte]);
   } else {
     return NULL;
   }
