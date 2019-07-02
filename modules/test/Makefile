@@ -32,7 +32,7 @@ install: $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD): $(BUILD_OBJS)
-	$(CC) -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
 	mkdir -p $(SYSROOT)/boot/hypnoticos-modules
 	cp $(BUILD) $(SYSROOT)/boot/hypnoticos-modules/$(BUILD)
 
