@@ -29,6 +29,10 @@
 #define VA_GET_PDE(va)                (((va) >> 21) & 0x1FF)
 #define VA_GET_PTE(va)                (((va) >> 12) & 0x1FF)
 
+uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va, uint32_t flags_unset, uint32_t flags_set);
+
+extern void *TextMainStart, *TextMainEnd;
+
 void MemoryPagingInit() {
   uint64_t max_addr = 0, max_page, i;
 
@@ -47,10 +51,17 @@ void MemoryPagingInit() {
       }
     }
   }
+
+  i = ((uint64_t) &TextMainStart) / 0x200000;
+  max_page = (((uint64_t) &TextMainEnd) / 0x200000) + 1;
+  for(; i < max_page; i++) {
+    MemoryPagingPageChangeFlags(MemoryKernelPML4, i * 0x200000, PAGING_RW, 0);
+  }
 }
 
 void *MemoryPagingNewPD() {
-  uint64_t start, end, i, i2, *ret;
+  uint32_t flag_rw;
+  uint64_t start, end, text_start, text_end, i, i2, *ret;
 
   ret = malloc_align(4096, ALIGN_4KB);
   memset(ret, 0, 4096);
@@ -58,8 +69,14 @@ void *MemoryPagingNewPD() {
   // Reserve the kernel's pages
   start = ((uint64_t) &AddrStart) / 4096;
   end = (((uint64_t) &AddrEnd) + 4096) / 4096;
+  text_start = ((uint64_t) &TextMainStart) / 4096;
+  text_end = (((uint64_t) &TextMainEnd) / 4096) + 1;
   for(i = start; i < end; i++) {
-    MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
+    flag_rw = PAGING_RW;
+    if(i >= text_start && i <= text_end) {
+      flag_rw = 0;
+    }
+    MemoryPagingSetPageImitate(ret, i * 4096, PAGING_PRESENT | flag_rw, PAGE_SIZE_4KB);
   }
 
   // Reserve the pages needed for the TSS
@@ -67,22 +84,38 @@ void *MemoryPagingNewPD() {
     start = ((uint64_t) TssEntriesAPs[i]->tss) / 4096;
     end = (((uint64_t) TssEntriesAPs[i]->tss + sizeof(Tss_t)) / 4096) + 1;
     for(i2 = start; i2 < end; i2++) {
-      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
+      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_4KB);
     }
 
     start = ((uint64_t) TssEntriesAPs[i]->stack) / 4096;
     end = (((uint64_t) TssEntriesAPs[i]->stack + TSS_RSP0_SIZE) / 4096) + 1;
     for(i2 = start; i2 < end; i2++) {
-      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT, PAGE_SIZE_4KB);
+      MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_4KB);
     }
   }
 
   return ret;
 }
 
-uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va) {
-  // TODO
+uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va, uint32_t flags_unset, uint32_t flags_set) {
+  uint64_t *ptr;
+  uint32_t current_flags, new_flags;
+
+  if((ptr = MemoryPagingPagePresent(pml4, va)) == NULL) {
+    return 0;
+  }
+
+  INFO("ptr=0x%p", ptr);
+
+  current_flags = (*ptr & 0xFFF);
+  new_flags = current_flags & (~flags_unset);
+  new_flags = new_flags | flags_set;
+
+  *ptr = (*ptr & (~0xFFF)) | new_flags;
+
+  return 1;
 }
+
 void *MemoryPagingPagePresent(uint64_t *pml4, uint64_t va) {
   uint64_t **pdpte_ptr, **pde_ptr, **pte_ptr;
   uint16_t pml4e, pdpte, pde, pte;

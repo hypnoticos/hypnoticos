@@ -41,11 +41,13 @@ SECTIONS {
   . = 1M;
   AddrStart = .;
 
-  .text : ALIGN(4K) {
+  TextMainStart = .;
+  .text : ALIGN(2M) {
     *(.text)
   } >other
+  TextMainEnd = .;
 
-  .data : ALIGN(4K) {
+  .data : ALIGN(2M) {
     *(.data)
   } >other
 

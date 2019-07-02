@@ -100,8 +100,9 @@ ApStart32Bit:
   wrmsr
 
   ; Enable paging
+  ; Set PG (bit 31) and WP (bit 16) bits
   mov eax, cr0
-  or eax, 0x80000000        ; Set PG bit (bit 31)
+  or eax, 0x80010000
   mov cr0, eax
 
   ;;; Now in IA-32e Mode
