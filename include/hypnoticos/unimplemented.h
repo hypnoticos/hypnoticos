@@ -22,6 +22,6 @@
 #include <stdio.h>
 
 // TODO This should eventually be removed.
-#define UNIMPLEMENTED()         printf("WARNING: %s is unimplemented", __FUNCTION__);
+#define UNIMPLEMENTED()         INFO("WARNING: %s is unimplemented", __FUNCTION__);
 
 #endif
