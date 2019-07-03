@@ -21,6 +21,7 @@
 
 #define KERNEL_FUNCTION_WRITE                       0x1
 #define KERNEL_FUNCTION_SLEEP                       0x2
+#define KERNEL_FUNCTION_READ                        0x3
 
 #ifdef _HYPNOTICOS_KERNEL
 
@@ -34,6 +35,7 @@ struct _FunctionSleep_t {
 
 uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
+uint64_t KernelFunctionRead(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 
 #endif

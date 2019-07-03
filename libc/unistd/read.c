@@ -16,20 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef UNISTD_H
-#define UNISTD_H
-
-#include <sys/types.h>
-
-#define STDIN_FILENO      0
-#define STDOUT_FILENO     1
-#define STDERR_FILENO     2
+#include <unistd.h>
 
 #ifndef _HYPNOTICOS_KERNEL
-unsigned int sleep(unsigned int s);
-#endif
 
-ssize_t read(int fd, void *buffer, size_t count);
-ssize_t write(int fd, const void *buffer, size_t count);
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
+
+ssize_t read(int fd, void *buffer, size_t count) {
+  return KernelFunctionInterface(fd, (uint64_t) buffer, count, 0, 0, KERNEL_FUNCTION_READ);
+}
 
 #endif

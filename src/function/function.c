@@ -34,6 +34,10 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     CALL_FUNCTION(KernelFunctionSleep);
     break;
 
+    case KERNEL_FUNCTION_READ:
+    CALL_FUNCTION(KernelFunctionRead);
+    break;
+
     default:
     // TODO Terminate process
     WARNING();

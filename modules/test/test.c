@@ -20,8 +20,12 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
+  char s[21];
+
   while(1) {
+    memset(s, 0, 21);
     puts("Testing");
     sleep(1);
+    read(STDIN_FILENO, s, 20);
   }
 }

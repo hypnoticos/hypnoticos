@@ -16,20 +16,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef UNISTD_H
-#define UNISTD_H
+#include <stddef.h>
+#include <unistd.h>
+#include <hypnoticos/function-codes.h>
+#include <hypnoticos/function.h>
+#include <hypnoticos/hypnoticos.h>
+#include <hypnoticos/unimplemented.h>
 
-#include <sys/types.h>
+uint64_t KernelFunctionRead(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+  char *pa;
 
-#define STDIN_FILENO      0
-#define STDOUT_FILENO     1
-#define STDERR_FILENO     2
+  // Translate va to pa
+  pa = GET_PA(rbx);
+  if(pa == NULL) {
+    WARNING();
+    return -1;
+  }
 
-#ifndef _HYPNOTICOS_KERNEL
-unsigned int sleep(unsigned int s);
-#endif
+  UNIMPLEMENTED();
 
-ssize_t read(int fd, void *buffer, size_t count);
-ssize_t write(int fd, const void *buffer, size_t count);
-
-#endif
+  return 0;
+}
