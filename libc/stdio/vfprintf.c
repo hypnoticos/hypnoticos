@@ -23,10 +23,13 @@
 int vfprintf(FILE *f, const char *format, va_list va) {
   int i;
   char *buffer, buffer_initial;
+  va_list va2;
+
+  va_copy(va2, va);
 
   i = vsnprintf(&buffer_initial, 0, format, va);
   buffer = malloc(i + 1);
-  i = vsnprintf(buffer, i + 1, format, va);
+  i = vsnprintf(buffer, i + 1, format, va2);
 
   if(fputs(buffer, f) >= 0) {
     free(buffer);
