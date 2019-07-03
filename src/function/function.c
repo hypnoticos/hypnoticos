@@ -58,6 +58,10 @@ void KernelFunctionSuspendTest(DispatcherProcess_t *p) {
     KernelFunctionSleep_SuspendTest(p);
     break;
 
+    case DISPATCHER_SUSPEND_READ:
+    KernelFunctionRead_SuspendTest(p);
+    break;
+
     default:
     // TODO Terminate process?
     WARNING();

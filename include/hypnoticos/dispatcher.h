@@ -34,6 +34,7 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 
 #define DISPATCHER_SUSPEND_NONE                       0x00
 #define DISPATCHER_SUSPEND_SLEEP                      0x01
+#define DISPATCHER_SUSPEND_READ                       0x02
 
 struct _DispatcherProcessSave_t {
   uint64_t rsp;

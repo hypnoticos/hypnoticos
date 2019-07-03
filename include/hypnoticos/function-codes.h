@@ -33,10 +33,19 @@ struct _FunctionSleep_t {
   uint8_t overflow;
 };
 
+typedef struct _FunctionRead_t FunctionRead_t;
+struct _FunctionRead_t {
+  int fd;
+  char *buffer;
+  size_t count;
+  size_t offset;
+};
+
 uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 uint64_t KernelFunctionRead(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
+void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p);
 
 #endif
 

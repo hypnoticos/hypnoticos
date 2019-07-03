@@ -24,8 +24,9 @@ int main(int argc, char **argv) {
 
   while(1) {
     memset(s, 0, 21);
-    puts("Testing");
-    sleep(1);
+    puts("Input: ");
     read(STDIN_FILENO, s, 20);
+    puts("\nOutput: ");
+    puts(s);
   }
 }
