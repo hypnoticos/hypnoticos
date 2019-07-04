@@ -17,6 +17,7 @@
 //
 
 #include <stdio.h>
+#include <stddef.h>
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
 #include <hypnoticos/cpu.h>
@@ -67,4 +68,10 @@ void KernelFunctionSuspendTest(DispatcherProcess_t *p) {
     WARNING();
     break;
   }
+}
+
+void KernelFunctionDone(DispatcherProcess_t *p, uint64_t rax) {
+  p->suspend = DISPATCHER_SUSPEND_NONE;
+  p->suspend_data = NULL;
+  p->save.rax = rax;
 }

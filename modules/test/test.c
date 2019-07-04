@@ -20,13 +20,29 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-  char s[21];
+  char s[80], c;
 
   while(1) {
-    memset(s, 0, 21);
+    memset(s, 0, 80);
     puts("Input: ");
-    read(STDIN_FILENO, s, 20);
-    puts("\nOutput: ");
+
+    while(strlen(s) < 79) {
+      c = fgetc(stdin);
+
+      if(c == '\n') {
+        break;
+      } else if(c == '\b') {
+        if(strlen(s) != 0) {
+          s[strlen(s) - 1] = 0;
+        }
+      } else {
+        s[strlen(s)] = c;
+        putchar(c);
+      }
+    }
+
+    puts("\n\nOutput: ");
     puts(s);
+    puts("");
   }
 }

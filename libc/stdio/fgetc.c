@@ -16,12 +16,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef HYPNOTICOS_UNIMPLEMENTED_H
-#define HYPNOTICOS_UNIMPLEMENTED_H
+#ifndef _HYPNOTICOS_KERNEL
 
 #include <stdio.h>
+#include <unistd.h>
 
-// TODO This should eventually be removed.
-#define UNIMPLEMENTED()         printf("WARNING: %s is unimplemented", __FUNCTION__);
+int fgetc(FILE *f) {
+  char c;
+
+  if(read(fileno(f), &c, 1) != 1) {
+    return EOF;
+  } else {
+    return c;
+  }
+}
 
 #endif

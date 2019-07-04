@@ -198,9 +198,7 @@ void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p) {
   data->offset++;
 
   if(data->offset >= data->count) {
-    // TODO Return value
-    free(p->suspend_data);
-    p->suspend = DISPATCHER_SUSPEND_NONE;
+    KernelFunctionDone(p, data->offset);
+    free(data);
   }
-
 }

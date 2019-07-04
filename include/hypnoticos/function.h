@@ -27,5 +27,6 @@
 uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 void KernelFunctionSuspend(DispatcherProcess_t *p, uint32_t suspend, void *data);
 void KernelFunctionSuspendTest(DispatcherProcess_t *p);
+void KernelFunctionDone(DispatcherProcess_t *p, uint64_t rax);
 
 #endif

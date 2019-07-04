@@ -36,12 +36,14 @@ typedef struct {
 
 int fclose(FILE *f);
 int feof(FILE *f);
+int fgetc(FILE *f);
 char *fgets(char *buffer, int count, FILE *f);
 int fileno(FILE *f);
 FILE *fopen(const char *path, const char *mode);
 int fprintf(FILE *f, const char *format, ...);
 int fputc(int chr, FILE *f);
 int fputs(const char *s, FILE *f);
+int getc(FILE *f);
 int getchar();
 int printf(const char *format, ...);
 int putchar(int chr);

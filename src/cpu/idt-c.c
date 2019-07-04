@@ -22,6 +22,7 @@
 #include <hypnoticos/hypnoticos.h>
 #include <hypnoticos/function.h>
 #include <hypnoticos/cpu.h>
+#include <hypnoticos/devices.h>
 
 #define IDT_GATE_COUNT              256
 

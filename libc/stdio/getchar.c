@@ -33,12 +33,9 @@ int getchar() {
 #else
 
 #include <stdio.h>
-#include <hypnoticos/unimplemented.h>
 
 int getchar() {
-  UNIMPLEMENTED();
-
-  return 0;
+  return getc(stdin);
 }
 
 #endif
