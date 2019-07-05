@@ -22,8 +22,8 @@ extern main
 section .text
 _start:
   mov rbp, rsp
-  push 0
-  push 0
+  push 0  ; TODO
+  push 0  ; TODO
   call main
 
   ; TODO call exit

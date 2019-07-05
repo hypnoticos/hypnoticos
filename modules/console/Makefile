@@ -16,35 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-SUBDIRS=test console
-INSTALLDIRS=$(SUBDIRS:%=install-%)
-CLEANDIRS=$(SUBDIRS:%=clean-%)
+BUILD=console
+BUILD_OBJS=console.o
 
-export CFLAGS=$(CFLAGS_MODULES)
-export NASMFLAGS=$(NASMFLAGS_MODULES)
-export LDFLAGS=$(LDFLAGS_MODULES)
-export LIBS=$(LIBS_MODULES)
-export CRT0=$(shell pwd)/crt0.o
+.PHONY: install $(BUILD) clean
 
-.PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
+all: $(BUILD)
 
-all: $(CRT0) subdirs
-
-subdirs: $(SUBDIRS)
-
-$(SUBDIRS):
-	+$(MAKE) -C $@
+install: $(BUILD)
 
 %.o: %.nasm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
-install: subdirs $(INSTALLDIRS)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(INSTALLDIRS):
-	$(MAKE) -C $(@:install-%=%) install
+$(BUILD): $(BUILD_OBJS)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
+	mkdir -p $(SYSROOT)/boot/hypnoticos-modules
+	cp $(BUILD) $(SYSROOT)/boot/hypnoticos-modules/$(BUILD)
 
-$(CLEANDIRS):
-	rm -f $(CRT0)
-	$(MAKE) -C $(@:clean-%=%) clean
-
-clean: $(CLEANDIRS)
+clean:
+	$(RM) $(BUILD) $(BUILD_OBJS)

@@ -16,10 +16,40 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
+  char s[80], c;
+
   while(1) {
-    sleep(1);
+    memset(s, 0, 80);
+    puts("Input: ");
+
+    // TODO malloc
+    while(strlen(s) < 79) {
+      c = fgetc(stdin);
+
+      if(c == '\n') {
+        break;
+      } else if(c == '\b') {
+        if(strlen(s) != 0) {
+          s[strlen(s) - 1] = 0;
+        }
+      } else {
+        s[strlen(s)] = c;
+        putchar(c);
+      }
+    }
+    putchar('\n');
+
+    if(strcmp(s, "help") == 0) {
+      puts("HypnoticOS Console");
+      puts("Commands:");
+      puts(" help           Display this message");
+    } else {
+      puts("Unrecognised command.");
+    }
+    putchar('\n');
   }
 }
