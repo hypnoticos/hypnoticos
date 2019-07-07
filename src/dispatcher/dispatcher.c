@@ -220,6 +220,8 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   }
 
   p->stack = NULL;
+  p->heap_addr = 0x20000000;
+  p->heap_size = 0x1000;
   p->run = 0;
   p->last_cycle = 0;
   p->lock = 0;
@@ -240,6 +242,8 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->io = malloc(sizeof(uint16_t));
   p->io[0] = 0;
   p->io_count = 0;
+
+  DispatcherProcessAllocatePage(p, p->heap_addr, 0, PAGING_USER | PAGING_RW | PAGING_PRESENT);
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 

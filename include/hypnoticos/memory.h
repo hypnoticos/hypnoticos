@@ -35,6 +35,15 @@
 #define PAGE_SIZE_2MB           0x2
 #define PAGE_SIZE_1GB           0x3
 
+#define MALLOC_MAGIC              0xABCDEFABCDEFABCD
+
+typedef struct _malloc_entry_t malloc_entry_t;
+struct _malloc_entry_t {
+  uint64_t magic; /*!< A magic number to check for a potentially erroneous free(). */
+  uint64_t size; /*!< The size of the block on the heap */
+  uint8_t status; /*!< 0 = Free, 1 = In use */
+};
+
 #define MEMORYBLOCK_TYPE_AVAILABLE        1
 #define MEMORYBLOCK_TYPE_UNAVAILABLE      2
 

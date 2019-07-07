@@ -16,44 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifdef _HYPNOTICOS_KERNEL
-
-#include <stdio.h>
-#include <string.h>
 #include <hypnoticos/memory.h>
-#include <hypnoticos/hypnoticos.h>
+#include <hypnoticos/dispatcher.h>
 
-void free(void *addr) {
-  MemoryTable_t *mt;
-
-  if((mt = MemoryFind(addr)) == NULL) {
-    printf("free: address does not refer to the start of a block of allocated memory\n");
-    HALT();
-  }
-
-  mt->status = 0;
-  memset(mt->function, 0, MEMORY_TABLE_FUNCTION_LABEL_SIZE);
-  mt->line = 0;
+uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+  return p->heap_size;
 }
-
-#else
-
-#include <stdio.h>
-#include <hypnoticos/memory.h>
-
-void free(void *addr) {
-  malloc_entry_t *entry;
-
-  entry = (malloc_entry_t *) ((uint64_t) addr - sizeof(malloc_entry_t));
-
-  if(entry->magic != MALLOC_MAGIC) {
-    // TODO Error
-    return;
-  }
-
-  entry->status = 0;
-
-  // TODO Consolidate free entries
-}
-
-#endif

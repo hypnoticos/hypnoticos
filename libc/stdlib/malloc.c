@@ -22,15 +22,95 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <hypnoticos/unimplemented.h>  // TODO Remove this when implemented
+#include <stdint.h>
+#include <hypnoticos/function-codes.h>
+#include <hypnoticos/interface.h>
+#include <hypnoticos/memory.h>
 
-// TODO
 void *malloc(size_t size) {
-  (void) size;
+  static void *heap_addr = NULL;
+  static uint64_t heap_size = 0;
+  uint64_t offset, previous_heap_size;
+  malloc_entry_t *entry, *next_entry;
+  uint8_t retried = 0;
 
-  UNIMPLEMENTED();
+  if(heap_addr == NULL && heap_size == 0) {
+    heap_addr = (void *) KernelFunctionInterface(0, 0, 0, 0, 0, KERNEL_FUNCTION_HEAP_ADDR);
+    heap_size = KernelFunctionInterface(0, 0, 0, 0, 0, KERNEL_FUNCTION_HEAP_SIZE);
 
-  return NULL;
+    if(heap_addr == NULL || heap_size == 0) {
+      // TODO Something went wrong
+      return NULL;
+    }
+
+    entry = (malloc_entry_t *) heap_addr;
+    entry->magic = MALLOC_MAGIC;
+    entry->size = heap_size - sizeof(malloc_entry_t);
+    entry->status = 0;
+  } else if(heap_addr == NULL || heap_size == 0) {
+    // TODO Something went wrong
+    return NULL;
+  }
+
+  // Iterate through heap to look for space
+retry:
+  for(offset = 0; offset < heap_size; offset += sizeof(malloc_entry_t) + entry->size) {
+    entry = (malloc_entry_t *) ((uint64_t) heap_addr + offset);
+
+    if(entry->status == 1) {
+      continue;
+    }
+
+    if(entry->size < size) {
+      continue;
+    }
+
+    if(entry->size == size) {
+      entry->status = 1;
+      return (void *) ((uint64_t) entry + sizeof(malloc_entry_t));
+    }
+
+    if(entry->size > size + sizeof(malloc_entry_t)) {
+      // Insufficient space to split the block but allocate the block anyway
+      entry->status = 1;
+      return (void *) ((uint64_t) entry + sizeof(malloc_entry_t));
+    }
+
+    // Otherwise, the block must be split
+    next_entry = (malloc_entry_t *) ((uint64_t) entry + sizeof(malloc_entry_t) + size);
+    next_entry->magic = MALLOC_MAGIC;
+    next_entry->size = entry->size - sizeof(malloc_entry_t) - size;
+    next_entry->status = 0;
+
+    entry->size = size;
+    entry->status = 1;
+    return (void *) ((uint64_t) entry + sizeof(malloc_entry_t));
+  }
+
+  // Reached the end of the heap
+  if(retried) {
+    // Something went wrong
+    return NULL;
+  } else {
+    // Try to allocate more memory
+
+    // TODO If there is free space at the end of the heap before the new pages are allocated, then that entry must be extended rather than creating a new entry
+
+    if((entry = (malloc_entry_t *) KernelFunctionInterface(size, 0, 0, 0, 0, KERNEL_FUNCTION_NEW_PAGE)) == NULL) {
+      return NULL;
+    }
+
+    previous_heap_size = heap_size;
+    heap_size = KernelFunctionInterface(0, 0, 0, 0, 0, KERNEL_FUNCTION_HEAP_SIZE);
+
+    entry = (malloc_entry_t *) ((uint64_t) heap_addr + previous_heap_size);
+    entry->magic = MALLOC_MAGIC;
+    entry->size = heap_size - previous_heap_size - sizeof(malloc_entry_t);
+    entry->status = 0;
+
+    retried = 1;
+    goto retry;
+  }
 }
 
 #endif

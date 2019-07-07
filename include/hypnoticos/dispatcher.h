@@ -69,6 +69,8 @@ struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
   void *stack;
+  uint64_t heap_addr;
+  uint64_t heap_size;
   DispatcherProcessSave_t save;
   uint8_t run;
   uint64_t last_cycle;
