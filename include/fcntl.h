@@ -16,11 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef SYS_TYPES_H
-#define SYS_TYPES_H
+#ifndef FCNTL_H
+#define FCNTL_H
 
-typedef unsigned long long int mode_t;
-typedef unsigned int long long size_t;
-typedef signed int long long ssize_t;
+#include <sys/types.h>
+
+#define O_RDONLY                    0x1
+#define O_WRONLY                    (0x1 << 1)
+#define O_RDWR                      (O_RDONLY | O_WRONLY)
+
+int open(char *filename, int flags, mode_t mode);
 
 #endif

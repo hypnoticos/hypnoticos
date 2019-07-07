@@ -21,9 +21,9 @@
 
 #include <sys/types.h>
 
-#define STDIN_FILENO      0
-#define STDOUT_FILENO     1
-#define STDERR_FILENO     2
+#define STDIN_FILENO      1
+#define STDOUT_FILENO     2
+#define STDERR_FILENO     3
 
 #ifndef _HYPNOTICOS_KERNEL
 unsigned int sleep(unsigned int s);

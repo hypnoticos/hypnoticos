@@ -16,11 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef SYS_TYPES_H
-#define SYS_TYPES_H
 
-typedef unsigned long long int mode_t;
-typedef unsigned int long long size_t;
-typedef signed int long long ssize_t;
+#ifndef _HYPNOTICOS_KERNEL
+
+#include <unistd.h>
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
+
+int open(char *filename, int flags, mode_t mode) {
+  return KernelFunctionInterface((uint64_t) filename, flags, mode, 0, 0, KERNEL_FUNCTION_OPEN);
+}
 
 #endif

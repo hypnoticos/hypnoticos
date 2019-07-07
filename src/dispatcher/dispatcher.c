@@ -243,6 +243,10 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->io[0] = 0;
   p->io_count = 0;
 
+  p->fd = malloc(sizeof(DispatcherProcessFd_t *));
+  p->fd[0] = NULL;
+  p->fd_last = 0; // TODO Create stdin etc.
+
   DispatcherProcessAllocatePage(p, p->heap_addr, 0, PAGING_USER | PAGING_RW | PAGING_PRESENT);
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
@@ -468,4 +472,44 @@ uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data,
   }
 
   return 1;
+}
+
+int DispatcherProcessNewFd(DispatcherProcess_t *p, char *filename, int flags, mode_t mode) {
+  uint64_t index, i, i2;
+  uint8_t failed;
+
+  for(index = 0; p->fd[index] != NULL; index++);
+
+  p->fd = realloc(p->fd, sizeof(DispatcherProcessFd_t *) * (index + 2));
+  p->fd[index] = malloc(sizeof(DispatcherProcessFd_t));
+
+  if(strlen(filename) >= 1024) {
+    // TODO Clean up
+    return -1;
+  }
+
+  p->fd[index]->filename = malloc(strlen(filename) + 1);
+  strcpy(p->fd[index]->filename, filename);
+
+  p->fd[index]->flags = flags;
+  p->fd[index]->mode = mode;
+
+  // Allocate fd
+  for(i = 4; i < 10000; i++) {
+    failed = 0;
+    for(i2 = 0; p->fd[i2] != NULL; i2++) {
+      if(p->fd[i2]->fd == i) {
+        failed = 1;
+        break;
+      }
+    }
+    if(!failed) {
+      p->fd[index]->fd = i;
+      return i;
+    }
+  }
+
+  // TODO Clean up
+
+  return -1;
 }

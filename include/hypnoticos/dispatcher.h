@@ -24,6 +24,7 @@ typedef struct _DispatcherProcessVa_t DispatcherProcessVa_t;
 typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 
 #include <hypnoticos/dispatcher/format-elf.h>
+#include <sys/types.h>
 #include <stdint.h>
 
 #define DISPATCHER_FORMAT_ELF                         0x01
@@ -65,6 +66,14 @@ struct _DispatcherProcessVa_t {
   uint8_t ignore; /*!< 0 = Kernel functions will not ignore this virtual address range. 1 = Kernel funtions will ignore this virtual address range. */
 };
 
+typedef struct _DispatcherProcessFd_t DispatcherProcessFd_t;
+struct _DispatcherProcessFd_t {
+  int fd;
+  char *filename;
+  int flags;
+  mode_t mode;
+};
+
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
@@ -91,6 +100,9 @@ struct _DispatcherProcess_t {
 
   uint32_t suspend;
   void *suspend_data;
+
+  DispatcherProcessFd_t **fd;
+  int fd_last;
 };
 
 typedef struct _DispatcherCpu_t DispatcherCpu_t;
@@ -113,6 +125,7 @@ void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags);
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags);
 DispatcherProcess_t *DispatcherProcessNew(char *name);
+int DispatcherProcessNewFd(DispatcherProcess_t *p, char *filename, int flags, mode_t mode);
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
 void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
