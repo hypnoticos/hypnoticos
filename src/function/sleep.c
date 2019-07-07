@@ -47,6 +47,7 @@ uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx,
   data->overflow = ((ticks_current + ticks_wait) < ticks_current) ? 1 : 0;
 
   KernelFunctionSuspend(p, DISPATCHER_SUSPEND_SLEEP, data);
+  __builtin_unreachable();
 }
 
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p) {
