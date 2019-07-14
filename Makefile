@@ -58,6 +58,7 @@ export NASMFLAGS_MODULES=$(NASMFLAGS)
 all: prepare subdirs
 
 prepare:
+	which grub-mkrescue > /dev/null
 	$(MKDIR) $(SYSROOT)/usr/include
 	$(CP) -R $(INCDIR)/* $(SYSROOT)/usr/include/
 
