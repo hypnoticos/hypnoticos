@@ -1,4 +1,4 @@
-// 
+//
 // HypnoticOS
 // Copyright (C) 2019  jk30
 //
@@ -25,6 +25,7 @@
 int memcmp(const void *addr1, const void *addr2, size_t count);
 void *memcpy(void *destination, const void *source, size_t count);
 void *memset(void *addr, int chr, size_t count);
+char *strcat(char *dest, const char *src);
 int strcmp(const char *str1, const char *str2);
 char *strcpy(char *d, const char *s);
 size_t strlen(const char *s);

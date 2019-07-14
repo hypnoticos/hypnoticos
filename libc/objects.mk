@@ -19,5 +19,5 @@
 LIBC_OBJS=fcntl/open.o
 LIBC_OBJS+=stdio/fgetc.o stdio/fileno.o stdio/fprintf.o stdio/fputc.o stdio/fputs.o stdio/getc.o stdio/getchar.o stdio/printf.o stdio/putchar.o stdio/puts.o stdio/stdstreams.o stdio/vfprintf.o stdio/vsnprintf.o
 LIBC_OBJS+=stdlib/calloc.o stdlib/free.o stdlib/malloc.o stdlib/realloc.o
-LIBC_OBJS+=string/memcmp.o string/memcpy.o string/memset.o string/strcmp.o string/strcpy.o string/strlen.o
+LIBC_OBJS+=string/memcmp.o string/memcpy.o string/memset.o string/strcat.o string/strcmp.o string/strcpy.o string/strlen.o
 LIBC_OBJS+=unistd/read.o unistd/sleep.o unistd/write.o
