@@ -26,7 +26,7 @@
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100
 
-#define MEMORY_ERROR()              puts("Memory error"); HALT_NO_OUTPUT();
+#define MEMORY_ERROR(text)                    puts("Memory error"); puts(text) HALT_NO_OUTPUT();
 
 #define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint64_t) table) + sizeof(MemoryTable_t)); if((uint64_t) table + sizeof(MemoryTable_t) >= mt_start + mt_size) { HALT(); }
 
@@ -51,7 +51,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, ui
   if(current == &MemoryBlocks && MemoryBlocks.type == 0) {
     // There are no other entries in the list
     if(type == MEMORYBLOCK_TYPE_UNAVAILABLE) {
-      MEMORY_ERROR();
+      MEMORY_ERROR("Error 1");
     }
 
     current->start = start;
@@ -83,13 +83,13 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, ui
     if(mt_start < (uint64_t) &AddrEnd) {
       mt_start = ((uint64_t) &AddrEnd) + 1;
       if(((uint64_t) &AddrEnd) + mt_size >= start + length) {
-        MEMORY_ERROR();
+        MEMORY_ERROR("Error 2");
       }
     }
 
     // Is the block big enough to create a table?
     if(length < mt_size) {
-      MEMORY_ERROR();
+      MEMORY_ERROR("Error 3");
     }
 
     // Create a memory table
@@ -97,11 +97,11 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, ui
     if(((void **) mt_start < &AddrStart && (void **) (mt_start + mt_size) < &AddrStart)) {
       // TODO Place the memory table elsewhere
       // May overwrite the kernel
-      MEMORY_ERROR();
+      MEMORY_ERROR("Error 4");
     } else if((mt_start < MMAP_START && (mt_start + mt_size) < MMAP_START)) {
       // TODO Place the memory table elsewhere
       // May overwrite mmap entries (which are currently being processed)
-      MEMORY_ERROR();
+      MEMORY_ERROR("Error 5");
     }
 
     // Check if the memory table would overlap with module information or the modules themselves
@@ -109,7 +109,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, ui
       if((mt_start < BootModulesAddr && mt_start + mt_size < BootModulesAddr)) {
         // TODO Place the memory table elsewhere
         // May overwrite module information entries
-        MEMORY_ERROR();
+        MEMORY_ERROR("Error 6");
       }
 
       for(i = 0; i < BootModulesCount; i++) {
@@ -121,7 +121,7 @@ void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, ui
         } else {
           // TODO Place the memory table elsewhere
           // May overwrite this module
-          MEMORY_ERROR();
+          MEMORY_ERROR("Error 7");
         }
       }
     }
