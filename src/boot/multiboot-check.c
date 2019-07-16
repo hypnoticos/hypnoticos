@@ -34,26 +34,25 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
 
   // Check magic number
   if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-    printf("magic != MULTIBOOT_BOOTLOADER_MAGIC\n");
-    HALT();
+    puts("magic != MULTIBOOT_BOOTLOADER_MAGIC");
+    HALT_NO_OUTPUT();
   }
 
   // Check if module information is present
   // (Bit 3 of flags)
   if(!(multiboot->flags & 0x08)) {
-    printf("No module information\n");
-    BootModulesCount = 0;
-    BootModulesAddr = 0;
-  } else {
-    BootModulesCount = multiboot->mods_count;
-    BootModulesAddr = multiboot->mods_addr;
+    puts("No module information");
+    HALT_NO_OUTPUT();
   }
+
+  BootModulesCount = multiboot->mods_count;
+  BootModulesAddr = multiboot->mods_addr;
 
   // Get mmap buffer
   // Bit 6 of flags must be set
   if(!(multiboot->flags & 0x40)) {
-    printf("Couldn't retrieve mmap_length and mmap_addr\n");
-    HALT();
+    puts("Couldn't retrieve mmap_length and mmap_addr");
+    HALT_NO_OUTPUT();
   }
 
   // WARNING: From here the existence of the multiboot structure and its components (except mmap components for the rest of this function) is not guaranteed.
@@ -67,7 +66,8 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
 
     // Check if the size parameter is invalid
     if(offset + mmap_entry->size > mmap_length || mmap_entry->size < 20) {
-      HALT();
+      puts("Error");
+      HALT_NO_OUTPUT();
     }
 
     // Check the type
@@ -84,8 +84,8 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
       break;
 
       default:
-      printf("Unknown type.\n");
-      HALT();
+      puts("Unknown type.");
+      HALT_NO_OUTPUT();
       break;
     }
 
@@ -94,6 +94,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
 
   if(offset != mmap_length) {
     // Something didn't go right.
-    HALT();
+    puts("Error");
+    HALT_NO_OUTPUT();
   }
 }

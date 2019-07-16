@@ -28,10 +28,11 @@
 
 #ifdef _DEBUG
 #include <hypnoticos/debug.h>
+#define HALT_NO_OUTPUT()  while(1) { \
+                            asm("hlt"); \
+                          }
 #define HALT()          INFO("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
-                        while(1) { \
-                          asm("hlt"); \
-                        }
+                        HALT_NO_OUTPUT();
 
 #define WARNING()       INFO("DEBUG, WARNING: %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__)
 
