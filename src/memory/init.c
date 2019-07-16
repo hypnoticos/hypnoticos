@@ -26,7 +26,7 @@
 
 #define MEMORY_TABLE_INITIAL_ENTRIES          100
 
-#define MEMORY_ERROR(text)                    puts("Memory error"); puts(text) HALT_NO_OUTPUT();
+#define MEMORY_ERROR(text)                    puts("Memory error"); puts(text); HALT_NO_OUTPUT();
 
 #define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint64_t) table) + sizeof(MemoryTable_t)); if((uint64_t) table + sizeof(MemoryTable_t) >= mt_start + mt_size) { HALT(); }
 
