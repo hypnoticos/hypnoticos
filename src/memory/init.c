@@ -28,7 +28,7 @@
 
 #define MEMORY_ERROR(text)                    puts("Memory error"); puts(text); HALT_NO_OUTPUT();
 
-#define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint64_t) table) + sizeof(MemoryTable_t)); if((uint64_t) table + sizeof(MemoryTable_t) >= mt_start + mt_size) { HALT(); }
+#define NEXT_ENTRY()                          table = (MemoryTable_t *) (((uint64_t) table) + sizeof(MemoryTable_t)); if((uint64_t) table + sizeof(MemoryTable_t) >= mt_start + mt_size) { MEMORY_ERROR("Error 8"); }
 
 /*!< A linked list containing the known available memory blocks */
 MemoryBlock_t MemoryBlocks = {.start=0, .length=0, .type=0, .prev=NULL, .next=NULL};
