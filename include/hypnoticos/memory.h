@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
+#include <multiboot.h>
 
 #define ALIGN_NONE              0
 #define ALIGN_4KB               4
@@ -61,6 +62,8 @@ struct _MemoryBlock_t {
   MemoryBlock_t *prev; /*!< Previous in the linked list (NULL if this is the first entry) */
   MemoryBlock_t *next; /*!< Next in the linked list (NULL if no more entries) */
 };
+
+/*!< A linked list containing the known available memory blocks */
 extern MemoryBlock_t MemoryBlocks;
 
 typedef struct _MemoryTableIndex_t MemoryTableIndex_t;
@@ -90,7 +93,7 @@ void *__malloc_align(size_t size, uint8_t align, const char function[MEMORY_TABL
 uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
-void MemoryNewBlock(uint32_t mmap_addr, uint32_t mmap_length, uint64_t start, uint64_t length, uint8_t type);
+uint8_t MemoryNewBlock(multiboot_info_t *multiboot, multiboot_memory_map_t *mmap_entry);
 void MemoryNewTable();
 void MemoryPagingInit();
 void *MemoryPagingNewPD();

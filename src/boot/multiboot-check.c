@@ -70,23 +70,9 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
       HALT_NO_OUTPUT();
     }
 
-    // Check the type
-    switch(mmap_entry->type) {
-      case MULTIBOOT_MEMORY_AVAILABLE:
-      MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr, mmap_entry->len, MEMORYBLOCK_TYPE_AVAILABLE);
-      break;
-
-      case MULTIBOOT_MEMORY_RESERVED:
-      case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE: // TODO
-      case MULTIBOOT_MEMORY_NVS: // TODO Must be preserved on hibernation
-      case MULTIBOOT_MEMORY_BADRAM:
-      MemoryNewBlock(mmap_addr, mmap_length, mmap_entry->addr, mmap_entry->len, MEMORYBLOCK_TYPE_UNAVAILABLE);
-      break;
-
-      default:
-      puts("Unknown type.");
+    if(!MemoryNewBlock(multiboot, mmap_entry)) {
+      puts("Error");
       HALT_NO_OUTPUT();
-      break;
     }
 
     offset += mmap_entry->size + sizeof(mmap_entry->size);
