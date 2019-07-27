@@ -26,11 +26,12 @@
 #ifdef _HYPNOTICOS_KERNEL
 #include <stdio.h>
 
-#ifdef _DEBUG
-#include <hypnoticos/debug.h>
 #define HALT_NO_OUTPUT()  while(1) { \
                             asm("hlt"); \
                           }
+
+#ifdef _DEBUG
+#include <hypnoticos/debug.h>
 #define HALT()          INFO("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
                         HALT_NO_OUTPUT();
 
@@ -39,9 +40,7 @@
 #define INFO(s, ...)    printf_debug(s, ##__VA_ARGS__)
 #else
 #define HALT()          printf("\nKERNEL HALTED"); \
-                        while(1) { \
-                          asm("hlt"); \
-                        }
+                        HALT_NO_OUTPUT();
 
 #define WARNING()
 
