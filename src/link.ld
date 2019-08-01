@@ -44,19 +44,30 @@ SECTIONS {
   .text : ALIGN(2M) {
     TextMainStart = .;
     *(.text)
+    *(.eh_frame)
     TextMainEnd = .;
   } >other
 
-  .data : ALIGN(2M) {
+  .bss : ALIGN(2M) {
+    *(.bss)
+  } >other
+
+  .data : ALIGN(4K) {
     *(.data)
   } >other
 
   .rodata : ALIGN(4K) {
     *(.rodata)
+    *(.rodata.*)
   } >other
 
-  .bss : ALIGN(4K) {
-    *(.bss)
+  .rodata : ALIGN(4K) {
+    *(.rodata)
+    *(.rodata.*)
+  } >other
+
+  other : ALIGN(4K) {
+    *(.*)
   } >other
 
   AddrEnd = .;
