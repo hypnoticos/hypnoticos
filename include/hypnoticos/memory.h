@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
-#include <multiboot.h>
+#include "../multiboot.h"
 
 #define ALIGN_NONE              0
 #define ALIGN_4KB               4
