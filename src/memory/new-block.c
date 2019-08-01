@@ -55,7 +55,7 @@ inline uint8_t MemoryNewBlock_NewEntry(MemoryTable_t *mt_start, uint64_t mt_leng
       return 0;
     }
 
-    *last_mt = (MemoryTable_t *) (((uint64_t) last_mt) + sizeof(MemoryTable_t));
+    *last_mt = (MemoryTable_t *) (((uint64_t) *last_mt) + sizeof(MemoryTable_t));
   }
 
   (*last_mt)->addr = (uint64_t) alloc_addr;
