@@ -21,22 +21,24 @@
 #include <hypnoticos/cpu.h>
 
 void printf_debug(const char *format, ...) {
-  int i;
+  int length, i;
   char *buffer, buffer_initial;
   va_list va;
 
   va_start(va, format);
-  i = vsnprintf(&buffer_initial, 0, format, va);
+  length = vsnprintf(&buffer_initial, 0, format, va);
   va_end(va);
 
-  buffer = malloc(i + 1);
+  buffer = malloc(length + 1);
 
   va_start(va, format);
-  i = vsnprintf(buffer, i + 1, format, va);
+  vsnprintf(buffer, length + 1, format, va);
   va_end(va);
 
-  for(i = 0; buffer[i] != 0; i++) {
+  for(i = 0; i < length; i++) {
     IoPort8Out(0xE9, buffer[i]);
   }
   IoPort8Out(0xE9, '\n');
+
+  free(buffer);
 }
