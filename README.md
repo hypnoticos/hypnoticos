@@ -1,9 +1,5 @@
 # HypnoticOS: 64-bit Hobby Operating System
 
-## Direction of travel
-
-See [milestones](https://github.com/hypnoticos/hypnoticos/milestones) for information about the plans for the project.
-
 ## Prerequisites
 
 You will need:
