@@ -29,6 +29,9 @@ SUBDIRS=libc src modules
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
 
+export RAMDISK_ROOT=$(shell pwd)/ramdisk-root
+RAMDISK=$(shell pwd)/ramdisk.img
+
 export MKDIR=mkdir -p
 export CP=cp
 export RM=rm -f
@@ -59,6 +62,10 @@ all: prepare subdirs
 
 prepare:
 	which grub-mkrescue > /dev/null
+	which find > /dev/null
+	which hypnoticfs-add > /dev/null
+	which hypnoticfs-mkdir > /dev/null
+	which hypnoticfs-new > /dev/null
 	$(MKDIR) $(SYSROOT)/usr/include
 	$(CP) -R $(INCDIR)/* $(SYSROOT)/usr/include/
 
@@ -78,16 +85,20 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 clean: $(CLEANDIRS)
-	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME)
+	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME) $(RAMDISK)
 
-iso: prepare subdirs
+ramdisk:
+	hypnoticfs-new $(RAMDISK) 4
+	cd $(RAMDISK_ROOT) && find -not -path . -type d -printf "/%P\0" | xargs -n 1 -0 hypnoticfs-mkdir $(RAMDISK)
+	cd $(RAMDISK_ROOT) && find -not -path . -not -type d -printf "/%P\0%P\0" | xargs -n 2 -0 hypnoticfs-add $(RAMDISK)
+
+iso: prepare subdirs ramdisk
 	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
 	$(CP) $(SYSROOT)/boot/$(KERNELFILENAME) $(ISODIR)/boot/
-	$(CP) -R $(SYSROOT)/boot/hypnoticos-modules/* $(ISODIR)/boot/hypnoticos-modules/
+	$(CP) $(RAMDISK) $(ISODIR)/boot/ramdisk.img
 	echo "menuentry \"HypnoticOS $(VERSION)\" {" > $(ISODIR)/boot/grub/grub.cfg
 	echo "multiboot /boot/$(KERNELFILENAME)" >> $(ISODIR)/boot/grub/grub.cfg
-	echo "module /boot/hypnoticos-modules/console" >> $(ISODIR)/boot/grub/grub.cfg
-	echo "module /boot/hypnoticos-modules/test" >> $(ISODIR)/boot/grub/grub.cfg
+	echo "module /boot/ramdisk.img" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "}" >> $(ISODIR)/boot/grub/grub.cfg
 	echo "set timeout=0" >> $(ISODIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISONAME) $(ISODIR)

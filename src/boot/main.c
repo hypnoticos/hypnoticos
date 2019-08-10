@@ -26,6 +26,9 @@
 #include <hypnoticos/devices.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/memory.h>
+#include <hypnoticos/devices/storage.h>
+#include <hypnoticos/fs.h>
+#include <sys/stat.h>
 
 extern void DispatcherTest();
 
@@ -77,8 +80,16 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
     printf("No PS/2 keyboard detected\n");
   }
 
+  INFO("Storage");
+  StorageInit();
+
+  INFO("FS");
+  FsInit();
+
   INFO("Load modules");
-  BootLoadModules(); // Needs TSS structures to have been created
+  if(!BootLoadModules()) { // Needs storage and FS to have been initialised
+    HALT();
+  }
 
   INFO("PCI init");
   if(!PciInit()) {
@@ -86,11 +97,27 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   }
 
   INFO("BSP: APIC timer");
-  ApicLocalSetUpTimer();
+  // NOTE Timer is temporarily disabled
+  //ApicLocalSetUpTimer();
 
   printf("Starting...\n");
 
   asm("sti");
+
+  printf("stat /bin/test\n");
+  struct stat s;
+  if(stat("/bin/test", &s) == -1) {
+    printf("fail\n");
+  } else {
+    printf("ok\n");
+  }
+
+  printf("stat /bin/no\n");
+  if(stat("/bin/no", &s) == -1) {
+    printf("fail\n");
+  } else {
+    printf("ok\n");
+  }
 
   while(1) {
     asm("hlt");

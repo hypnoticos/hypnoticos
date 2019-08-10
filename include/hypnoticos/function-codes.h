@@ -26,6 +26,7 @@
 #define KERNEL_FUNCTION_NEW_PAGE                    0x5
 #define KERNEL_FUNCTION_HEAP_ADDR                   0x6
 #define KERNEL_FUNCTION_HEAP_SIZE                   0x7
+#define KERNEL_FUNCTION_STAT                        0x8
 
 #ifdef _HYPNOTICOS_KERNEL
 
@@ -52,6 +53,7 @@ uint64_t KernelFunctionOpen(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, 
 uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
+uint64_t KernelFunctionStat(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p);
 

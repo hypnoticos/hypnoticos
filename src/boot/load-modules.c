@@ -17,24 +17,47 @@
 //
 
 #include <multiboot.h>
-#include <hypnoticos/dispatcher.h>
 #include <hypnoticos/boot.h>
+#include <hypnoticos/devices/storage.h>
 #include <hypnoticos/hypnoticos.h>
+#include <hypnoticos/fs/hypnoticfs.h>
+#include <hypnoticos/devices/storage/ramdisk.h>
+#include <string.h>
+#include <stdlib.h>
 
 uint8_t BootLoadModules() {
   multiboot_module_t *module;
-  uint32_t i;
-  DispatcherProcess_t *p;
 
-  for(i = 0; i < BootModulesCount; i++) {
-    module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-    INFO("Attempting to load module which starts at 0x%X (%u bytes)", module->mod_start, module->mod_end - module->mod_start);
-    if(!(p = DispatcherProcessNewFromFormat("module", (char *) ((uint64_t) module->mod_start), module->mod_end - module->mod_start))) {
-      INFO("Failed");
-      continue;
-    }
-    INFO("Done");
+  if(BootModulesCount != 1) {
+    INFO("Support for only one module");
+    HALT();
   }
+
+  module = (multiboot_module_t *) ((uint64_t) BootModulesAddr);
+  INFO("Attempting to load module which starts at 0x%X (%u bytes)", module->mod_start, module->mod_end - module->mod_start);
+
+  // Check the magic number (TODO Move this to the init code for HypnoticFS)
+  if(*((uint8_t *) ((uint64_t) module->mod_start)) != MAGIC_1) {
+    return 0;
+  } else if(memcmp((uint8_t *) ((uint64_t) module->mod_start + 1), MAGIC_STRING, MAGIC_SIZE - 1) != 0) {
+    return 0;
+  }
+
+  INFO("Setting up RAM disk");
+  StorageDevice_RamDisk_t *data = malloc(sizeof(StorageDevice_RamDisk_t));
+  uint64_t ramdisk_size = module->mod_end - module->mod_start;
+  data->ptr = malloc(ramdisk_size);
+  data->size = ramdisk_size;
+  INFO("data->ptr = 0x%p mod_start=0x%X ramdisk_size=%u", data->ptr, module->mod_start, ramdisk_size);
+  memcpy(data->ptr, (void *) ((uint64_t) module->mod_start), ramdisk_size);
+
+  StorageNew(DEVICE_TYPE_RAMDISK, data);
+
+  // TODO To implement
+  FsRoots->storage = &(StorageDevices[0]);
+  FsRoots->storage_offset = 0;
+
+  INFO("Done");
 
   return 1;
 }
