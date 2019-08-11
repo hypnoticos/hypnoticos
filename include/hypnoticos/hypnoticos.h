@@ -32,10 +32,10 @@
 
 #ifdef _DEBUG
 #include <hypnoticos/debug.h>
-#define HALT()          INFO("KERNEL HALTED. %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__); \
+#define HALT()          INFO("KERNEL HALTED. %s in %s(%u).", __FUNCTION__, __FILE__, __LINE__); \
                         HALT_NO_OUTPUT();
 
-#define WARNING()       INFO("DEBUG, WARNING: %s in %s(%u).\n", __FUNCTION__, __FILE__, __LINE__)
+#define WARNING()       INFO("DEBUG, WARNING: %s in %s(%u).", __FUNCTION__, __FILE__, __LINE__)
 
 #define INFO(s, ...)    printf_debug(s, ##__VA_ARGS__)
 #else
