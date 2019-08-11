@@ -22,35 +22,30 @@
 #include <hypnoticos/fs/hypnoticfs.h>
 #include <hypnoticos/hypnoticos.h>
 
-FsIndex_t *FsDetailsGet_HypnoticFS(FsRoot_t *root, const char *path, char **path_short) {
+uint64_t FsRead_HypnoticFS(FsRoot_t *root, const char *path, char **path_short, uint64_t offset, uint64_t size, uint8_t *dest) {
   HypnoticFS_Index_t *entry;
-  FsIndex_t *r; // TODO Caller must free this
+  uint64_t read_size;
 
+  // Get entry
   if((entry = Fs_HypnoticFS_GetIndex(root, path, path_short)) == NULL) {
     WARNING();
-    return NULL;
+    return 0;
   }
 
-  // Prepare details about this file
-  r = malloc(sizeof(FsIndex_t));
-  r->size = entry->size;
-  switch(entry->type) {
-    case HYPNOTICFS_TYPE_DIRECTORY:
-    r->type = INDEX_TYPE_DIRECTORY;
-    break;
+  // Limit the read to the size of the entry
+  if(offset + size > entry->size) {
+    read_size = entry->size - offset;
+  } else {
+    read_size = offset + size;
+  }
 
-    case HYPNOTICFS_TYPE_FILE:
-    r->type = INDEX_TYPE_FILE;
-    break;
-
-    default:
-    free(r);
+  // Read
+  if(StorageRead(root, entry->offset + offset, size, dest) != 1) {
     WARNING();
-    return NULL;
+    memset(dest, 0, size);
+    return 0;
   }
 
-  free(entry);
-
-  // Return the details
-  return r;
+  // Return size read
+  return read_size;
 }

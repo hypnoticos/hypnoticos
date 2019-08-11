@@ -28,7 +28,7 @@ BUILD_OBJS+=cpu/acpi.o cpu/ap-start-prepare.o cpu/ap-start.o cpu/hpet.o cpu/apic
 BUILD_OBJS+=devices/keyboard.o devices/pci.o devices/storage/init.o devices/storage/new.o devices/storage/ramdisk/read.o devices/storage/ramdisk/write.o devices/storage/read.o devices/storage/write.o
 BUILD_OBJS+=dispatcher/dispatcher.o dispatcher/init.o dispatcher/format-elf.o
 BUILD_OBJS+=function/function.o function/heap-addr.o function/heap-size.o function/new-page.o function/open.o function/read.o function/sleep.o function/stat.o function/write.o
-BUILD_OBJS+=fs/details-get.o fs/hypnoticfs/details-get.o fs/hypnoticfs/hypnoticfs.o fs/hypnoticfs/list.o fs/init.o fs/list.o fs/path.o
+BUILD_OBJS+=fs/details-get.o fs/hypnoticfs/details-get.o fs/hypnoticfs/hypnoticfs.o fs/hypnoticfs/list.o fs/hypnoticfs/read.o fs/init.o fs/list.o fs/path.o fs/read.o
 BUILD_OBJS+=memory/alloc.o memory/find.o memory/new-block.o memory/paging.o memory/paging-data.o memory/table.o
 BUILD_OBJS+=debug.o video-memory.o
 

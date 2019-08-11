@@ -51,6 +51,7 @@ extern FsRoot_t *FsRoots;
 FsIndex_t *FsDetailsGet(const char *path);
 uint8_t FsInit();
 FsIndex_t **FsList(const char *path);
+uint64_t FsRead(const char *path, uint64_t offset, uint64_t size, uint8_t *dest);
 char **PathBreakdown(const char *path);
 
 #endif
