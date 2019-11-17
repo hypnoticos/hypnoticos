@@ -145,7 +145,7 @@ uint8_t PciParseFunction(uint8_t bus, uint8_t device, uint8_t function) {
           return 0;
         }
         uint32_t bar_next = PciCache[PciCacheCount]->hdr0.bar[i + 1];
-        INFO("PciCache[%u] BAR%u, memory, 64-bit addr = 0x%X", PciCacheCount, i, bar & 0xFFFFFFF0, bar_next & 0xFFFFFFF0);
+        INFO("PciCache[%u] BAR%u, memory, 64-bit addr = 0x%X%X", PciCacheCount, i, bar & 0xFFFFFFF0, bar_next & 0xFFFFFFF0);
         i++;
       }
     }
