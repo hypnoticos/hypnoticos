@@ -66,9 +66,10 @@ struct _PciHdr_t {
   uint8_t bist;
 } __attribute__((packed));
 
+#define PCI_MAX_BARS          6
 struct _PciHdr0_t {
   PciHdr_t hdr;
-  uint32_t bar[6];
+  uint32_t bar[PCI_MAX_BARS];
   uint32_t cardbus_cis_pointer;
   uint16_t subsystem_vendor_id;
   uint16_t subsystem_id;
