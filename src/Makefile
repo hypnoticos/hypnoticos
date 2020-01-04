@@ -27,7 +27,7 @@ BUILD_OBJS+=boot/boot.o boot/load-modules.o boot/main.o boot/multiboot-check.o b
 BUILD_OBJS+=cpu/acpi.o cpu/ap-start-prepare.o cpu/ap-start.o cpu/hpet.o cpu/apic/io.o cpu/apic/local.o cpu/cpu.o cpu/cpuid.o cpu/rflags.o cpu/gdt.o cpu/idt-c.o cpu/idt-asm.o cpu/io-port.o cpu/msr.o cpu/tss.o
 BUILD_OBJS+=devices/keyboard.o devices/pci.o
 BUILD_OBJS+=dispatcher/dispatcher.o dispatcher/init.o dispatcher/format-elf.o
-BUILD_OBJS+=function/function.o function/heap-addr.o function/heap-size.o function/new-page.o function/open.o function/read.o function/sleep.o function/write.o
+BUILD_OBJS+=function/function.o function/heap-addr.o function/heap-size.o function/new-page.o function/read.o function/sleep.o function/write.o
 BUILD_OBJS+=memory/alloc.o memory/find.o memory/new-block.o memory/paging.o memory/paging-data.o memory/table.o
 BUILD_OBJS+=debug.o video-memory.o
 

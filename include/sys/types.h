@@ -19,7 +19,6 @@
 #ifndef SYS_TYPES_H
 #define SYS_TYPES_H
 
-typedef unsigned long long int mode_t;
 typedef unsigned int long long size_t;
 typedef signed int long long ssize_t;
 
