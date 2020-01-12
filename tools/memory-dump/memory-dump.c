@@ -23,8 +23,8 @@
 #define ERROR()       fprintf(stderr, "Error.\n");
 
 int main(int argc, char *argv[]) {
-  uint64_t offset, count, i, i2;
-  char *file;
+  uint64_t offset, count, i, i2, i3;
+  char *file, c;
   FILE *f;
   MemoryTableIndex_t mti;
   MemoryTable_t *mt, *mt_entry;
@@ -103,6 +103,25 @@ int main(int argc, char *argv[]) {
         return 1;
       }
       fprintf(stdout, "addr=0x%lX\tsize=0x%lX\t%s:%u\n", mt_entry->addr, mt_entry->size, mt_entry->function, mt_entry->line);
+      fprintf(stdout, "data:\n");
+
+      fseek(f, (uint64_t) mt_entry->addr, SEEK_SET);
+      for(i3 = 0; i3 < mt_entry->size; i3++) {
+        if(fread(&c, 1, 1, f) != 1) {
+          ERROR();
+          fclose(f);
+          free(mt);
+          return 1;
+        }
+
+        if(i3 != 0 && (i3 % 16) == 0) {
+          fprintf(stdout, "\n");
+        }
+
+        fprintf(stdout, "%02X ", c & 0xFF);
+      }
+
+      fprintf(stdout, "\n\n");
     }
     fprintf(stdout, "\n");
     free(mt);
