@@ -1,5 +1,9 @@
 # HypnoticOS: 64-bit Hobby Operating System
 
+## Wiki
+
+[The wiki is a a work in progress, but in the mean time it can be found here](https://github.com/hypnoticos/hypnoticos/wiki).
+
 ## Prerequisites
 
 You will need:
