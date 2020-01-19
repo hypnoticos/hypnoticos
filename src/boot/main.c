@@ -54,6 +54,11 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   INFO("Finish setting up paging");
   MemoryPagingInit();
 
+  INFO("Init TSS AP entries table");
+  if(!TssInitApEntries()) {
+    HALT();
+  }
+
   INFO("Dispatcher set up");
   if(!DispatcherInit()) {
     HALT();

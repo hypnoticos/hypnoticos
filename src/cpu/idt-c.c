@@ -181,6 +181,7 @@ void IdtCall() {
   } else if(dispatcher_cpu_entry->current_pid == 0) {
     // There is no process currently running on this CPU, so return to IdtWait()
     IdtWait();
+    __builtin_unreachable();
   }
 }
 

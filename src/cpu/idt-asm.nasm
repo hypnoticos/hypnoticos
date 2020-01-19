@@ -68,6 +68,7 @@ IdtGetLock:
     ret
 
 IdtWait:
+  ; NOTE: Before calling this function, consider calling DispatcherSave. If current PID is set to a value other than 0 then the next interrupt may try to save the registers to the process structure based on what happens in the next instructions (i.e. not the state that the process left them at)
   ; As the next interrupt to be called will not involve a switch from privilege level 3 to level 0, RSP will not be modified when the interrupt occurs. RSP needs to be reset to avoid the stack overflowing.
   mov rax, 0
   str ax
@@ -83,7 +84,8 @@ IdtWait:
   ; Fourth byte
   mov r9, rdx
   shr r9, 56
-  and r9, 0xFF000000
+  mov r11, 0xFF000000
+  and r9, r11
 
   ; Final four bytes
   mov r10, [rax + 8]

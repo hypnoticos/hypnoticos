@@ -117,6 +117,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name);
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size);
 void DispatcherProcessRun(DispatcherProcess_t *p);
 void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
+void DispatcherSave(uint8_t apic_id);
 void DispatcherSetUpNext(uint8_t apic_id);
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size);
 

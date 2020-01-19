@@ -62,7 +62,9 @@ void KernelFunctionSuspend(DispatcherProcess_t *p, uint32_t suspend, void *data)
   p->suspend = suspend;
   p->suspend_data = data;
 
-  DispatcherSetUpNext(APIC_LOCAL_GET_ID());
+  DispatcherSave(APIC_LOCAL_GET_ID());
+  IdtWait();
+  __builtin_unreachable();
 }
 
 void KernelFunctionSuspendTest(DispatcherProcess_t *p) {

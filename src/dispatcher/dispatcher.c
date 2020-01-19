@@ -61,10 +61,8 @@ DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu) {
   __builtin_unreachable();
 }
 
-void DispatcherSetUpNext(uint8_t apic_id) {
+void DispatcherSave(uint8_t apic_id) {
   DispatcherProcess_t *p;
-  uint8_t no_processes_to_run;
-  uint32_t i, byte_offset, bit_offset, bit_operation;
   DispatcherCpu_t *dispatcher_cpu;
 
   dispatcher_cpu = DispatcherGetCpu(apic_id);
@@ -99,11 +97,24 @@ void DispatcherSetUpNext(uint8_t apic_id) {
     p->lock = 0;
 
     // Reset I/O port bitmap
-    for(i = 0; i < p->io_count; i++) {
-      byte_offset = p->io[i] / 8;
+    for(uint64_t i = 0; i < p->io_count; i++) {
+      uint32_t byte_offset = p->io[i] / 8;
       Tss.io_permission[byte_offset] = 0xFF;
     }
+
+    dispatcher_cpu->current_pid = 0;
   }
+}
+
+void DispatcherSetUpNext(uint8_t apic_id) {
+  DispatcherProcess_t *p;
+  uint8_t no_processes_to_run;
+  uint32_t i, byte_offset, bit_offset, bit_operation;
+  DispatcherCpu_t *dispatcher_cpu;
+
+  DispatcherSave(apic_id);
+
+  dispatcher_cpu = DispatcherGetCpu(apic_id);
 
   // Find next process
 restart:

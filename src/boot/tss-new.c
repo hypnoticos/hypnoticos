@@ -40,6 +40,19 @@ uint16_t TssLast = 0;
 TssEntries_t **TssEntriesAPs = NULL;
 extern uint32_t GdtEntries;
 
+uint8_t TssInitApEntries() {
+  TssEntriesAPs = malloc(sizeof(Tss_t *));
+
+  if(TssEntriesAPs == NULL) {
+    WARNING();
+    return 0;
+  }
+
+  TssEntriesAPs[0] = NULL;
+
+  return 1;
+}
+
 uint8_t TssNew() {
   void *stack;
   Tss_t *new_tss;
@@ -61,19 +74,12 @@ uint8_t TssNew() {
   memset(new_tss, 0, sizeof(Tss_t));
   new_tss->rsp0 = (uint64_t) stack + TSS_RSP0_SIZE - 8;
 
-  if(TssEntriesAPs == NULL) {
-    TssEntriesAPs = malloc(sizeof(Tss_t *) * 2);
-    TssEntriesAPs[0] = malloc(sizeof(TssEntries_t));
-    TssEntriesAPs[0]->tss = new_tss;
-    TssEntriesAPs[0]->stack = stack;
-    TssEntriesAPs[1] = NULL;
-  } else {
-    TssEntriesAPs = realloc(TssEntriesAPs, sizeof(Tss_t *) * (TssTotal + 1));
-    TssEntriesAPs[TssTotal - 1] = malloc(sizeof(TssEntries_t));
-    TssEntriesAPs[TssTotal - 1]->tss = new_tss;
-    TssEntriesAPs[TssTotal - 1]->stack = stack;
-    TssEntriesAPs[TssTotal] = NULL;
-  }
+  // Update the TSS AP entries struct
+  TssEntriesAPs = realloc(TssEntriesAPs, sizeof(Tss_t *) * (TssTotal + 1));
+  TssEntriesAPs[TssTotal - 1] = malloc(sizeof(TssEntries_t));
+  TssEntriesAPs[TssTotal - 1]->tss = new_tss;
+  TssEntriesAPs[TssTotal - 1]->stack = stack;
+  TssEntriesAPs[TssTotal] = NULL;
 
   // Add to the GDT entry
   gdt_tss = (GdtTss_t *) ((uint64_t) &GdtEntries + (5 * 8) + (TssTotal * 16));
