@@ -48,6 +48,7 @@ int getchar();
 int printf(const char *format, ...);
 int putchar(int chr);
 int puts(const char *str);
+int snprintf(char *dest, size_t count, const char *format, ...);
 int vfprintf(FILE *f, const char *format, va_list va);
 int vsnprintf(char *dest, size_t count, const char *format, va_list va);
 

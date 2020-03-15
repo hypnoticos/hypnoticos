@@ -26,6 +26,7 @@ LIBC_OBJS+=stdio/getchar.o
 LIBC_OBJS+=stdio/printf.o
 LIBC_OBJS+=stdio/putchar.o
 LIBC_OBJS+=stdio/puts.o
+LIBC_OBJS+=stdio/snprintf.o
 LIBC_OBJS+=stdio/stdstreams.o
 LIBC_OBJS+=stdio/vfprintf.o
 LIBC_OBJS+=stdio/vsnprintf.o
