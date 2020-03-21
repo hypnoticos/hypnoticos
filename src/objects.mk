@@ -41,12 +41,35 @@ BUILD_OBJS+=cpu/io-port.o
 BUILD_OBJS+=cpu/msr.o
 BUILD_OBJS+=cpu/tss.o
 
+BUILD_OBJS+=devices/storage/memory-disk/get.o
+BUILD_OBJS+=devices/storage/memory-disk/read.o
+BUILD_OBJS+=devices/storage/memory-disk/write.o
+BUILD_OBJS+=devices/storage/get.o
+BUILD_OBJS+=devices/storage/init.o
+BUILD_OBJS+=devices/storage/new.o
+BUILD_OBJS+=devices/storage/read.o
+BUILD_OBJS+=devices/storage/write.o
 BUILD_OBJS+=devices/keyboard.o
 BUILD_OBJS+=devices/pci.o
 
 BUILD_OBJS+=dispatcher/dispatcher.o
 BUILD_OBJS+=dispatcher/init.o
 BUILD_OBJS+=dispatcher/format-elf.o
+
+BUILD_OBJS+=fs/hypnoticfs/details-get.o
+BUILD_OBJS+=fs/hypnoticfs/hypnoticfs.o
+BUILD_OBJS+=fs/hypnoticfs/list.o
+BUILD_OBJS+=fs/hypnoticfs/new-index.o
+BUILD_OBJS+=fs/hypnoticfs/read.o
+BUILD_OBJS+=fs/hypnoticfs/write.o
+BUILD_OBJS+=fs/details-get.o
+BUILD_OBJS+=fs/init.o
+BUILD_OBJS+=fs/list.o
+BUILD_OBJS+=fs/new-index.o
+BUILD_OBJS+=fs/new-root.o
+BUILD_OBJS+=fs/path.o
+BUILD_OBJS+=fs/read.o
+BUILD_OBJS+=fs/write.o
 
 BUILD_OBJS+=function/function.o
 BUILD_OBJS+=function/heap-addr.o

@@ -26,6 +26,8 @@
 #include <hypnoticos/devices.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/memory.h>
+#include <hypnoticos/devices/storage.h>
+#include <hypnoticos/fs.h>
 
 extern void DispatcherTest();
 
@@ -85,6 +87,12 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   if(!KeyboardPresent) {
     printf("No PS/2 keyboard detected\n");
   }
+
+  INFO("Storage: init");
+  StorageInit();
+
+  INFO("FS: init");
+  FsInit();
 
   INFO("Load modules");
   BootLoadModules(); // Needs TSS structures to have been created
