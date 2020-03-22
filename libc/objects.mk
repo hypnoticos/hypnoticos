@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-LIBC_OBJS=stdio/fgetc.o
+LIBC_OBJS=
+
+LIBC_OBJS+=stdio/fgetc.o
 LIBC_OBJS+=stdio/fileno.o
 LIBC_OBJS+=stdio/fprintf.o
 LIBC_OBJS+=stdio/fputc.o
