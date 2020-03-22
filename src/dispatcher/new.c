@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hypnoticos/dispatcher.h>
+#include <hypnoticos/fs.h>
 #include <hypnoticos/hypnoticos.h>
 
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
@@ -102,11 +103,39 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   return p;
 }
 
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint64_t size) {
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path) {
   uint32_t format = 0;
   DispatcherProcess_t *p;
+  FsIndex_t *file_index;
+  char *data;
 
-  switch(DispatcherFormatElfDetect(data, size)) {
+  // Read file
+  // Get FS entry details
+  if((file_index = FsDetailsGet(path)) == NULL) {
+    WARNING();
+    return NULL;
+  }
+
+  // Entry must be INDEX_TYPE_FILE
+  if(file_index->type != INDEX_TYPE_FILE) {
+    WARNING();
+    return NULL;
+  }
+
+  // Allocate memory for data
+  if((data = malloc(file_index->size)) == NULL) {
+    WARNING();
+    return NULL;
+  }
+
+  // Read data
+  if(FsRead(path, 0, file_index->size, (uint8_t *) data) != file_index->size) {
+    free(data);
+    WARNING();
+    return NULL;
+  }
+
+  switch(DispatcherFormatElfDetect(data, file_index->size)) {
     case DISPATCHER_DETECT_FORMAT_DETECTED:
     format = DISPATCHER_FORMAT_ELF;
     break;
@@ -122,26 +151,30 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
 
   if(format == 0) {
     WARNING();
+    free(data);
     return NULL;
   }
 
-  p = DispatcherProcessNew(name);
+  p = DispatcherProcessNew(path);
   if(p == NULL) {
     WARNING();
+    free(data);
     return NULL;
   }
   p->data = data;
-  p->size = size;
+  p->size = file_index->size;
 
   if(format == DISPATCHER_FORMAT_ELF) {
     if(!DispatcherFormatElfSetUp(p)) {
       // TODO Clean up
       WARNING();
+      free(data);
       return NULL;
     }
   } else {
     // TODO Clean up
     WARNING();
+    free(data);
     return NULL;
   }
 
@@ -149,6 +182,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
   if(p->save.rip == 0) {
     // TODO Clean up
     WARNING();
+    free(data);
     return NULL;
   }
 
@@ -156,6 +190,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *name, char *data, uint
   if(!DispatcherProcessSetUpStack(p, 4096)) {
     // TODO Clean up
     WARNING();
+    free(data);
     return NULL;
   }
 

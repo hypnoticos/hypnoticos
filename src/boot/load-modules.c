@@ -32,7 +32,6 @@
 uint8_t BootLoadModules() {
   multiboot_module_t *module;
   uint32_t i, module_file_name_strlen;
-  DispatcherProcess_t *p;
   StorageDevice_MemoryDisk_t *storage_data;
   char *module_file_name, *initial_data;
 
@@ -53,24 +52,31 @@ uint8_t BootLoadModules() {
   INFO(">> Modules");
   for(i = 0; i < BootModulesCount; i++) {
     module = (multiboot_module_t *) ((uint32_t) BootModulesAddr + (sizeof(multiboot_module_t) * i));
-    INFO(">>>> Attempting to load module which starts at 0x%X (%u bytes)", module->mod_start, module->mod_end - module->mod_start);
-    if(!(p = DispatcherProcessNewFromFormat("module", (char *) ((uint64_t) module->mod_start), module->mod_end - module->mod_start))) {
-      WARNING();
-      continue;
-    }
 
     // Add module as /moduleN
     module_file_name_strlen = snprintf(NULL, 0, MODULE_FILE_NAME, i);
     module_file_name = malloc(module_file_name_strlen + 1);
     snprintf(module_file_name, module_file_name_strlen, MODULE_FILE_NAME, i);
-    INFO(">>>> Saving to %s", module_file_name);
+    INFO(">>>> %s", module_file_name);
 
+    // Create file
     if(!FsNewIndex(module_file_name, INDEX_TYPE_FILE)) {
       WARNING();
       // TODO Clean up
-    } else if(FsWrite(module_file_name, 0, module->mod_end - module->mod_start, (uint8_t *) ((uint64_t) module->mod_start)) == 0) {
+      continue;
+    }
+
+    // Write to file
+    if(FsWrite(module_file_name, 0, module->mod_end - module->mod_start, (uint8_t *) ((uint64_t) module->mod_start)) == 0) {
       WARNING();
       // TODO Clean up
+      continue;
+    }
+
+    // Create process
+    if(!DispatcherProcessNewFromFormat(module_file_name)) {
+      WARNING();
+      continue;
     }
   }
 
