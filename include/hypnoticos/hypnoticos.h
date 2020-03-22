@@ -48,6 +48,9 @@
 #endif
 
 extern void *AddrStart, *AddrEnd;
+#else
+#include <stdint.h>
+uint16_t Run(char *path);
 #endif
 
 #endif

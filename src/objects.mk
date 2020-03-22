@@ -78,6 +78,7 @@ BUILD_OBJS+=function/heap-addr.o
 BUILD_OBJS+=function/heap-size.o
 BUILD_OBJS+=function/new-page.o
 BUILD_OBJS+=function/read.o
+BUILD_OBJS+=function/run.o
 BUILD_OBJS+=function/sleep.o
 BUILD_OBJS+=function/write.o
 

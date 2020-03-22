@@ -51,6 +51,10 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     CALL_FUNCTION(KernelFunctionHeapSize);
     break;
 
+    case KERNEL_FUNCTION_RUN:
+    CALL_FUNCTION(KernelFunctionRun);
+    break;
+
     default:
     // TODO Terminate process
     WARNING();
