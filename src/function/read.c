@@ -190,6 +190,102 @@ void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p) {
     output = '\n';
     break;
 
+    case KEY_MAIN_FORWARDSLASH:
+    output = '/';
+    break;
+
+    case KEY_KEYPAD_FORWARDSLASH:
+    output = '/';
+    break;
+
+    case KEY_MAIN_PERIOD:
+    output = '.';
+    break;
+
+    case KEY_KEYPAD_PERIOD:
+    output = '.';
+    break;
+
+    case KEY_MAIN_0:
+    output = '0';
+    break;
+
+    case KEY_MAIN_1:
+    output = '1';
+    break;
+
+    case KEY_MAIN_2:
+    output = '2';
+    break;
+
+    case KEY_MAIN_3:
+    output = '3';
+    break;
+
+    case KEY_MAIN_4:
+    output = '4';
+    break;
+
+    case KEY_MAIN_5:
+    output = '5';
+    break;
+
+    case KEY_MAIN_6:
+    output = '6';
+    break;
+
+    case KEY_MAIN_7:
+    output = '7';
+    break;
+
+    case KEY_MAIN_8:
+    output = '8';
+    break;
+
+    case KEY_MAIN_9:
+    output = '9';
+    break;
+
+    case KEY_KEYPAD_0:
+    output = '0';
+    break;
+
+    case KEY_KEYPAD_1:
+    output = '1';
+    break;
+
+    case KEY_KEYPAD_2:
+    output = '2';
+    break;
+
+    case KEY_KEYPAD_3:
+    output = '3';
+    break;
+
+    case KEY_KEYPAD_4:
+    output = '4';
+    break;
+
+    case KEY_KEYPAD_5:
+    output = '5';
+    break;
+
+    case KEY_KEYPAD_6:
+    output = '6';
+    break;
+
+    case KEY_KEYPAD_7:
+    output = '7';
+    break;
+
+    case KEY_KEYPAD_8:
+    output = '8';
+    break;
+
+    case KEY_KEYPAD_9:
+    output = '9';
+    break;
+
     default:
     return;
   }
