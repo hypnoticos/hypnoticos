@@ -27,7 +27,9 @@ FsIndex_t *FsDetailsGet(const char *path) {
   FsIndex_t *r;
 
   // TODO Find FS root
-  path_short = PathBreakdown(path);
+  if((path_short = PathBreakdown(path)) == NULL) {
+    return NULL;
+  }
   root = &(FsRoots[0]);
 
   // Pass to FS function

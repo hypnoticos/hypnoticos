@@ -27,7 +27,9 @@ uint8_t FsNewIndex(const char *path, uint8_t type) {
   uint64_t r;
 
   // TODO Find FS root
-  path_short = PathBreakdown(path);
+  if((path_short = PathBreakdown(path)) == NULL) {
+    return 0;
+  }
   root = &(FsRoots[0]);
 
   // Pass to FS function
@@ -38,7 +40,7 @@ uint8_t FsNewIndex(const char *path, uint8_t type) {
 
     default:
     WARNING();
-    r = NULL;
+    r = 0;
     break;
   }
 

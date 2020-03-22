@@ -27,7 +27,9 @@ uint64_t FsRead(const char *path, uint64_t offset, uint64_t size, uint8_t *dest)
   uint64_t r;
 
   // TODO Find FS root
-  path_short = PathBreakdown(path);
+  if((path_short = PathBreakdown(path)) == NULL) {
+    return 0;
+  }
   root = &(FsRoots[0]);
 
   // Pass to FS function
@@ -38,7 +40,7 @@ uint64_t FsRead(const char *path, uint64_t offset, uint64_t size, uint8_t *dest)
 
     default:
     WARNING();
-    r = NULL;
+    r = 0;
     break;
   }
 
