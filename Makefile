@@ -25,7 +25,7 @@ export INCDIR=$(PWD)/include
 export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
 export ISODIR=$(PWD)/iso
 ISONAME=hypnoticos.iso
-SUBDIRS=libc src modules
+SUBDIRS=libc src modules hypnoticfs-tools
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
 
@@ -37,6 +37,10 @@ export CP=cp
 export RM=rm -f
 export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
+
+export LOCAL_CC := $(CC)
+export LOCAL_CFLAGS := $(CFLAGS)
+export LOCAL_LDFLAGS := $(LDFLAGS)
 
 export CC=$(TARGET)-gcc
 export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -mno-sse
@@ -63,9 +67,6 @@ all: prepare subdirs
 prepare:
 	which grub-mkrescue > /dev/null
 	which find > /dev/null
-	which hypnoticfs-add > /dev/null
-	which hypnoticfs-mkdir > /dev/null
-	which hypnoticfs-new > /dev/null
 	$(MKDIR) $(SYSROOT)/usr/include
 	$(CP) -R $(INCDIR)/* $(SYSROOT)/usr/include/
 
@@ -88,9 +89,9 @@ clean: $(CLEANDIRS)
 	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME) $(MEMORYDISK)
 
 memorydisk: prepare subdirs
-	hypnoticfs-new $(MEMORYDISK) 4
-	cd $(MEMORYDISK_ROOT) && find -not -path . -type d -printf "/%P\0" | xargs -n 1 -0 hypnoticfs-mkdir $(MEMORYDISK)
-	cd $(MEMORYDISK_ROOT) && find -not -path . -not -type d -printf "/%P\0%P\0" | xargs -n 2 -0 hypnoticfs-add $(MEMORYDISK)
+	$(PWD)/hypnoticfs-tools/hypnoticfs-new $(MEMORYDISK) 4
+	cd $(MEMORYDISK_ROOT) && find -not -path . -type d -printf "/%P\0" | xargs -n 1 -0 $(PWD)/hypnoticfs-tools/hypnoticfs-mkdir $(MEMORYDISK)
+	cd $(MEMORYDISK_ROOT) && find -not -path . -not -type d -printf "/%P\0%P\0" | xargs -n 2 -0 $(PWD)/hypnoticfs-tools/hypnoticfs-add $(MEMORYDISK)
 
 iso: prepare subdirs memorydisk
 	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
