@@ -33,8 +33,8 @@ install: $(BUILD)
 
 $(BUILD): $(BUILD_OBJS)
 	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
-	mkdir -p $(SYSROOT)/boot/hypnoticos-modules
-	cp $(BUILD) $(SYSROOT)/boot/hypnoticos-modules/$(BUILD)
+	mkdir -p $(MEMORYDISK_ROOT)/bin
+	cp $(BUILD) $(MEMORYDISK_ROOT)/bin/$(BUILD)
 
 clean:
 	$(RM) $(BUILD) $(BUILD_OBJS)

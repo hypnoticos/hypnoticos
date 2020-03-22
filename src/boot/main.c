@@ -94,8 +94,11 @@ void Main(uint32_t magic, multiboot_info_t *multiboot) {
   INFO("FS: init");
   FsInit();
 
-  INFO("Load modules");
-  BootLoadModules(); // Needs TSS structures to have been created
+  INFO("Load memory disk module");
+  // Needs TSS structures to have been created
+  if(!BootLoadModules()) {
+    HALT();
+  }
 
   INFO("PCI init");
   if(!PciInit()) {

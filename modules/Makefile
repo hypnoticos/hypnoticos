@@ -38,13 +38,17 @@ $(SUBDIRS):
 %.o: %.nasm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
-install: subdirs $(INSTALLDIRS)
+install-prepare:
+	$(MKDIR) $(MEMORYDISK_ROOT)
+
+install: install-prepare subdirs $(INSTALLDIRS)
 
 $(INSTALLDIRS):
 	$(MAKE) -C $(@:install-%=%) install
 
 $(CLEANDIRS):
 	rm -f $(CRT0)
+	rm -Rf $(MEMORYDISK_ROOT)
 	$(MAKE) -C $(@:clean-%=%) clean
 
 clean: $(CLEANDIRS)
