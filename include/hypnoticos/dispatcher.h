@@ -102,6 +102,7 @@ struct _DispatcherCpu_t {
 
 extern DispatcherProcess_t **DispatcherProcesses;
 extern DispatcherCpu_t **DispatcherCpus;
+extern uint16_t last_pid;
 
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);

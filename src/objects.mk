@@ -54,6 +54,8 @@ BUILD_OBJS+=devices/pci.o
 
 BUILD_OBJS+=dispatcher/dispatcher.o
 BUILD_OBJS+=dispatcher/init.o
+BUILD_OBJS+=dispatcher/memory.o
+BUILD_OBJS+=dispatcher/new.o
 BUILD_OBJS+=dispatcher/format-elf.o
 
 BUILD_OBJS+=fs/hypnoticfs/details-get.o
