@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 SECTIONS {
+  ENTRY(_start)
   . = 0x10000000;
   .text : ALIGN(4K) {
     *(.text)
