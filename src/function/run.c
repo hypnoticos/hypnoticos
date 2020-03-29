@@ -30,7 +30,7 @@ uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, u
   path = GET_PA(rax);
   if(path == NULL) {
     WARNING();
-    return -1;
+    return 0;
   }
 
   if((process = DispatcherProcessNewFromFormat(path)) == NULL) {

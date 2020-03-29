@@ -29,7 +29,7 @@ uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx,
   pa = GET_PA(rbx);
   if(pa == NULL) {
     WARNING();
-    return -1;
+    return 0;
   }
 
   // Send to output buffer
