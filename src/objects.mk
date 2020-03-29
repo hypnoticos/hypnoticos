@@ -91,4 +91,6 @@ BUILD_OBJS+=memory/table.o
 
 BUILD_OBJS+=debug.o
 
+BUILD_OBJS+=lock.o
+
 BUILD_OBJS+=video-memory.o
