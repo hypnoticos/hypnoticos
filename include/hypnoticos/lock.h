@@ -23,7 +23,16 @@
 
 #define LOCK_UNLOCKED                   0
 
+/**
+ * Pause until the lock is available
+ * @param token The lock.
+ */
 void LockGet(uint8_t *token);
+
+/**
+ * Allow another CPU to access this lock.
+ * @param token The lock.
+ */
 void LockDone(uint8_t *token);
 
 #endif
