@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2020  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,24 +16,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef STDLIB_H
-#define STDLIB_H
-
 #include <stddef.h>
-#include <sys/types.h>
+#include <hypnoticos/function.h>
+#include <hypnoticos/dispatcher.h>
 
-void *calloc(size_t count, size_t size);
-void free(void *addr);
+/**
+ * Causes a process to be ended.
+ * @param  p   The process.
+ * @param  rax The return value.
+ * @param  rbx Not used.
+ * @param  rcx Not used.
+ * @param  rdx Not used.
+ * @param  rsi Not used.
+ * @param  rdi Not used.
+ * @return     Never returns.
+ */
+uint64_t KernelFunctionExit(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi)
+{
+  p->pending_exit = 1;
+  KernelFunctionSuspend(p, DISPATCHER_SUSPEND_EXIT, NULL);
 
-#ifdef _HYPNOTICOS_KERNEL
-#include <hypnoticos/memory.h>
-#define malloc(size)                  __malloc_align(size, ALIGN_NONE, __FUNCTION__, __LINE__)
-#define malloc_align(size, align)     __malloc_align(size, align, __FUNCTION__, __LINE__)
-#else
-void exit(int code);
-void *malloc(size_t size);
-#endif
-
-void *realloc(void *addr, size_t new_size);
-
-#endif
+  __builtin_unreachable();
+}

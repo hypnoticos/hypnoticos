@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2020  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,10 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <stdio.h>
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-  while(1) {
-    sleep(1);
-  }
+  printf("sleep(10);\n");
+  sleep(10);
+
+  printf("Returning...\n");
+  return 0;
 }

@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2020  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,24 +16,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef STDLIB_H
-#define STDLIB_H
+#include <stdlib.h>
+#include <string.h>
+#include <hypnoticos/dispatcher.h>
 
-#include <stddef.h>
-#include <sys/types.h>
+void DispatcherProcessDone(DispatcherProcess_t *p) {
+  uint8_t found_pid = 0;
+  uint64_t i;
 
-void *calloc(size_t count, size_t size);
-void free(void *addr);
+  // TODO Free all memory associated with the process
 
-#ifdef _HYPNOTICOS_KERNEL
-#include <hypnoticos/memory.h>
-#define malloc(size)                  __malloc_align(size, ALIGN_NONE, __FUNCTION__, __LINE__)
-#define malloc_align(size, align)     __malloc_align(size, align, __FUNCTION__, __LINE__)
-#else
-void exit(int code);
-void *malloc(size_t size);
-#endif
+  for(i = 0; DispatcherProcesses[i] != NULL; i++) {
+    if(found_pid) {
+      DispatcherProcesses[i - 1] = DispatcherProcesses[i];
+    } else if(DispatcherProcesses[i]->pid == p->pid) {
+      found_pid = 1;
+    }
+  }
 
-void *realloc(void *addr, size_t new_size);
+  if(found_pid) {
+    DispatcherProcesses = realloc(DispatcherProcesses, sizeof(DispatcherProcess_t *) * (i + 1));
+    DispatcherProcesses[i - 1] = NULL;
+  }
 
-#endif
+  free(p);
+}

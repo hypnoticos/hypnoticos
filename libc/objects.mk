@@ -36,6 +36,7 @@ LIBC_OBJS+=stdio/vfprintf.o
 LIBC_OBJS+=stdio/vsnprintf.o
 
 LIBC_OBJS+=stdlib/calloc.o
+LIBC_OBJS+=stdlib/exit.o
 LIBC_OBJS+=stdlib/free.o
 LIBC_OBJS+=stdlib/malloc.o
 LIBC_OBJS+=stdlib/realloc.o

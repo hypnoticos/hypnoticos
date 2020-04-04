@@ -103,7 +103,7 @@ void DispatcherSave(uint8_t apic_id) {
 void DispatcherSetUpNext(uint8_t apic_id) {
   DispatcherProcess_t *p;
   uint8_t no_processes_to_run;
-  uint32_t i, byte_offset, bit_offset, bit_operation;
+  uint32_t byte_offset, bit_offset, bit_operation;
   DispatcherCpu_t *dispatcher_cpu;
 
   DispatcherSave(apic_id);
@@ -111,10 +111,19 @@ void DispatcherSetUpNext(uint8_t apic_id) {
   dispatcher_cpu = DispatcherGetCpu(apic_id);
 
   // Find next process
+  // Set this above restart because pending_exit code may jump to restart label
+  // and the process_no will need to be preserved so as to not repeat
+  // considering processes.
+  uint64_t process_no = 0;
 restart:
   no_processes_to_run = 1;
-  for(p = NULL, i = 0; DispatcherProcesses[i] != NULL; i++) {
-    p = DispatcherProcesses[i];
+  for(p = NULL; DispatcherProcesses[process_no] != NULL; process_no++) {
+    p = DispatcherProcesses[process_no];
+
+    if(p->pending_exit) {
+      DispatcherProcessDone(p);
+      goto restart;
+    }
 
     if(p->suspend != DISPATCHER_SUSPEND_NONE) {
       KernelFunctionSuspendTest(p);
@@ -139,6 +148,7 @@ restart:
       __builtin_unreachable();
     }
     DispatcherCycle++; // TODO Handle overflow
+    process_no = 0;
     goto restart;
   }
 
@@ -170,7 +180,7 @@ restart:
   IdtCallSavedR15 = p->save.r15;
 
   // Set up I/O port bitmap
-  for(i = 0; i < p->io_count; i++) {
+  for(uint64_t i = 0; i < p->io_count; i++) {
     byte_offset = p->io[i] / 8;
     bit_offset = p->io[i] % 8;
     bit_operation = 0x1 << bit_offset;

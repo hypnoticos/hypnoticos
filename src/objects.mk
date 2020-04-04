@@ -53,6 +53,7 @@ BUILD_OBJS+=devices/keyboard.o
 BUILD_OBJS+=devices/pci.o
 
 BUILD_OBJS+=dispatcher/dispatcher.o
+BUILD_OBJS+=dispatcher/done.o
 BUILD_OBJS+=dispatcher/init.o
 BUILD_OBJS+=dispatcher/memory.o
 BUILD_OBJS+=dispatcher/new.o
@@ -73,6 +74,7 @@ BUILD_OBJS+=fs/path.o
 BUILD_OBJS+=fs/read.o
 BUILD_OBJS+=fs/write.o
 
+BUILD_OBJS+=function/exit.o
 BUILD_OBJS+=function/function.o
 BUILD_OBJS+=function/heap-addr.o
 BUILD_OBJS+=function/heap-size.o

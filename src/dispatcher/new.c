@@ -76,6 +76,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
   p->lock = 0;
   p->suspend = 0;
   p->suspend_data = NULL;
+  p->pending_exit = 0;
 
   p->save.cr3 = (uint64_t) MemoryPagingNewPD(); // TODO Parse this and note all allocated entries - mark them as mapped in p->va and set to ignore
 

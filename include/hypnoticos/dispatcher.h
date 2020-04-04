@@ -36,6 +36,7 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 #define DISPATCHER_SUSPEND_NONE                       0x00
 #define DISPATCHER_SUSPEND_SLEEP                      0x01
 #define DISPATCHER_SUSPEND_READ                       0x02
+#define DISPATCHER_SUSPEND_EXIT                       0x03
 
 struct _DispatcherProcessSave_t {
   uint64_t rsp;
@@ -92,6 +93,8 @@ struct _DispatcherProcess_t {
 
   uint32_t suspend;
   void *suspend_data;
+
+  uint8_t pending_exit;
 };
 
 typedef struct _DispatcherCpu_t DispatcherCpu_t;
@@ -111,6 +114,7 @@ uint8_t DispatcherInitAddCpu(uint8_t apic_id);
 extern void DispatcherInterrupt();
 void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port);
 void *DispatcherProcessAllocatePage(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore, uint32_t flags);
+void DispatcherProcessDone(DispatcherProcess_t *p);
 void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore);
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags);
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags);

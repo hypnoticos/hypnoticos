@@ -17,7 +17,7 @@
 ;
 
 global _start
-extern main
+extern main, exit
 
 section .text
 _start:
@@ -26,4 +26,5 @@ _start:
   push 0  ; TODO
   call main
 
-  ; TODO call exit
+  mov rax, rdi
+  call exit
