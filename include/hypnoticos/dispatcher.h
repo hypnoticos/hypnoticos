@@ -24,6 +24,7 @@ typedef struct _DispatcherProcessVa_t DispatcherProcessVa_t;
 typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 
 #include <hypnoticos/dispatcher/format-elf.h>
+#include <hypnoticos/fs.h>
 #include <sys/types.h>
 #include <stdint.h>
 
@@ -103,12 +104,26 @@ struct _DispatcherCpu_t {
   uint16_t current_pid;
 };
 
+#define OPEN_INDICES_MAX_ID       10000
+typedef struct _DispatcherOpenIndex_t DispatcherOpenIndex_t;
+struct _DispatcherOpenIndex_t {
+  uint64_t open_index_id; // Must not be 0
+  char *path;
+  DispatcherProcess_t *process;
+  FsIndex_t **directory_data;
+};
+
+extern uint8_t DispatcherOpenIndices_lock;
+extern DispatcherOpenIndex_t **DispatcherOpenIndices;
 extern DispatcherProcess_t **DispatcherProcesses;
 extern DispatcherCpu_t **DispatcherCpus;
 extern uint16_t last_pid;
 
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);
+DispatcherOpenIndex_t *DispatcherIndexLockAttempt(DispatcherProcess_t *p, const char *path);
+void DispatcherIndexLockDone(DispatcherOpenIndex_t *entry);
+DispatcherOpenIndex_t *DispatcherIndexLockRetrieve(DispatcherProcess_t *p, uint64_t id);
 uint8_t DispatcherInit();
 uint8_t DispatcherInitAddCpu(uint8_t apic_id);
 extern void DispatcherInterrupt();

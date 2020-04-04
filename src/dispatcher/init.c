@@ -29,6 +29,9 @@ uint8_t DispatcherInit() {
   DispatcherCpus = malloc(sizeof(DispatcherCpu_t *));
   DispatcherCpus[0] = NULL;
 
+  DispatcherOpenIndices = malloc(sizeof(DispatcherOpenIndex_t **));
+  DispatcherOpenIndices[0] = NULL;
+
   return 1;
 }
 

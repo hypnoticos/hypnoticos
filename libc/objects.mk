@@ -20,6 +20,10 @@ LIBC_OBJS=
 
 LIBC_OBJS+=hypnoticos/run.o
 
+LIBC_OBJS+=directory/directoryfree.o
+LIBC_OBJS+=directory/directoryentry.o
+LIBC_OBJS+=directory/directoryget.o
+
 LIBC_OBJS+=stdio/fgetc.o
 LIBC_OBJS+=stdio/fileno.o
 LIBC_OBJS+=stdio/fprintf.o

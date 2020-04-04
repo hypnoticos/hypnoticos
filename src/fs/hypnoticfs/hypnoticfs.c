@@ -515,3 +515,34 @@ uint8_t Fs_HypnoticFS_UpdateIndex(FsRoot_t *root, uint64_t index_data_offset, Hy
     return 1;
   }
 }
+
+/**
+ * Generates an FsIndex_t struct using data from an HypnoticFS_Index_t struct.
+ * @param  index The input.
+ * @return       Return NULL on failure or the generated sturct on success.
+ */
+FsIndex_t *Fs_HypnoticFS_GenerateFsIndex(HypnoticFS_Index_t *index)
+{
+  FsIndex_t *to_ret;
+
+  if((to_ret = malloc(sizeof(FsIndex_t))) == NULL)
+    return NULL;
+
+  to_ret->size = index->size;
+
+  switch(index->type) {
+  case HYPNOTICFS_TYPE_FILE:
+    to_ret->type = INDEX_TYPE_FILE;
+    break;
+
+  case HYPNOTICFS_TYPE_DIRECTORY:
+      to_ret->type = INDEX_TYPE_DIRECTORY;
+      break;
+
+  default:
+    free(to_ret);
+    return NULL;
+  }
+
+  return to_ret;
+}

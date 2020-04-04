@@ -59,6 +59,18 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     CALL_FUNCTION(KernelFunctionRun);
     break;
 
+    case KERNEL_FUNCTION_DIRECTORY_GET:
+    CALL_FUNCTION(KernelFunctionDirectoryGet);
+    break;
+
+    case KERNEL_FUNCTION_DIRECTORY_DONE:
+    CALL_FUNCTION(KernelFunctionDirectoryDone);
+    break;
+
+    case KERNEL_FUNCTION_DIRECTORY_ENTRY:
+    CALL_FUNCTION(KernelFunctionDirectoryEntry);
+    break;
+
     default:
     // TODO Terminate process
     WARNING();

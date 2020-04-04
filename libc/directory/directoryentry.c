@@ -1,0 +1,44 @@
+//
+// HypnoticOS
+// Copyright (C) 2020  jk30
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+#ifndef _HYPNOTICOS_KERNEL
+
+#include <stddef.h>
+#include <stdlib.h>
+#include <directory.h>
+#include <hypnoticos/fs.h>
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
+
+/**
+ * Retrieves the next entry in the directory and places it at the address given.
+ * @param  ptr   The directory pointer.
+ * @param  entry The address to where the result should be placed.
+ * @return       Returns 0 on error, 1 on success or DIRECTORY_END where there are no further entries.
+ */
+int DirectoryEntry(Directory_t *ptr, FsIndex_t *entry) {
+  int to_ret;
+
+  if((to_ret = KernelFunctionInterface(ptr->id, ptr->offset, (uint64_t) entry, 0, 0, KERNEL_FUNCTION_DIRECTORY_ENTRY)) == 1) {
+    ptr->offset++;
+  }
+
+  return to_ret;
+}
+
+#endif

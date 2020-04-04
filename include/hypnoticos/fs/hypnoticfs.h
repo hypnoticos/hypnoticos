@@ -45,6 +45,7 @@ struct _HypnoticFS_Index {
 } __attribute__((packed));
 
 uint64_t Fs_HypnoticFS_FindSpace(FsRoot_t *root, uint64_t size);
+FsIndex_t *Fs_HypnoticFS_GenerateFsIndex(HypnoticFS_Index_t *index);
 uint64_t Fs_HypnoticFS_GetEmptyIndex(FsRoot_t *root);
 uint64_t Fs_HypnoticFS_GetIndexSize(FsRoot_t *root);
 uint64_t Fs_HypnoticFS_GetIndex(FsRoot_t *root, char **path_short, HypnoticFS_Index_t *index);

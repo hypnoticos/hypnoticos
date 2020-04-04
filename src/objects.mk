@@ -58,6 +58,7 @@ BUILD_OBJS+=dispatcher/init.o
 BUILD_OBJS+=dispatcher/memory.o
 BUILD_OBJS+=dispatcher/new.o
 BUILD_OBJS+=dispatcher/format-elf.o
+BUILD_OBJS+=dispatcher/open-indices.o
 
 BUILD_OBJS+=fs/hypnoticfs/details-get.o
 BUILD_OBJS+=fs/hypnoticfs/hypnoticfs.o
@@ -74,6 +75,9 @@ BUILD_OBJS+=fs/path.o
 BUILD_OBJS+=fs/read.o
 BUILD_OBJS+=fs/write.o
 
+BUILD_OBJS+=function/directory-done.o
+BUILD_OBJS+=function/directory-entry.o
+BUILD_OBJS+=function/directory-get.o
 BUILD_OBJS+=function/exit.o
 BUILD_OBJS+=function/function.o
 BUILD_OBJS+=function/heap-addr.o
