@@ -41,6 +41,13 @@ export RM=rm -f
 export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
+export NASM ?= nasm
+export NASMFLAGS ?= -f elf64
+export AR ?= ar
+
+export LOCAL_AR := $(AR)
+export LOCAL_NASM := $(NASM)
+export LOCAL_NASMFLAGS := $(NASMFLAGS)
 export LOCAL_CC := $(CC)
 export LOCAL_CFLAGS := $(CFLAGS)
 export LOCAL_LDFLAGS := $(LDFLAGS)
@@ -48,6 +55,7 @@ export LOCAL_LDFLAGS := $(LDFLAGS)
 export CC=$(TARGET)-gcc
 export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -mno-sse
 # TODO Support larger page sizes for modules
+export CFLAGS_KERNEL_DEFINITION=-D_HYPNOTICOS_KERNEL
 export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -nostdlib -mno-sse -zmax-page-size=0x1000
 
 export AR=$(TARGET)-ar
@@ -59,7 +67,6 @@ export LDFLAGS_MODULES=-nostdlib -L$(PWD)/libc
 export LIBS=
 export LIBS_MODULES=-lgcc -lc
 
-export NASM=nasm
 export NASMFLAGS=-f elf64
 export NASMFLAGS_MODULES=$(NASMFLAGS)
 

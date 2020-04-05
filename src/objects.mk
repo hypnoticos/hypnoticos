@@ -18,17 +18,20 @@
 
 ###############################################################################
 #
-# BUILD_OBJS_BIN is used to place functions directly into the kernel binary
-# BUILD_OBJS_LIB is used to place functions in libhypnoticos.a
+# BUILD_OBJS_BIN is used to exclude functions from being included in
+# libhypnoticos.a.
 #
-# The default place to place functions is in the binary. Only place functions
-# into the library IF IT IS NOT DANGEROUS AND IF IT IS SAFE to do so, as the
-# tests will be running on the computer which builds the kernel.
+# BUILD_OBJS_LIBRARY is used to place functions in libhypnoticos.a for use on
+# the host system building the kernel.
+#
+# The default is BUILD_OBJS_BIN. Only place functions into the library
+# IF IT IS NOT DANGEROUS AND IF IT IS SAFE to do so, as the tests will be
+# running on the computer which builds the kernel.
 #
 ###############################################################################
 
-BUILD_OBJS_BIN=$(KERNEL_LIB_NAME)
-BUILD_OBJS_LIB=
+BUILD_OBJS_BIN=
+BUILD_OBJS_LIBRARY=
 
 # boot/multiboot.o should be at the start of the binary
 BUILD_OBJS_BIN+=boot/multiboot.o
@@ -66,13 +69,13 @@ BUILD_OBJS_BIN+=devices/storage/write.o
 BUILD_OBJS_BIN+=devices/keyboard.o
 BUILD_OBJS_BIN+=devices/pci.o
 
-BUILD_OBJS_BIN+=dispatcher/dispatcher.o
+BUILD_OBJS_LIBRARY+=dispatcher/dispatcher.o
 BUILD_OBJS_BIN+=dispatcher/done.o
-BUILD_OBJS_BIN+=dispatcher/init.o
+BUILD_OBJS_LIBRARY+=dispatcher/init.o
 BUILD_OBJS_BIN+=dispatcher/memory.o
 BUILD_OBJS_BIN+=dispatcher/new.o
 BUILD_OBJS_BIN+=dispatcher/format-elf.o
-BUILD_OBJS_BIN+=dispatcher/open-indices.o
+BUILD_OBJS_LIBRARY+=dispatcher/open-indices.o
 
 BUILD_OBJS_BIN+=fs/hypnoticfs/details-get.o
 BUILD_OBJS_BIN+=fs/hypnoticfs/hypnoticfs.o
@@ -111,6 +114,6 @@ BUILD_OBJS_BIN+=memory/table.o
 
 BUILD_OBJS_BIN+=debug.o
 
-BUILD_OBJS_BIN+=lock.o
+BUILD_OBJS_LIBRARY+=lock.o
 
 BUILD_OBJS_BIN+=video-memory.o

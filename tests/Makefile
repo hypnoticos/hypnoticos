@@ -19,13 +19,36 @@
 TEST_BIN_NAME=./a.out
 include tests.mk
 
-all: $(TESTS_OBJS)
+include ../src/objects.mk
+BUILD_OBJS_LIB_TESTS=$(addsuffix -hostlib,$(addprefix ../src/,$(BUILD_OBJS_LIBRARY)))
+
+export KERNEL_CFLAGS_TEST=-D_HYPNOTICOS_TESTS
+export KERNEL_NASMFLAGS_TEST=-D_HYPNOTICOS_TESTS
+
+.PHONY: checkhost
+
+all: checkhost $(KERNEL_LIB_NAME) $(TESTS_OBJS)
+
+checkhost:
+	if [ "`uname -sm`" != "Linux x86_64" ]; then \
+		echo "*** ERROR: Tests only supported on Linux x86_64 ***"; \
+	  exit 1; \
+	fi
+
+$(KERNEL_LIB_NAME): $(BUILD_OBJS_LIB_TESTS)
+	$(LOCAL_AR) rcs $@ $(BUILD_OBJS_LIB_TESTS)
+
+%.o-hostlib: %.c
+	$(LOCAL_CC) $(LOCAL_CFLAGS) $(KERNEL_CFLAGS_TEST) $(CFLAGS_KERNEL_DEFINITION) -c $< -o $@ -I../include
+
+%.o-hostlib: %.nasm
+	$(LOCAL_NASM) $(LOCAL_NASMFLAGS) $(KERNEL_NASMFLAGS_TEST) $< -o $@
 
 %.o: %.c
-	$(LOCAL_CC) $(LOCAL_CFLAGS) $< -o $(TEST_BIN_NAME) -L../src -l$(KERNEL_LIB_NAME_SHORT)
+	$(LOCAL_CC) $(LOCAL_CFLAGS) $< -o $(TEST_BIN_NAME) -I../include -L. -l$(KERNEL_LIB_NAME_SHORT)
 	$(TEST_BIN_NAME)
 
 install:
 
 clean:
-	$(RM) $(TEST_BIN_NAME)
+	$(RM) $(TEST_BIN_NAME) $(BUILD_OBJS_LIB_TESTS)

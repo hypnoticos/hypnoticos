@@ -100,6 +100,9 @@ void DispatcherSave(uint8_t apic_id) {
   }
 }
 
+#ifndef _HYPNOTICOS_TESTS
+// This code should not be subject to tests on the host compiling the kernel.
+
 void DispatcherSetUpNext(uint8_t apic_id) {
   DispatcherProcess_t *p;
   uint8_t no_processes_to_run;
@@ -187,6 +190,8 @@ restart:
     Tss.io_permission[byte_offset] = Tss.io_permission[byte_offset] ^ bit_operation;
   }
 }
+
+#endif
 
 void DispatcherProcessAddIo(DispatcherProcess_t *p, uint16_t port) {
   p->io_count++;

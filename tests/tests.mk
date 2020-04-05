@@ -18,4 +18,4 @@
 
 TESTS_OBJS=
 
-TESTS_OBJS+=sample.o
+TESTS_OBJS+=dispatcher.o

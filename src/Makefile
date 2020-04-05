@@ -20,11 +20,11 @@ include ../libc/objects.mk
 
 LIBC_OBJS_KERNEL=$(addsuffix -kernel,$(addprefix ../libc/,$(LIBC_OBJS)))
 
-BUILD=$(KERNELFILENAME) $(KERNEL_LIB_NAME)
+BUILD=$(KERNELFILENAME)
 
 include objects.mk
 
-CFLAGS+=-D_HYPNOTICOS_KERNEL -ffreestanding -fbuiltin
+CFLAGS+=$(CFLAGS_KERNEL_DEFINITION) -ffreestanding -fbuiltin
 LIBS+=-lgcc
 LDFLAGS+=-nostdlib
 ifdef _DEBUG
@@ -44,16 +44,13 @@ install: $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.nasm
-	$(NASM) $(NASMFLAGS) $< -o $@
+	$(NASM) $(LOCAL_NASMFLAGS) $< -o $@
 
 %.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNEL_LIB_NAME): $(BUILD_OBJS_LIB)
-	$(AR) rcs $@ $(BUILD_OBJS_LIB)
-
-$(KERNELFILENAME): $(BUILD_OBJS_BIN) $(KERNEL_LIB_NAME) $(LIBC_OBJS_KERNEL)
-	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS_BIN) $(KERNEL_LIB_NAME) $(LIBC_OBJS_KERNEL) $(LDFLAGS) $(LIBS)
+$(KERNELFILENAME): $(BUILD_OBJS_BIN) $(BUILD_OBJS_LIBRARY) $(LIBC_OBJS_KERNEL)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS_BIN) $(BUILD_OBJS_LIBRARY) $(LIBC_OBJS_KERNEL) $(LDFLAGS) $(LIBS)
 	mkdir -p $(SYSROOT)/boot
 	cp $(BUILD) $(SYSROOT)/boot
 
