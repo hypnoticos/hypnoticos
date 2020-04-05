@@ -20,7 +20,7 @@ include ../libc/objects.mk
 
 LIBC_OBJS_KERNEL=$(addsuffix -kernel,$(addprefix ../libc/,$(LIBC_OBJS)))
 
-BUILD=$(KERNELFILENAME)
+BUILD=$(KERNELFILENAME) $(KERNEL_LIB_NAME)
 
 include objects.mk
 
@@ -49,8 +49,11 @@ install: $(BUILD)
 %.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD): $(BUILD_OBJS) $(LIBC_OBJS_KERNEL)
-	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(LIBC_OBJS_KERNEL) $(LDFLAGS) $(LIBS)
+$(KERNEL_LIB_NAME): $(BUILD_OBJS_LIB)
+	$(AR) rcs $@ $(BUILD_OBJS_LIB)
+
+$(KERNELFILENAME): $(BUILD_OBJS_BIN) $(KERNEL_LIB_NAME) $(LIBC_OBJS_KERNEL)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS_BIN) $(KERNEL_LIB_NAME) $(LIBC_OBJS_KERNEL) $(LDFLAGS) $(LIBS)
 	mkdir -p $(SYSROOT)/boot
 	cp $(BUILD) $(SYSROOT)/boot
 

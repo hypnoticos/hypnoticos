@@ -16,87 +16,101 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# boot/multiboot.o should be at the start
-BUILD_OBJS=boot/multiboot.o
+###############################################################################
+#
+# BUILD_OBJS_BIN is used to place functions directly into the kernel binary
+# BUILD_OBJS_LIB is used to place functions in libhypnoticos.a
+#
+# The default place to place functions is in the binary. Only place functions
+# into the library IF IT IS NOT DANGEROUS AND IF IT IS SAFE to do so, as the
+# tests will be running on the computer which builds the kernel.
+#
+###############################################################################
 
-BUILD_OBJS+=boot/boot.o
-BUILD_OBJS+=boot/load-modules.o
-BUILD_OBJS+=boot/main.o
-BUILD_OBJS+=boot/multiboot-check.o
-BUILD_OBJS+=boot/tss-new.o
+BUILD_OBJS_BIN=$(KERNEL_LIB_NAME)
+BUILD_OBJS_LIB=
 
-BUILD_OBJS+=cpu/acpi.o
-BUILD_OBJS+=cpu/ap-start-prepare.o
-BUILD_OBJS+=cpu/ap-start.o
-BUILD_OBJS+=cpu/hpet.o
-BUILD_OBJS+=cpu/apic/io.o
-BUILD_OBJS+=cpu/apic/local.o
-BUILD_OBJS+=cpu/cpu.o
-BUILD_OBJS+=cpu/cpuid.o
-BUILD_OBJS+=cpu/rflags.o
-BUILD_OBJS+=cpu/gdt.o
-BUILD_OBJS+=cpu/idt-c.o
-BUILD_OBJS+=cpu/idt-asm.o
-BUILD_OBJS+=cpu/io-port.o
-BUILD_OBJS+=cpu/msr.o
-BUILD_OBJS+=cpu/tss.o
+# boot/multiboot.o should be at the start of the binary
+BUILD_OBJS_BIN+=boot/multiboot.o
 
-BUILD_OBJS+=devices/storage/memory-disk/get.o
-BUILD_OBJS+=devices/storage/memory-disk/read.o
-BUILD_OBJS+=devices/storage/memory-disk/write.o
-BUILD_OBJS+=devices/storage/get.o
-BUILD_OBJS+=devices/storage/init.o
-BUILD_OBJS+=devices/storage/new.o
-BUILD_OBJS+=devices/storage/read.o
-BUILD_OBJS+=devices/storage/write.o
-BUILD_OBJS+=devices/keyboard.o
-BUILD_OBJS+=devices/pci.o
+BUILD_OBJS_BIN+=boot/boot.o
+BUILD_OBJS_BIN+=boot/load-modules.o
+BUILD_OBJS_BIN+=boot/main.o
+BUILD_OBJS_BIN+=boot/multiboot-check.o
+BUILD_OBJS_BIN+=boot/tss-new.o
 
-BUILD_OBJS+=dispatcher/dispatcher.o
-BUILD_OBJS+=dispatcher/done.o
-BUILD_OBJS+=dispatcher/init.o
-BUILD_OBJS+=dispatcher/memory.o
-BUILD_OBJS+=dispatcher/new.o
-BUILD_OBJS+=dispatcher/format-elf.o
-BUILD_OBJS+=dispatcher/open-indices.o
+BUILD_OBJS_BIN+=cpu/acpi.o
+BUILD_OBJS_BIN+=cpu/ap-start-prepare.o
+BUILD_OBJS_BIN+=cpu/ap-start.o
+BUILD_OBJS_BIN+=cpu/hpet.o
+BUILD_OBJS_BIN+=cpu/apic/io.o
+BUILD_OBJS_BIN+=cpu/apic/local.o
+BUILD_OBJS_BIN+=cpu/cpu.o
+BUILD_OBJS_BIN+=cpu/cpuid.o
+BUILD_OBJS_BIN+=cpu/rflags.o
+BUILD_OBJS_BIN+=cpu/gdt.o
+BUILD_OBJS_BIN+=cpu/idt-c.o
+BUILD_OBJS_BIN+=cpu/idt-asm.o
+BUILD_OBJS_BIN+=cpu/io-port.o
+BUILD_OBJS_BIN+=cpu/msr.o
+BUILD_OBJS_BIN+=cpu/tss.o
 
-BUILD_OBJS+=fs/hypnoticfs/details-get.o
-BUILD_OBJS+=fs/hypnoticfs/hypnoticfs.o
-BUILD_OBJS+=fs/hypnoticfs/list.o
-BUILD_OBJS+=fs/hypnoticfs/new-index.o
-BUILD_OBJS+=fs/hypnoticfs/read.o
-BUILD_OBJS+=fs/hypnoticfs/write.o
-BUILD_OBJS+=fs/details-get.o
-BUILD_OBJS+=fs/init.o
-BUILD_OBJS+=fs/list.o
-BUILD_OBJS+=fs/new-index.o
-BUILD_OBJS+=fs/new-root.o
-BUILD_OBJS+=fs/path.o
-BUILD_OBJS+=fs/read.o
-BUILD_OBJS+=fs/write.o
+BUILD_OBJS_BIN+=devices/storage/memory-disk/get.o
+BUILD_OBJS_BIN+=devices/storage/memory-disk/read.o
+BUILD_OBJS_BIN+=devices/storage/memory-disk/write.o
+BUILD_OBJS_BIN+=devices/storage/get.o
+BUILD_OBJS_BIN+=devices/storage/init.o
+BUILD_OBJS_BIN+=devices/storage/new.o
+BUILD_OBJS_BIN+=devices/storage/read.o
+BUILD_OBJS_BIN+=devices/storage/write.o
+BUILD_OBJS_BIN+=devices/keyboard.o
+BUILD_OBJS_BIN+=devices/pci.o
 
-BUILD_OBJS+=function/directory-done.o
-BUILD_OBJS+=function/directory-entry.o
-BUILD_OBJS+=function/directory-get.o
-BUILD_OBJS+=function/exit.o
-BUILD_OBJS+=function/function.o
-BUILD_OBJS+=function/heap-addr.o
-BUILD_OBJS+=function/heap-size.o
-BUILD_OBJS+=function/new-page.o
-BUILD_OBJS+=function/read.o
-BUILD_OBJS+=function/run.o
-BUILD_OBJS+=function/sleep.o
-BUILD_OBJS+=function/write.o
+BUILD_OBJS_BIN+=dispatcher/dispatcher.o
+BUILD_OBJS_BIN+=dispatcher/done.o
+BUILD_OBJS_BIN+=dispatcher/init.o
+BUILD_OBJS_BIN+=dispatcher/memory.o
+BUILD_OBJS_BIN+=dispatcher/new.o
+BUILD_OBJS_BIN+=dispatcher/format-elf.o
+BUILD_OBJS_BIN+=dispatcher/open-indices.o
 
-BUILD_OBJS+=memory/alloc.o
-BUILD_OBJS+=memory/find.o
-BUILD_OBJS+=memory/new-block.o
-BUILD_OBJS+=memory/paging.o
-BUILD_OBJS+=memory/paging-data.o
-BUILD_OBJS+=memory/table.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/details-get.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/hypnoticfs.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/list.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/new-index.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/read.o
+BUILD_OBJS_BIN+=fs/hypnoticfs/write.o
+BUILD_OBJS_BIN+=fs/details-get.o
+BUILD_OBJS_BIN+=fs/init.o
+BUILD_OBJS_BIN+=fs/list.o
+BUILD_OBJS_BIN+=fs/new-index.o
+BUILD_OBJS_BIN+=fs/new-root.o
+BUILD_OBJS_BIN+=fs/path.o
+BUILD_OBJS_BIN+=fs/read.o
+BUILD_OBJS_BIN+=fs/write.o
 
-BUILD_OBJS+=debug.o
+BUILD_OBJS_BIN+=function/directory-done.o
+BUILD_OBJS_BIN+=function/directory-entry.o
+BUILD_OBJS_BIN+=function/directory-get.o
+BUILD_OBJS_BIN+=function/exit.o
+BUILD_OBJS_BIN+=function/function.o
+BUILD_OBJS_BIN+=function/heap-addr.o
+BUILD_OBJS_BIN+=function/heap-size.o
+BUILD_OBJS_BIN+=function/new-page.o
+BUILD_OBJS_BIN+=function/read.o
+BUILD_OBJS_BIN+=function/run.o
+BUILD_OBJS_BIN+=function/sleep.o
+BUILD_OBJS_BIN+=function/write.o
 
-BUILD_OBJS+=lock.o
+BUILD_OBJS_BIN+=memory/alloc.o
+BUILD_OBJS_BIN+=memory/find.o
+BUILD_OBJS_BIN+=memory/new-block.o
+BUILD_OBJS_BIN+=memory/paging.o
+BUILD_OBJS_BIN+=memory/paging-data.o
+BUILD_OBJS_BIN+=memory/table.o
 
-BUILD_OBJS+=video-memory.o
+BUILD_OBJS_BIN+=debug.o
+
+BUILD_OBJS_BIN+=lock.o
+
+BUILD_OBJS_BIN+=video-memory.o

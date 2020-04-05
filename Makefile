@@ -23,9 +23,12 @@ export HYPNOTICOS=HypnoticOS-$(ARCHITECTURE)-$(VERSION)-$(shell date +"%D-%T")
 export SYSROOT=$(PWD)/sysroot
 export INCDIR=$(PWD)/include
 export KERNELFILENAME=hypnoticos-$(ARCHITECTURE)-$(VERSION)
+export KERNEL_LIB_NAME_SHORT=hypnoticos
+export KERNEL_LIB_NAME=lib$(KERNEL_LIB_NAME_SHORT).a
 export ISODIR=$(PWD)/iso
 ISONAME=hypnoticos.iso
-SUBDIRS=libc src modules hypnoticfs-tools
+SUBDIRS_NOT_TESTS=libc src modules hypnoticfs-tools
+SUBDIRS=$(SUBDIRS_NOT_TESTS) tests
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
 
@@ -62,7 +65,7 @@ export NASMFLAGS_MODULES=$(NASMFLAGS)
 
 .PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
 
-all: prepare subdirs
+all: prepare $(SUBDIRS_NOT_TESTS)
 
 prepare:
 	which grub-mkrescue > /dev/null
@@ -77,7 +80,7 @@ $(SUBDIRS):
 
 modules: libc
 
-install: subdirs $(INSTALLDIRS)
+install: $(SUBDIRS_NOT_TESTS) $(INSTALLDIRS)
 
 $(INSTALLDIRS):
 	$(MAKE) -C $(@:install-%=%) install
@@ -88,12 +91,14 @@ $(CLEANDIRS):
 clean: $(CLEANDIRS)
 	$(RM) -R $(SYSROOT) $(ISODIR) $(ISONAME) $(MEMORYDISK)
 
-memorydisk: prepare subdirs
+memorydisk: prepare $(SUBDIRS_NOT_TESTS)
 	$(PWD)/hypnoticfs-tools/hypnoticfs-new $(MEMORYDISK) 4
 	cd $(MEMORYDISK_ROOT) && find -not -path . -type d -printf "/%P\0" | xargs -n 1 -0 $(PWD)/hypnoticfs-tools/hypnoticfs-mkdir $(MEMORYDISK)
 	cd $(MEMORYDISK_ROOT) && find -not -path . -not -type d -printf "/%P\0%P\0" | xargs -n 2 -0 $(PWD)/hypnoticfs-tools/hypnoticfs-add $(MEMORYDISK)
 
-iso: prepare subdirs memorydisk
+test: tests
+
+iso: prepare $(SUBDIRS_NOT_TESTS) memorydisk
 	$(MKDIR) $(ISODIR)/boot/grub $(ISODIR)/boot/hypnoticos-modules
 	$(CP) $(SYSROOT)/boot/$(KERNELFILENAME) $(ISODIR)/boot/
 	$(CP) $(MEMORYDISK) $(ISODIR)/boot/memorydisk
