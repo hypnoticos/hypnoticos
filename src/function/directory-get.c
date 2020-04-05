@@ -31,6 +31,7 @@ uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t rax, uint64
   if(path == NULL) {
     WARNING();
     return 0;
+  }
 
   // Attempt to lock
   if((lock_entry = DispatcherIndexLockAttempt(p, path)) == NULL) {
