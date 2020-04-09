@@ -8,6 +8,8 @@ HypnoticOS is a 64-bit Hobby Operating System. Functionality includes:
 * Support for local/IO APIC
 * SMP
 
+![Screenshot](http://hypnoticos.org/screenshot-april-2020.png)
+
 ## Web site
 
 The web site has details about the project's plans and what's currently being worked on. See: [http://www.hypnoticos.org/](http://www.hypnoticos.org/)
