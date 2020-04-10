@@ -14,6 +14,8 @@ HypnoticOS is a 64-bit Hobby Operating System. Functionality includes:
 
 The web site has details about the project's plans and what's currently being worked on. See: [http://www.hypnoticos.org/](http://www.hypnoticos.org/)
 
+The web site is also updated periodically with a generated ISO based upon a recent commit.
+
 ## Wiki
 
 [The wiki is a a work in progress, but in the mean time it can be found here](https://github.com/hypnoticos/hypnoticos/wiki).
