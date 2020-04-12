@@ -32,13 +32,13 @@
  * @return       Returns 0 on error, 1 on success or DIRECTORY_END where there are no further entries.
  */
 int DirectoryEntry(Directory_t *ptr, FsIndex_t *entry) {
-  int to_ret;
+  uint64_t to_ret;
 
   if((to_ret = KernelFunctionInterface(ptr->id, ptr->offset, (uint64_t) entry, 0, 0, KERNEL_FUNCTION_DIRECTORY_ENTRY)) == 1) {
     ptr->offset++;
   }
 
-  return to_ret;
+  return (int) to_ret;
 }
 
 #endif

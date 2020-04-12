@@ -20,7 +20,7 @@ LIBC_OBJS=
 
 LIBC_OBJS+=hypnoticos/run.o
 
-LIBC_OBJS+=directory/directoryfree.o
+LIBC_OBJS+=directory/directorydone.o
 LIBC_OBJS+=directory/directoryentry.o
 LIBC_OBJS+=directory/directoryget.o
 

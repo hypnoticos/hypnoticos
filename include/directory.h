@@ -32,6 +32,6 @@ struct _Directory_t {
 
 Directory_t *DirectoryGet(const char *path);
 int DirectoryEntry(Directory_t *ptr, FsIndex_t *entry);
-void DirectoryFree(Directory_t *ptr);
+void DirectoryDone(Directory_t *ptr);
 
 #endif

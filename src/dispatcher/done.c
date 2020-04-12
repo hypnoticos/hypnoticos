@@ -26,6 +26,8 @@ void DispatcherProcessDone(DispatcherProcess_t *p) {
 
   // TODO Free all memory associated with the process
 
+  DispatcherIndexLockCheck(p);
+
   for(i = 0; DispatcherProcesses[i] != NULL; i++) {
     if(found_pid) {
       DispatcherProcesses[i - 1] = DispatcherProcesses[i];

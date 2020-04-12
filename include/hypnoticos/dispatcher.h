@@ -122,6 +122,7 @@ extern uint16_t last_pid;
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);
 DispatcherOpenIndex_t *DispatcherIndexLockAttempt(DispatcherProcess_t *p, const char *path);
+void DispatcherIndexLockCheck(DispatcherProcess_t *p);
 void DispatcherIndexLockDone(DispatcherOpenIndex_t *entry);
 DispatcherOpenIndex_t *DispatcherIndexLockRetrieve(DispatcherProcess_t *p, uint64_t id);
 uint8_t DispatcherInit();

@@ -27,6 +27,8 @@
 uint8_t DispatcherOpenIndices_lock = LOCK_UNLOCKED;
 DispatcherOpenIndex_t **DispatcherOpenIndices = NULL;
 
+void DispatcherIndexLockDone_Locked(DispatcherOpenIndex_t *entry);
+
 /**
  * Attempt to lock a path so that other processes cannot lock it.
  * @param  path The path.
@@ -82,7 +84,9 @@ DispatcherOpenIndex_t *DispatcherIndexLockAttempt(DispatcherProcess_t *p, const 
     return NULL;
   }
 
-  if((ptr->path = malloc(strlen(path))) == NULL) {
+  ptr->open_index_id = id;
+
+  if((ptr->path = malloc(strlen(path) + 1)) == NULL) {
     WARNING();
     LockDone(&DispatcherOpenIndices_lock);
     free(ptr);
@@ -127,14 +131,28 @@ DispatcherOpenIndex_t *DispatcherIndexLockRetrieve(DispatcherProcess_t *p, uint6
 }
 
 /**
- * Unlock an index lock entry. This function assumes that directory_data is already free'd.
+ * Unlock an index lock entry. This function assumes that directory_data is
+ * already free'd. This function locks the index list and calls a helper
+ * function to carry out the actual unlocking.
  * @param entry The entry.
  */
 void DispatcherIndexLockDone(DispatcherOpenIndex_t *entry) {
-  uint64_t index;
 
-  // Lock DispatcherOpenIndices
   LockGet(&DispatcherOpenIndices_lock);
+
+  DispatcherIndexLockDone_Locked(entry);
+
+  LockDone(&DispatcherOpenIndices_lock);
+}
+
+/**
+ * The helper function for DispatcherIndexLockDone. This function carries out
+ * the unlocking of an open index.
+ * @param entry The entry.
+ */
+void DispatcherIndexLockDone_Locked(DispatcherOpenIndex_t *entry)
+{
+  uint64_t index;
 
   // Move each entry forward after this entry
   uint8_t found = 0;
@@ -148,6 +166,10 @@ void DispatcherIndexLockDone(DispatcherOpenIndex_t *entry) {
       DispatcherOpenIndices[index] = DispatcherOpenIndices[index + 1];
     }
   }
+  if(!found) {
+    WARNING();
+    return;
+  }
   uint64_t max_entry = index;
 
   // Clean up
@@ -157,7 +179,21 @@ void DispatcherIndexLockDone(DispatcherOpenIndex_t *entry) {
   // Remove the entry
   DispatcherOpenIndices = realloc(DispatcherOpenIndices, sizeof(DispatcherOpenIndex_t *) * (max_entry + 1));
   DispatcherOpenIndices[max_entry] = NULL;
+}
 
-  // Unlock DispatcherOpenIndices
+/**
+ * Checks for open indices for a process and unlocks the indices.
+ * @param p The process.
+ */
+void DispatcherIndexLockCheck(DispatcherProcess_t *p)
+{
+  LockGet(&DispatcherOpenIndices_lock);
+
+  for(uint64_t i = 0; DispatcherOpenIndices[i] != NULL; i++) {
+    if(DispatcherOpenIndices[i]->process->pid == p->pid) {
+      DispatcherIndexLockDone_Locked(DispatcherOpenIndices[i]);
+    }
+  }
+
   LockDone(&DispatcherOpenIndices_lock);
 }

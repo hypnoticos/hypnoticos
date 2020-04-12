@@ -24,7 +24,7 @@
 int main(int argc, char **argv) {
   Directory_t *directory_ptr;
   FsIndex_t entry;
-  int result;
+  uint64_t result;
 
   if((directory_ptr = DirectoryGet("/bin")) == NULL) {
     printf("Error.\n");
@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
   if(result != DIRECTORY_END) {
     printf("Error.\n");
   }
+
+  DirectoryDone(directory_ptr);
 
   return 0;
 }
