@@ -36,11 +36,15 @@ FsIndex_t **FsList_HypnoticFS(FsRoot_t *root, const char *path, char **path_shor
   uint64_t fs_index_size;
   FsIndex_t **to_ret = NULL;
   uint64_t to_ret_size = 1;
+  uint8_t is_root_dir = 0;
 
-  if((directory_offset = Fs_HypnoticFS_GetIndex(root, path_short, &directory_index)) < INDEX_START)
+  if(path_short[0] == NULL)
+    is_root_dir = 1;
+
+  if(!is_root_dir && (directory_offset = Fs_HypnoticFS_GetIndex(root, path_short, &directory_index)) < INDEX_START)
     return NULL;
 
-  if(directory_index.type != HYPNOTICFS_TYPE_DIRECTORY)
+  if(!is_root_dir && directory_index.type != HYPNOTICFS_TYPE_DIRECTORY)
     goto err_cleanup_directory_index;
 
   if((fs_index_size = Fs_HypnoticFS_GetIndexSize(root)) < INDEX_START)
@@ -60,8 +64,11 @@ FsIndex_t **FsList_HypnoticFS(FsRoot_t *root, const char *path, char **path_shor
     if(!StorageRead(root, i, sizeof(HypnoticFS_Index_t), &entry))
       goto err_cleanup_to_ret;
 
-    if(entry.parent_offset != directory_offset)
+    if(!is_root_dir && entry.parent_offset != directory_offset) {
       continue;
+    } else if(is_root_dir && entry.parent_offset != 0) {
+      continue;
+    }
 
     if((to_ret_index = Fs_HypnoticFS_GenerateFsIndex(&entry)) == NULL)
       goto err_cleanup_to_ret;

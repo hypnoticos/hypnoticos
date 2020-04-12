@@ -21,19 +21,33 @@
 #include <directory.h>
 #include <unistd.h>
 
+#define MAX_INDEX_TYPE      3
+
 int main(int argc, char **argv) {
   Directory_t *directory_ptr;
   FsIndex_t entry;
   uint64_t result;
+  char * const index_types[MAX_INDEX_TYPE] = { "Unknown", "file", "directory" };
 
-  if((directory_ptr = DirectoryGet("/bin")) == NULL) {
+  if((directory_ptr = DirectoryGet("/")) == NULL) {
     printf("Error.\n");
     return 1;
   }
 
   printf("Contents of /bin:\n");
   while((result = DirectoryEntry(directory_ptr, &entry)) == 1) {
-    printf("%u bytes, type 0x%X\n", entry.size, entry.type);
+    char *type;
+    if(entry.type < MAX_INDEX_TYPE) {
+      type = index_types[entry.type];
+    } else {
+      type = index_types[0];
+    }
+
+    if(entry.type == INDEX_TYPE_DIRECTORY) {
+      printf("%s\n", type);
+    } else {
+      printf("%s - %u bytes\n", type, entry.size);
+    }
   }
 
   if(result != DIRECTORY_END) {
