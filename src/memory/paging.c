@@ -33,6 +33,7 @@ uint8_t MemoryPagingPageChangeFlags(uint64_t *pml4, uint64_t va, uint32_t flags_
 
 extern void *TextMainStart, *TextMainEnd;
 
+#ifndef _HYPNOTICOS_TESTS
 void MemoryPagingInit() {
   uint64_t max_addr = 0, max_page, i;
 
@@ -61,6 +62,8 @@ void MemoryPagingInit() {
   }
 }
 
+#endif
+
 void *MemoryPagingNewPD() {
   uint32_t flag_rw;
   uint64_t start, end, text_start, text_end, i, i2, *ret;
@@ -68,6 +71,7 @@ void *MemoryPagingNewPD() {
   ret = malloc_align(4096, ALIGN_4KB);
   memset(ret, 0, 4096);
 
+#ifndef _HYPNOTICOS_TESTS
   // Reserve the kernel's pages
   start = ((uint64_t) &AddrStart) / 4096;
   end = (((uint64_t) &AddrEnd) + 4096) / 4096;
@@ -95,6 +99,7 @@ void *MemoryPagingNewPD() {
       MemoryPagingSetPageImitate(ret, i2 * 4096, PAGING_PRESENT | PAGING_RW, PAGE_SIZE_4KB);
     }
   }
+#endif
 
   return ret;
 }

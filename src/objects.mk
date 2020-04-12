@@ -72,8 +72,8 @@ BUILD_OBJS_BIN+=devices/pci.o
 BUILD_OBJS_LIBRARY+=dispatcher/dispatcher.o
 BUILD_OBJS_BIN+=dispatcher/done.o
 BUILD_OBJS_LIBRARY+=dispatcher/init.o
-BUILD_OBJS_BIN+=dispatcher/memory.o
-BUILD_OBJS_BIN+=dispatcher/new.o
+BUILD_OBJS_LIBRARY+=dispatcher/memory.o
+BUILD_OBJS_LIBRARY+=dispatcher/new.o
 BUILD_OBJS_BIN+=dispatcher/format-elf.o
 BUILD_OBJS_LIBRARY+=dispatcher/open-indices.o
 
@@ -108,7 +108,7 @@ BUILD_OBJS_BIN+=function/write.o
 BUILD_OBJS_BIN+=memory/alloc.o
 BUILD_OBJS_BIN+=memory/find.o
 BUILD_OBJS_BIN+=memory/new-block.o
-BUILD_OBJS_BIN+=memory/paging.o
+BUILD_OBJS_LIBRARY+=memory/paging.o
 BUILD_OBJS_BIN+=memory/paging-data.o
 BUILD_OBJS_BIN+=memory/table.o
 

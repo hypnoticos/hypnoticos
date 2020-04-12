@@ -20,6 +20,7 @@
 #include <string.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/fs.h>
+#include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
@@ -103,6 +104,8 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
 
   return p;
 }
+
+#ifndef _HYPNOTICOS_TESTS
 
 DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path) {
   uint32_t format = 0;
@@ -199,3 +202,5 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path) {
 
   return p;
 }
+
+#endif

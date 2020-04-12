@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hypnoticos/dispatcher.h>
+#include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
 uint8_t inline DispatcherProcessCheckVa(DispatcherProcess_t *p, uint64_t va, uint8_t kernel_function_ignore);

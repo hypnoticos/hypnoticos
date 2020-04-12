@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#ifndef _HYPNOTICOS_TESTS
 #define stdin             (&stdstreams[0])
 #define stdout            (&stdstreams[1])
 #define stderr            (&stdstreams[2])
@@ -33,6 +34,8 @@
 typedef struct {
   int fd;
 } FILE;
+
+extern FILE stdstreams[3];
 
 int fclose(FILE *f);
 int feof(FILE *f);
@@ -52,6 +55,6 @@ int snprintf(char *dest, size_t count, const char *format, ...);
 int vfprintf(FILE *f, const char *format, va_list va);
 int vsnprintf(char *dest, size_t count, const char *format, va_list va);
 
-extern FILE stdstreams[3];
+#endif
 
 #endif

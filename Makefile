@@ -41,6 +41,7 @@ export RM=rm -f
 export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
+export CFLAGS ?= -O2 -Wall
 export NASM ?= nasm
 export NASMFLAGS ?= -f elf64
 export AR ?= ar
