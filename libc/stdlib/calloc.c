@@ -17,7 +17,17 @@
 //
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 void *calloc(size_t count, size_t size) {
-  return malloc(count * size);
+  void *ptr;
+  uint64_t total_size = count * size;
+
+  if((ptr = malloc(total_size)) == NULL)
+    return NULL;
+
+  memset(ptr, 0, total_size);
+
+  return ptr;
 }
