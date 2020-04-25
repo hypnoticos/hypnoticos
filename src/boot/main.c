@@ -29,8 +29,6 @@
 #include <hypnoticos/devices/storage.h>
 #include <hypnoticos/fs.h>
 
-extern void DispatcherTest();
-
 /*!
    \brief Called by Start.
    \param magic Magic value
