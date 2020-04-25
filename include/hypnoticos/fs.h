@@ -23,6 +23,7 @@
 #include <hypnoticos/devices/storage.h>
 
 #define FS_MAX_PATH_SIZE                1000
+#define FS_MAX_NAME_SIZE                100
 
 #define ROOT_TYPE_END                   0x0
 #define ROOT_TYPE_HYPNOTICFS            0x1
@@ -44,6 +45,7 @@ typedef struct _FsIndex_t FsIndex_t;
 struct _FsIndex_t {
   uint8_t type;
   uint64_t size;
+  char name[FS_MAX_NAME_SIZE + 1];
 };
 
 extern FsRoot_t *FsRoots;

@@ -26,7 +26,6 @@ FsIndex_t *FsDetailsGet_HypnoticFS(FsRoot_t *root, const char *path, char **path
   HypnoticFS_Index_t *entry;
   FsIndex_t *r; // TODO Caller must free this
 
-  // Get entry
   entry = malloc(sizeof(HypnoticFS_Index_t));
   if(Fs_HypnoticFS_GetIndex(root, path_short, entry) == 0) {
     WARNING();
@@ -34,27 +33,13 @@ FsIndex_t *FsDetailsGet_HypnoticFS(FsRoot_t *root, const char *path, char **path
     return NULL;
   }
 
-  // Prepare details about this file
-  r = malloc(sizeof(FsIndex_t));
-  r->size = entry->size;
-  switch(entry->type) {
-    case HYPNOTICFS_TYPE_DIRECTORY:
-    r->type = INDEX_TYPE_DIRECTORY;
-    break;
-
-    case HYPNOTICFS_TYPE_FILE:
-    r->type = INDEX_TYPE_FILE;
-    break;
-
-    default:
-    free(r);
-    free(entry);
+  if((r = Fs_HypnoticFS_GenerateFsIndex(entry)) == NULL) {
     WARNING();
+    free(entry);
     return NULL;
   }
 
   free(entry);
 
-  // Return the details
   return r;
 }

@@ -536,13 +536,16 @@ FsIndex_t *Fs_HypnoticFS_GenerateFsIndex(HypnoticFS_Index_t *index)
     break;
 
   case HYPNOTICFS_TYPE_DIRECTORY:
-      to_ret->type = INDEX_TYPE_DIRECTORY;
-      break;
+    to_ret->type = INDEX_TYPE_DIRECTORY;
+    break;
 
   default:
     free(to_ret);
     return NULL;
   }
+
+  memset(to_ret->name, 0, FS_MAX_NAME_SIZE + 1);
+  strcpy(to_ret->name, index->name);
 
   return to_ret;
 }

@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   uint64_t result;
   char * const index_types[MAX_INDEX_TYPE] = { "Unknown", "file", "directory" };
 
-  if((directory_ptr = DirectoryGet("/")) == NULL) {
+  if((directory_ptr = DirectoryGet("/bin")) == NULL) {
     printf("Error.\n");
     return 1;
   }
@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
       type = index_types[0];
     }
 
+    printf("%s - ", entry.name);
     if(entry.type == INDEX_TYPE_DIRECTORY) {
       printf("%s\n", type);
     } else {
