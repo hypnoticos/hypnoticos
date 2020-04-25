@@ -22,18 +22,25 @@
 #include <hypnoticos/function-codes.h>
 #include <hypnoticos/function.h>
 
-uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
-  char *path;
+/**
+ * Run a binary.
+ * @param  p    The process struct for the process which will call the binary.
+ * @param  path The path of the binary.
+ * @return      Returns 0 on failure, or the PID of the new process on success.
+ */
+uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path)
+{
+  char *path_pa;
   DispatcherProcess_t *process;
 
   // Translate va to pa
-  path = GET_PA(rax);
-  if(path == NULL) {
+  path_pa = GET_PA(path);
+  if(path_pa == NULL) {
     WARNING();
     return 0;
   }
 
-  if((process = DispatcherProcessNewFromFormat(path)) == NULL) {
+  if((process = DispatcherProcessNewFromFormat(path_pa)) == NULL) {
     return 0;
   } else {
     return process->pid;

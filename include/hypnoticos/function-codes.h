@@ -49,17 +49,17 @@ struct _FunctionRead_t {
   size_t offset;
 };
 
-uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionRead(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionExit(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
+uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t fd, uint64_t buffer_addr, uint64_t count);
+void KernelFunctionSleep(DispatcherProcess_t *p, uint64_t ticks);
+void KernelFunctionRead(DispatcherProcess_t *p, uint64_t fd, uint64_t buffer_addr, uint64_t count);
+void KernelFunctionExit(DispatcherProcess_t *p, uint64_t return_value);
+uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t count);
+uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p);
+uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p);
+uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path);
+uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t path);
+uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t lock_entry_id);
+uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t lock_entry_id, uint64_t offset, uint64_t index_addr);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p);
 

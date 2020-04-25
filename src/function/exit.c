@@ -21,17 +21,11 @@
 #include <hypnoticos/dispatcher.h>
 
 /**
- * Causes a process to be ended.
- * @param  p   The process.
- * @param  rax The return value.
- * @param  rbx Not used.
- * @param  rcx Not used.
- * @param  rdx Not used.
- * @param  rsi Not used.
- * @param  rdi Not used.
- * @return     Never returns.
+ * End the process and return a value to the caller of the process.
+ * @param  p            The process.
+ * @param  return_value The return value.
  */
-uint64_t KernelFunctionExit(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi)
+void KernelFunctionExit(DispatcherProcess_t *p, uint64_t return_value)
 {
   p->pending_exit = 1;
   KernelFunctionSuspend(p, DISPATCHER_SUSPEND_EXIT, NULL);

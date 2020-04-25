@@ -22,25 +22,32 @@
 #include <hypnoticos/fs.h>
 #include <hypnoticos/hypnoticos.h>
 
-uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
-  char *path;
+/**
+ * Create an instance for use with KernelFunctionDirectoryEntry.
+ * @param  p    The process struct for this process.
+ * @param  path The path to the directory.
+ * @return      0 on failure, or a lock entry ID on success.
+ */
+uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t path)
+{
+  char *path_pa;
   DispatcherOpenIndex_t *lock_entry;
 
   // Get path
-  path = GET_PA(rax);
-  if(path == NULL) {
+  path_pa = GET_PA(path);
+  if(path_pa == NULL) {
     WARNING();
     return 0;
   }
 
   // Attempt to lock
-  if((lock_entry = DispatcherIndexLockAttempt(p, path)) == NULL) {
+  if((lock_entry = DispatcherIndexLockAttempt(p, path_pa)) == NULL) {
     WARNING();
     return 0;
   }
 
   // Load directory data into memory
-  if((lock_entry->directory_data = FsList(path)) == NULL) {
+  if((lock_entry->directory_data = FsList(path_pa)) == NULL) {
     WARNING();
     return 0;
   }

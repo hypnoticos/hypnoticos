@@ -19,6 +19,12 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/dispatcher.h>
 
-uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+/**
+ * Returns the start address for the process's heap.
+ * @param  p The process struct for the process.
+ * @return   The start address for the process's heap.
+ */
+uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p)
+{
   return p->heap_addr;
 }

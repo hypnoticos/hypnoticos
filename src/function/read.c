@@ -26,28 +26,42 @@
 #include <hypnoticos/hypnoticos.h>
 #include <hypnoticos/unimplemented.h>
 
-uint64_t KernelFunctionRead(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+/**
+ * Read bytes from a file descriptor into a buffer (note that the function
+ * suspends the process).
+ * @param  p           The process struct for this process.
+ * @param  fd          The file descriptor.
+ * @param  buffer_addr The buffer.
+ * @param  count       The number of bytes to read.
+ */
+void KernelFunctionRead(DispatcherProcess_t *p, uint64_t fd, uint64_t buffer_addr, uint64_t count)
+{
   char *pa;
   FunctionRead_t *data;
 
   // Translate va to pa
-  pa = GET_PA(rbx);
+  pa = GET_PA(buffer_addr);
   if(pa == NULL) {
     WARNING();
-    return 0;
+    return;
   }
 
   data = malloc(sizeof(FunctionRead_t));
-  data->fd = (int) rax;
+  data->fd = (int) fd;
   data->buffer = pa;
-  data->count = (size_t) rcx;
+  data->count = (size_t) count;
   data->offset = 0;
 
   KernelFunctionSuspend(p, DISPATCHER_SUSPEND_READ, data);
 
-  return 0;
+  __builtin_unreachable();
 }
 
+/**
+ * Perform the read, and test whether the read has finished so that the
+ * suspension can be lifted.
+ * @param p The process struct for this process.
+ */
 void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p) {
   FunctionRead_t *data;
   char kb, output;

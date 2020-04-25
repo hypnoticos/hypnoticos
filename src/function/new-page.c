@@ -19,12 +19,20 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/dispatcher.h>
 
-uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+/**
+ * Creates one or more new pages for the process's heap.
+ * @param  p     The process struct for the process for which new pages will be
+ *               created.
+ * @param  count The number of new pages to be created.
+ * @return       The start address for the new pages created.
+ */
+uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t count)
+{
   uint64_t i, r;
 
   r = (uint64_t) p->heap_addr + p->heap_size;
 
-  for(i = 0; i < (rax / 0x1000) + 1; i++) {
+  for(i = 0; i < (count / 0x1000) + 1; i++) {
     if(DispatcherProcessAllocatePage(p, p->heap_addr + p->heap_size, 0, PAGING_USER | PAGING_RW | PAGING_PRESENT) == NULL) {
       // TODO Clean up
       return (uint64_t) NULL;

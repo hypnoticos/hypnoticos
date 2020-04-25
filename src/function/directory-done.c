@@ -23,23 +23,18 @@
 #include <hypnoticos/hypnoticos.h>
 
 /**
- * Clean up.
- * @param  p   The process.
- * @param  rax The lock entry ID.
- * @param  rbx Not used.
- * @param  rcx Not used.
- * @param  rdx Not used.
- * @param  rsi Not used.
- * @param  rdi Not used.
- * @return     Always returns 0.
+ * Clean up a KernelFunctionDirectoryGet instance.
+ * @param  p             The process.
+ * @param  lock_entry_id The lock entry ID.
+ * @return               Always returns 0.
  */
-uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t lock_entry_id)
+{
   DispatcherOpenIndex_t *lock_entry;
 
   // Get the index lock entry
-  if((lock_entry = DispatcherIndexLockRetrieve(p, rax)) == NULL) {
+  if((lock_entry = DispatcherIndexLockRetrieve(p, lock_entry_id)) == NULL)
     return 0;
-  }
 
   // TODO Clean up lock_entry->directory_data
 

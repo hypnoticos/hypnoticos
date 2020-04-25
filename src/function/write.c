@@ -22,16 +22,25 @@
 #include <hypnoticos/function.h>
 #include <hypnoticos/hypnoticos.h>
 
-uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+/**
+ * Write a specified number of bytes to a file descriptor from a buffer.
+ * @param  p           The process struct for this process.
+ * @param  fd          The file descriptor.
+ * @param  buffer_addr The buffer.
+ * @param  count       The number of bytes.
+ * @return             The result of write()
+ */
+uint64_t KernelFunctionWrite(DispatcherProcess_t *p, uint64_t fd, uint64_t buffer_addr, uint64_t count)
+{
   char *pa;
 
   // Translate va to pa
-  pa = GET_PA(rbx);
+  pa = GET_PA(buffer_addr);
   if(pa == NULL) {
     WARNING();
     return 0;
   }
 
   // Send to output buffer
-  return write(rax, pa, rcx);
+  return write(fd, pa, count);
 }

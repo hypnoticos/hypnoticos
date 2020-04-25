@@ -25,8 +25,18 @@
 #include <hypnoticos/hypnoticos.h>
 
 // TODO Implement this fully.
-// NOTE: For now, this function does not wait the requested number of seconds, but instead suspends the process for a small period of time based upon the number of seconds requested to wait
-uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+
+/**
+ * Suspend the process for a number of ticks which will be multiplied by 1000.
+ * NOTE: For now, this function does not wait the requested number of seconds,
+ * but instead suspends the process for a small period of time based upon the
+ * number of seconds requested to wait.
+ * @param p     The process struct for the process to be suspended.
+ * @param ticks The number of ticks to suspend the process for will be this
+ *              parameter multiplied by 1000.
+ */
+void KernelFunctionSleep(DispatcherProcess_t *p, uint64_t ticks)
+{
   uint64_t ticks_current, ticks_wait;
   FunctionSleep_t *data;
 
@@ -37,7 +47,7 @@ uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx,
   }
 
   ticks_current = IdtTicks;
-  ticks_wait = rax * 10000;
+  ticks_wait = ticks * 10000;
 
   // TODO Lock struct
 
@@ -50,6 +60,12 @@ uint64_t KernelFunctionSleep(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx,
   __builtin_unreachable();
 }
 
+/**
+ * Test whether the number of ticks multiplied by 1000 have passed. If the
+ * number of ticks multiplied by 1000 have passed then the suspension is
+ * lifted.
+ * @param p The process struct for this process.
+ */
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p) {
   FunctionSleep_t *data;
   uint64_t ticks_current;
@@ -63,11 +79,8 @@ void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p) {
     // TODO
   } else {
     if(ticks_current >= data->tick) {
-      // Done
       free(p->suspend_data);
-      p->suspend = DISPATCHER_SUSPEND_NONE;
+      KernelFunctionDone(p, 0);
     }
   }
-
-  // TODO Return value
 }

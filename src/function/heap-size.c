@@ -19,6 +19,12 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/dispatcher.h>
 
-uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+/**
+ * Returns the size of the process's heap.
+ * @param  p The process struct for the process.
+ * @return   The size of the process's heap.
+ */
+uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p)
+{
   return p->heap_size;
 }

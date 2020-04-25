@@ -25,25 +25,23 @@
 #include <hypnoticos/hypnoticos.h>
 
 /**
- * Retrieve details of this directory entry.
- * @param  p   The process
- * @param  rax The index lock ID of the directory.
- * @param  rbx The offset in the list.
- * @param  rcx The address where the FsIndex_t structure should be placed.
- * @param  rdx Not used.
- * @param  rsi Not used.
- * @param  rdi Not used.
- * @return     0 on failure, 1 on success.
+ * Retrieve details of a directory entry for a KernelFunctionDirectoryGet
+ * instance.
+ * @param  p             The process
+ * @param  lock_entry_id The index lock ID of the directory.
+ * @param  offset        The offset in the list.
+ * @param  index_addr    The address where the FsIndex_t structure should be
+ *                       placed.
+ * @return               0 on failure, 1 on success.
  */
-uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi) {
+uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t lock_entry_id, uint64_t offset, uint64_t index_addr)
+{
   DispatcherOpenIndex_t *lock_entry;
-  uint64_t offset = rbx;
   FsIndex_t *ptr;
 
   // Get the index lock entry
-  if((lock_entry = DispatcherIndexLockRetrieve(p, rax)) == NULL) {
+  if((lock_entry = DispatcherIndexLockRetrieve(p, lock_entry_id)) == NULL)
     return 0;
-  }
 
   // Check that the offset exists
   uint64_t max_offset;
@@ -55,7 +53,7 @@ uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t rax, uint
   }
 
   // Translate va to pa
-  ptr = GET_PA(rcx);
+  ptr = GET_PA(index_addr);
   if(ptr == NULL) {
     WARNING();
     return 0;
