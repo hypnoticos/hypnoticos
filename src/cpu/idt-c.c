@@ -38,6 +38,9 @@ extern uint32_t IdtCallVector;
 extern uint16_t IdtLimit;
 extern uint64_t IdtBase;
 uint8_t IdtFull = 0;
+extern uint16_t IdtCallCs;
+extern uint8_t IdtCallErrorCode;
+extern uint64_t IdtCallErrorCodeOnStack;
 
 uint64_t __attribute__((aligned(8))) IdtTicks = 0;
 
@@ -97,7 +100,7 @@ void IdtCall() {
   DispatcherProcess_t *p;
   uint8_t local_apic_id;
   DispatcherCpu_t *dispatcher_cpu_entry;
-  const static char *descriptions[] = {
+  const static char *exception_descriptions[] = {
     "#DE, Divide Error",                                // 0
     "#DB, Debug Exception",                             // 1
     "NMI Interrupt",                                    // 2
@@ -120,14 +123,63 @@ void IdtCall() {
     "#XM, SIMD Floating-Point Exception",               // 19
     "#VE, Virtualization Exception"                     // 20
   };
+  const static char *level_descriptions[] = {
+    "Kernel level",
+    "(unknown)",
+    "(unknown)",
+    "Process level"
+  };
 
   // TODO Handle IRQs
   if(IdtCallVector <= 31) {
-    printf("\nEXCEPTION - VECTOR %u (%s)", IdtCallVector,
-      descriptions[(IdtCallVector > 20 ? 15 : IdtCallVector)]);
+    uint8_t privilege_level = (IdtCallCs & 0x3);
 
-    while(1) {
-      asm("hlt");
+    printf("\n");
+    printf("**** EXCEPTION ****\n");
+    printf("Vector: %u (%s)\n", IdtCallVector,
+      exception_descriptions[(IdtCallVector > 20 ? 15 : IdtCallVector)]);
+
+    if(IdtCallErrorCode) {
+      printf("Error code: 0x%X\n", IdtCallErrorCodeOnStack);
+    } else {
+      printf("Error code: (none)\n");
+    }
+    printf("Exception occurred at: %s\n", level_descriptions[privilege_level]);
+    printf("Saved registers:\n");
+    printf("  rsp=0x%X rbp=0x%X\n", IdtCallSavedRsp, IdtCallSavedRbp);
+    printf("  rax=0x%X rbx=0x%X\n", IdtCallSavedRax, IdtCallSavedRbx);
+    printf("  rcx=0x%X rdx=0x%X\n", IdtCallSavedRcx, IdtCallSavedRdx);
+    printf("  rsi=0x%X rdi=0x%X\n", IdtCallSavedRsi, IdtCallSavedRdi);
+    printf("  rip=0x%X rflags=0x%X\n", IdtCallSavedRip, IdtCallSavedRflags);
+    printf("  r8=0x%X r9=0x%X\n", IdtCallSavedR8, IdtCallSavedR9);
+    printf("  r10=0x%X r11=0x%X\n", IdtCallSavedR10, IdtCallSavedR11);
+    printf("  r12=0x%X r13=0x%X\n", IdtCallSavedR12, IdtCallSavedR13);
+    printf("  r14=0x%X r15=0x%X\n", IdtCallSavedR14, IdtCallSavedR15);
+
+    if(privilege_level != 3) {
+      printf("The exception occurred at non-process level, so the kernel will be halted.\n");
+halt:
+      HALT();
+      while(1) {
+        asm("hlt");
+      }
+    } else {
+      DispatcherCpu_t *dispatcher_cpu;
+      DispatcherProcess_t *p;
+      printf("The exception occurred at process level, so the process will be terminated.\n");
+
+      dispatcher_cpu = DispatcherGetCpu(APIC_LOCAL_GET_ID());
+
+      if(dispatcher_cpu->current_pid != 0 && (p = DispatcherFind(dispatcher_cpu->current_pid)) != NULL) {
+        printf("Terminating PID %u (%s)\n", p->pid, p->name);
+        DispatcherProcessDone(p);
+        dispatcher_cpu->current_pid = 0;
+        IdtWait();
+        __builtin_unreachable();
+      } else {
+        printf("Error terminating process.\n");
+        goto halt;
+      }
     }
   } else if(IdtCallVector == APIC_LOCAL_VECTOR_TIMER) {
     if(APIC_LOCAL_GET_ID() == ApicLocalBspId) {
