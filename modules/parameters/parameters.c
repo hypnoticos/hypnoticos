@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2020  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,15 +16,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef HYPNOTICOS_FUNCTION_H
-#define HYPNOTICOS_FUNCTION_H
+#include <stdio.h>
 
-#include <hypnoticos/dispatcher.h>
-#include <stdint.h>
+int main(int argc, char *argv[]) {
+  for(int i = 0; i < argc; i++) {
+    printf("argv[%u] = %s\n", i, argv[i]);
+  }
 
-uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint64_t rcx, uint64_t rdx, uint64_t rsi, uint64_t rdi);
-void KernelFunctionSuspend(DispatcherProcess_t *p, uint32_t suspend, void *data);
-void KernelFunctionSuspendTest(DispatcherProcess_t *p);
-void KernelFunctionDone(DispatcherProcess_t *p, uint64_t rax);
-
-#endif
+  return 0;
+}

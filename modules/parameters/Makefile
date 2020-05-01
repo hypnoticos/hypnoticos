@@ -16,39 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-SUBDIRS=test console list parameters
-INSTALLDIRS=$(SUBDIRS:%=install-%)
-CLEANDIRS=$(SUBDIRS:%=clean-%)
+BUILD=parameters
+BUILD_OBJS=parameters.o
 
-export CFLAGS=$(CFLAGS_MODULES)
-export NASMFLAGS=$(NASMFLAGS_MODULES)
-export LDFLAGS=$(LDFLAGS_MODULES)
-export LIBS=$(LIBS_MODULES)
-export CRT0=$(shell pwd)/crt0.o
+.PHONY: install $(BUILD) clean
 
-.PHONY: install clean subdirs $(SUBDIRS) $(INSTALLDIRS) $(CLEANDIRS)
+all: $(BUILD)
 
-all: $(CRT0) subdirs
-
-subdirs: $(SUBDIRS)
-
-$(SUBDIRS):
-	+$(MAKE) -C $@
+install: $(BUILD)
 
 %.o: %.nasm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
-install-prepare:
-	$(MKDIR) $(MEMORYDISK_ROOT)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-install: install-prepare subdirs $(INSTALLDIRS)
+$(BUILD): $(BUILD_OBJS)
+	$(CC) -T link.ld -o $@ $(CFLAGS) $(BUILD_OBJS) $(CRT0) $(LDFLAGS) $(LIBS)
+	mkdir -p $(MEMORYDISK_ROOT)/bin
+	cp $(BUILD) $(MEMORYDISK_ROOT)/bin/$(BUILD)
 
-$(INSTALLDIRS):
-	$(MAKE) -C $(@:install-%=%) install
-
-$(CLEANDIRS):
-	rm -f $(CRT0)
-	rm -Rf $(MEMORYDISK_ROOT)
-	$(MAKE) -C $(@:clean-%=%) clean
-
-clean: $(CLEANDIRS)
+clean:
+	$(RM) $(BUILD) $(BUILD_OBJS)

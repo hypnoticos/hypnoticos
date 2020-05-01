@@ -164,3 +164,45 @@ uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data,
 
   return 1;
 }
+
+/**
+ * Create a page for the process which contains initialisation data.
+ * @param  p The process.
+ * @return   0 on failure, 1 on success.
+ */
+uint8_t DispatcherProcessSetUpInitData(DispatcherProcess_t *p)
+{
+  if(DispatcherProcessAllocatePage(p, INIT_DATA_DEFAULT_ADDR, 0, INIT_DATA_FLAGS) == NULL)
+    return 0;
+
+  p->init_data_addr = ((void *) INIT_DATA_DEFAULT_ADDR);
+  p->init_data_size = 0x1000;
+  p->init_data_ptr = p->init_data_addr;
+
+  return 1;
+}
+
+/**
+ * Adds data to the initialisation data page(s) which the process can access.
+ * @param  p    The process.
+ * @param  data The data.
+ * @param  size The size of the data.
+ * @return      The virtual address of the data.
+ */
+void *DispatcherProcessAddInitData(DispatcherProcess_t *p, void *data, uint64_t size)
+{
+  void *ptr_pa, *ptr_va;
+
+  ptr_va = p->init_data_ptr;
+  ptr_pa = GET_PA(((uint64_t) ptr_va));
+
+  if(((uint64_t) p->init_data_addr) + p->init_data_size < ((uint64_t) p->init_data_ptr) + size)
+    if(DispatcherProcessAllocatePage(p, ((uint64_t) p->init_data_addr) + p->init_data_size, 0, INIT_DATA_FLAGS) == NULL)
+      return NULL;
+
+  p->init_data_ptr = (void *) (((uint64_t) p->init_data_ptr) + size);
+
+  memcpy(ptr_pa, data, size);
+
+  return ptr_va;
+}

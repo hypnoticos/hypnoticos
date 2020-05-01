@@ -96,6 +96,26 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
 
   DispatcherProcessAllocatePage(p, p->heap_addr, 0, PAGING_USER | PAGING_RW | PAGING_PRESENT);
 
+  if(!DispatcherProcessSetUpInitData(p)) {
+    return NULL;
+  }
+
+  char **argv = malloc(sizeof(char *));
+  int argc = 1;
+  if((argv[0] = DispatcherProcessAddInitData(p, p->name, strlen(p->name) + 1)) == NULL) {
+    return NULL;
+  }
+
+  uint64_t argv_addr;
+  if((argv_addr = (uint64_t) DispatcherProcessAddInitData(p, argv, (argc * sizeof(char *)))) == NULL) {
+    return NULL;
+  }
+
+  free(argv);
+
+  p->save.rdi = argc;
+  p->save.rsi = (uint64_t) argv_addr;
+
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
   DispatcherProcesses = realloc(DispatcherProcesses, sizeof(DispatcherProcess_t *) * (i + 2));

@@ -68,12 +68,18 @@ struct _DispatcherProcessVa_t {
   uint8_t ignore; /*!< 0 = Kernel functions will not ignore this virtual address range. 1 = Kernel funtions will ignore this virtual address range. */
 };
 
+#define INIT_DATA_DEFAULT_ADDR              0x1FFF0000
+#define INIT_DATA_FLAGS                     (PAGING_USER | PAGING_PRESENT)
+
 struct _DispatcherProcess_t {
   uint16_t pid;
   char *name;
   void *stack;
   uint64_t heap_addr;
   uint64_t heap_size;
+  void *init_data_addr;
+  uint64_t init_data_size;
+  void *init_data_ptr;
   DispatcherProcessSave_t save;
   uint8_t run;
   uint64_t last_cycle;
@@ -119,6 +125,8 @@ extern DispatcherProcess_t **DispatcherProcesses;
 extern DispatcherCpu_t **DispatcherCpus;
 extern uint16_t last_pid;
 
+#define GET_PA(va)                    DispatcherProcessGetPa(p, va, 1)
+
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);
 DispatcherOpenIndex_t *DispatcherIndexLockAttempt(DispatcherProcess_t *p, const char *path);
@@ -141,5 +149,7 @@ void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
 void DispatcherSave(uint8_t apic_id);
 void DispatcherSetUpNext(uint8_t apic_id);
 uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size);
+uint8_t DispatcherProcessSetUpInitData(DispatcherProcess_t *p);
+void *DispatcherProcessAddInitData(DispatcherProcess_t *p, void *data, uint64_t size);
 
 #endif
