@@ -29,7 +29,7 @@
 
 int vsnprintf(char *dest, size_t count, const char *format, va_list va) {
   uint64_t ret = 0, i = 0, i2, i3;
-  unsigned int arg_uint;
+  uint64_t arg_uint;
   char *arg_string, buffer[HYPNOTICOS_MAX_DIGITS + 1];
   int arg_int;
 
@@ -40,7 +40,7 @@ int vsnprintf(char *dest, size_t count, const char *format, va_list va) {
         arg_int = va_arg(va, int);
         VSNPRINTF_WRITE(arg_int);
       } else if(format[i] == 'p' || format[i] == 'u' || format[i] == 'x' || format[i] == 'X') {
-        arg_uint = va_arg(va, unsigned int); // TODO %llu
+        arg_uint = va_arg(va, uint64_t); // TODO %llu
         if(arg_uint == 0) {
           VSNPRINTF_WRITE('0');
         } else {
