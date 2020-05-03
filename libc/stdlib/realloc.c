@@ -47,16 +47,40 @@ void *realloc(void *addr, size_t new_size) {
 #else
 
 #include <stdlib.h>
-#include <hypnoticos/unimplemented.h> // TODO Remove once implemented
+#include <string.h>
+#include <hypnoticos/memory.h>
 
-// TODO
-void *realloc(void *addr, size_t new_size) {
-  (void) addr;
-  (void) new_size;
+/**
+ * Process level realloc function. Extend or reduce the size of dynamically
+ * allocated memory.
+ * @param  addr     The current address of the dynamically allocated memory.
+ * @param  new_size The new size of the dynamically allocated memory.
+ * @return          NULL on error, or a pointer to the new address for the
+ *                  dynamically allocated memory.
+ */
+void *realloc(void *addr, size_t new_size)
+{
+  void *new_ptr;
+  malloc_entry_t *entry;
 
-  UNIMPLEMENTED();
+  entry = (malloc_entry_t *) ((uint64_t) addr - sizeof(malloc_entry_t));
 
-  return NULL;
+  if(entry->magic != MALLOC_MAGIC)
+    return NULL;
+
+  if((new_ptr = malloc(new_size)) == NULL)
+    return NULL;
+
+  if(new_size < entry->size) {
+    memcpy(new_ptr, addr, new_size);
+  } else {
+    memcpy(new_ptr, addr, entry->size);
+    memset((void *) (((uint64_t) new_ptr) + entry->size), 0, new_size - entry->size);
+  }
+
+  free(addr);
+
+  return new_ptr;
 }
 
 #endif
