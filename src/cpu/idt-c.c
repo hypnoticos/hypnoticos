@@ -41,6 +41,7 @@ uint8_t IdtFull = 0;
 extern uint16_t IdtCallCs;
 extern uint8_t IdtCallErrorCode;
 extern uint64_t IdtCallErrorCodeOnStack;
+extern uint64_t IdtCallSavedCr2;
 
 uint64_t __attribute__((aligned(8))) IdtTicks = 0;
 
@@ -155,6 +156,7 @@ void IdtCall() {
     printf("  r10=0x%X r11=0x%X\n", IdtCallSavedR10, IdtCallSavedR11);
     printf("  r12=0x%X r13=0x%X\n", IdtCallSavedR12, IdtCallSavedR13);
     printf("  r14=0x%X r15=0x%X\n", IdtCallSavedR14, IdtCallSavedR15);
+    printf("  cr2=0x%X\n", IdtCallSavedCr2);
 
     if(privilege_level != 3) {
       printf("The exception occurred at non-process level, so the kernel will be halted.\n");

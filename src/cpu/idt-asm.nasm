@@ -17,11 +17,12 @@
 ;
 
 global IdtSet
-global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, Idt242, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedRsp, IdtCallSavedRbp, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi, IdtCallSavedRip, IdtCallSavedRflags, IdtCallSavedR8, IdtCallSavedR9, IdtCallSavedR10, IdtCallSavedR11, IdtCallSavedR12, IdtCallSavedR13, IdtCallSavedR14, IdtCallSavedR15, IdtStackTop, IdtLimit, IdtBase, IdtWait, IdtCallCs, IdtCallErrorCode, IdtCallErrorCodeOnStack
+global Idt0, Idt1, Idt2, Idt3, Idt4, Idt5, Idt6, Idt7, Idt8, Idt9, Idt10, Idt11, Idt12, Idt13, Idt14, Idt16, Idt17, Idt18, Idt19, Idt20, Idt48, Idt49, Idt50, Idt51, Idt52, Idt53, Idt54, Idt55, Idt56, Idt57, Idt58, Idt59, Idt60, Idt61, Idt62, Idt63, Idt64, Idt65, Idt66, Idt67, Idt68, Idt69, Idt70, Idt71, Idt160, Idt240, Idt241, Idt242, IdtReserved, IdtCallVector, IdtCallSavedCr3, IdtCallSavedRsp, IdtCallSavedRbp, IdtCallSavedRax, IdtCallSavedRbx, IdtCallSavedRcx, IdtCallSavedRdx, IdtCallSavedRsi, IdtCallSavedRdi, IdtCallSavedRip, IdtCallSavedRflags, IdtCallSavedR8, IdtCallSavedR9, IdtCallSavedR10, IdtCallSavedR11, IdtCallSavedR12, IdtCallSavedR13, IdtCallSavedR14, IdtCallSavedR15, IdtStackTop, IdtLimit, IdtBase, IdtWait, IdtCallCs, IdtCallErrorCode, IdtCallErrorCodeOnStack, IdtCallSavedCr2
 extern IdtGates, IdtCall, MemoryKernelPML4, ApicLocalEoi, ApInitDone, ApicLocalSetUpTimer, ApStartNewStack, GdtEntries
 
 section .data
 align 8
+  IdtCallSavedCr2 dq 0
   IdtCallSavedCr3 dq 0
   IdtCallSavedRsp dq 0
   IdtCallSavedRbp dq 0
@@ -125,6 +126,8 @@ IdtCallManage:
 
   .Continue:
     push rax
+    mov rax, cr2
+    mov [IdtCallSavedCr2], rax
     mov rax, [rsp + 8]
     mov [IdtCallErrorCodeOnStack], rax
     mov rax, [rsp + 16]
