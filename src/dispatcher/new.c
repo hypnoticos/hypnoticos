@@ -49,7 +49,8 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
   return 1;
 }
 
-DispatcherProcess_t *DispatcherProcessNew(char *name) {
+DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc)
+{
   DispatcherProcess_t *p;
   uint32_t i;
 
@@ -100,21 +101,29 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
     return NULL;
   }
 
-  char **argv = malloc(sizeof(char *));
-  int argc = 1;
-  if((argv[0] = DispatcherProcessAddInitData(p, p->name, strlen(p->name) + 1)) == NULL) {
+  char **process_argv = malloc(sizeof(char *) * argc);
+  for(i = 0; i < argc; i++) {
+    char *data;
+    if(i == 0) {
+      data = p->name;
+    } else {
+      data = argv[i - 1];
+    }
+
+    if((process_argv[i] = DispatcherProcessAddInitData(p, data, strlen(data) + 1)) == NULL) {
+      return NULL;
+    }
+  }
+
+  uint64_t process_argv_addr;
+  if((process_argv_addr = (uint64_t) DispatcherProcessAddInitData(p, process_argv, (argc * sizeof(char *)))) == NULL) {
     return NULL;
   }
 
-  uint64_t argv_addr;
-  if((argv_addr = (uint64_t) DispatcherProcessAddInitData(p, argv, (argc * sizeof(char *)))) == NULL) {
-    return NULL;
-  }
-
-  free(argv);
+  free(process_argv);
 
   p->save.rdi = argc;
-  p->save.rsi = (uint64_t) argv_addr;
+  p->save.rsi = (uint64_t) process_argv_addr;
 
   for(i = 0; DispatcherProcesses[i] != NULL; i++);
 
@@ -127,7 +136,8 @@ DispatcherProcess_t *DispatcherProcessNew(char *name) {
 
 #ifndef _HYPNOTICOS_TESTS
 
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path) {
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path, char **argv, int argc)
+{
   uint32_t format = 0;
   DispatcherProcess_t *p;
   FsIndex_t *file_index;
@@ -179,7 +189,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path) {
     return NULL;
   }
 
-  p = DispatcherProcessNew(path);
+  p = DispatcherProcessNew(path, argv, argc);
   if(p == NULL) {
     WARNING();
     free(data);

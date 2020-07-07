@@ -56,7 +56,7 @@ void KernelFunctionExit(DispatcherProcess_t *p, uint64_t return_value);
 uint64_t KernelFunctionNewPage(DispatcherProcess_t *p, uint64_t count);
 uint64_t KernelFunctionHeapAddr(DispatcherProcess_t *p);
 uint64_t KernelFunctionHeapSize(DispatcherProcess_t *p);
-uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path);
+uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path, uint64_t argv, uint64_t argc);
 uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t path);
 uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t lock_entry_id);
 uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t lock_entry_id, uint64_t offset, uint64_t index_addr);

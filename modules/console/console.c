@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <hypnoticos/hypnoticos.h>
 
 void CommandRun();
@@ -63,37 +64,72 @@ int main(int argc, char **argv) {
 void CommandRun() {
   char filename[80], c;
 
+  memset(filename, 0, 80);
+  printf("Location of binary: ");
+
+  while(strlen(filename) < 79) {
+    c = fgetc(stdin);
+
+    if(c == '\n') {
+      break;
+    } else if(c == '\b') {
+      if(strlen(filename) != 0) {
+        filename[strlen(filename) - 1] = 0;
+      }
+    } else {
+      filename[strlen(filename)] = c;
+      putchar(c);
+    }
+  }
+  putchar('\n');
+
+  if(filename[0] == 0) {
+    return;
+  }
+
+  char **argv = NULL;
+  char this_param[80];
+  int param_count = 1;
   while(1) {
-    memset(filename, 0, 80);
-    printf("Location of binary: ");
+    memset(this_param, 0, 80);
+    printf("Parameter %u: ", param_count);
 
     // TODO malloc
-    while(strlen(filename) < 79) {
+    while(strlen(this_param) < 79) {
       c = fgetc(stdin);
 
       if(c == '\n') {
         break;
       } else if(c == '\b') {
-        if(strlen(filename) != 0) {
-          filename[strlen(filename) - 1] = 0;
+        if(strlen(this_param) != 0) {
+          this_param[strlen(this_param) - 1] = 0;
         }
       } else {
-        filename[strlen(filename)] = c;
+        this_param[strlen(this_param)] = c;
         putchar(c);
       }
     }
     putchar('\n');
 
-    if(filename[0] == 0) {
-      return;
-    }
-
-    uint16_t pid;
-    if((pid = Run(filename)) == 0) {
-      printf("Failed to run binary.\n");
+    if(this_param[0] == 0) {
+      break;
     } else {
-      printf("PID %u\n", pid);
-      return;
+      if(argv == NULL) {
+        argv = malloc(sizeof(char *) * param_count);
+      } else {
+        argv = realloc(argv, sizeof(char *) * param_count);
+      }
+
+      argv[param_count - 1] = malloc(strlen(this_param) + 1);
+      strcpy(argv[param_count - 1], this_param);
+      param_count++;
     }
+  }
+
+  uint16_t pid;
+  if((pid = Run(filename, argv, param_count)) == 0) {
+    printf("Failed to run binary.\n");
+  } else {
+    printf("PID %u\n", pid);
   }
 }

@@ -67,7 +67,7 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     break;
 
     case KERNEL_FUNCTION_RUN:
-    return KernelFunctionRun(p, rax);
+    return KernelFunctionRun(p, rax, rbx, rcx);
     break;
 
     case KERNEL_FUNCTION_DIRECTORY_GET:

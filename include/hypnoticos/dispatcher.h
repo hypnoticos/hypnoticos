@@ -127,6 +127,8 @@ extern uint16_t last_pid;
 
 #define GET_PA(va)                    DispatcherProcessGetPa(p, va, 1)
 
+#define MAX_ARGC                      500000
+
 DispatcherProcess_t *DispatcherFind(uint16_t pid);
 DispatcherCpu_t *DispatcherGetCpu(uint8_t cpu);
 DispatcherOpenIndex_t *DispatcherIndexLockAttempt(DispatcherProcess_t *p, const char *path);
@@ -142,8 +144,8 @@ void DispatcherProcessDone(DispatcherProcess_t *p);
 void *DispatcherProcessGetPa(DispatcherProcess_t *p, uint64_t va, uint8_t ignore);
 uint8_t DispatcherProcessLoadAt(DispatcherProcess_t *p, uint64_t va, char *data, uint64_t file_size, uint64_t memory_size, uint32_t flags);
 uint8_t DispatcherProcessMap(DispatcherProcess_t *p, uint64_t va, uint64_t pa, uint8_t kernel_function_ignore, uint32_t flags);
-DispatcherProcess_t *DispatcherProcessNew(char *name);
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path);
+DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc);
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path, char **argv, int argc);
 void DispatcherProcessRun(DispatcherProcess_t *p);
 void DispatcherProcessSetRip(DispatcherProcess_t *p, uint64_t rip);
 void DispatcherSave(uint8_t apic_id);

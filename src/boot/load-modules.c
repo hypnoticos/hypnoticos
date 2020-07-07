@@ -53,7 +53,7 @@ uint8_t BootLoadModules() {
   FsNewRoot(ROOT_TYPE_HYPNOTICFS, &(StorageDevices[0]), 0);
 
   // Create process
-  if(!DispatcherProcessNewFromFormat("/bin/console")) {
+  if(!DispatcherProcessNewFromFormat("/bin/console", NULL, 0)) {
     WARNING();
     return 0;
   } else {

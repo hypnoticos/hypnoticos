@@ -24,10 +24,13 @@
 /**
  * Run a binary.
  * @param  path The path to the binary.
+ * @param  argv The parameters, excluding the first parameter (path to binary).
+ * @param  argc The number of parameters + 1.
  * @return      The process ID, or 0 on error.
  */
-uint16_t Run(char *path) {
-  return KernelFunctionInterface((uint64_t) path, 0, 0, 0, 0, KERNEL_FUNCTION_RUN);
+uint16_t Run(char *path, char **argv, int argc)
+{
+  return KernelFunctionInterface((uint64_t) path, (uint64_t) argv, (uint64_t) argc, 0, 0, KERNEL_FUNCTION_RUN);
 }
 
 #endif

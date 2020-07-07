@@ -184,6 +184,7 @@ uint8_t DispatcherProcessSetUpInitData(DispatcherProcess_t *p)
 
 /**
  * Adds data to the initialisation data page(s) which the process can access.
+ * The data will be 64-bit aligned.
  * @param  p    The process.
  * @param  data The data.
  * @param  size The size of the data.
@@ -192,6 +193,9 @@ uint8_t DispatcherProcessSetUpInitData(DispatcherProcess_t *p)
 void *DispatcherProcessAddInitData(DispatcherProcess_t *p, void *data, uint64_t size)
 {
   void *ptr_pa, *ptr_va;
+  uint8_t additional;
+
+  additional = (size % 8);
 
   ptr_va = p->init_data_ptr;
   ptr_pa = GET_PA(((uint64_t) ptr_va));
@@ -200,9 +204,12 @@ void *DispatcherProcessAddInitData(DispatcherProcess_t *p, void *data, uint64_t 
     if(DispatcherProcessAllocatePage(p, ((uint64_t) p->init_data_addr) + p->init_data_size, 0, INIT_DATA_FLAGS) == NULL)
       return NULL;
 
-  p->init_data_ptr = (void *) (((uint64_t) p->init_data_ptr) + size);
+  p->init_data_ptr = (void *) (((uint64_t) ptr_va) + size + additional);
 
   memcpy(ptr_pa, data, size);
+
+  if(additional != 0)
+    memset((void *) (((uint64_t) ptr_pa) + size), 0, additional);
 
   return ptr_va;
 }

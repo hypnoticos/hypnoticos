@@ -50,7 +50,7 @@
 extern void *AddrStart, *AddrEnd;
 #else
 #include <stdint.h>
-uint16_t Run(char *path);
+uint16_t Run(char *path, char **argv, int argc);
 #endif
 
 #endif

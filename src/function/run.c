@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <stdlib.h>
 #include <hypnoticos/memory.h>
 #include <hypnoticos/dispatcher.h>
 #include <hypnoticos/hypnoticos.h>
@@ -26,21 +27,44 @@
  * Run a binary.
  * @param  p    The process struct for the process which will call the binary.
  * @param  path The path of the binary.
+ * @param  argv An array containing each parameter to be passed to the binary,
+ *              not including what the binary will see as argv[0].
+ * @param  argc The number of parameters + 1 (this argument cannot be 0).
  * @return      Returns 0 on failure, or the PID of the new process on success.
  */
-uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path)
+uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path, uint64_t argv, uint64_t argc)
 {
   char *path_pa;
+  char **argv_va;
+  char **argv_pa;
   DispatcherProcess_t *process;
 
-  // Translate va to pa
   path_pa = GET_PA(path);
   if(path_pa == NULL) {
     WARNING();
     return 0;
   }
 
-  if((process = DispatcherProcessNewFromFormat(path_pa)) == NULL) {
+  if(argc == 0 || argc > MAX_ARGC) {
+    return 0;
+  } else if(argc > 1) {
+    if((argv_pa = malloc(sizeof(char *) * argc)) == NULL)
+      return 0;
+
+    if((argv_va = GET_PA(argv)) == NULL) {
+      free(argv_pa);
+      return 0;
+    }
+
+    for(int i = 0; i < (argc - 1); i++) {
+      if((argv_pa[i] = GET_PA((uint64_t) (argv_va[i]))) == NULL) {
+        WARNING();
+        return 0;
+      }
+    }
+  }
+
+  if((process = DispatcherProcessNewFromFormat(path_pa, argv_pa, argc)) == NULL) {
     return 0;
   } else {
     return process->pid;
