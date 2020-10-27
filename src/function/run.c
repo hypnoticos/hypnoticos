@@ -36,7 +36,7 @@ uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path, uint64_t argv,
 {
   char *path_pa;
   char **argv_va;
-  char **argv_pa;
+  char **argv_pa = NULL;
   DispatcherProcess_t *process;
 
   path_pa = GET_PA(path);
