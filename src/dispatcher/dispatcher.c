@@ -28,7 +28,6 @@
 uint64_t DispatcherCycle = 0;
 uint16_t last_pid = 0;
 DispatcherProcess_t **DispatcherProcesses;
-DispatcherCpu_t **DispatcherCpus;
 
 DispatcherProcess_t *DispatcherFind(uint16_t pid) {
   uint32_t i;
