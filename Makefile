@@ -1,6 +1,6 @@
 #
 # HypnoticOS
-# Copyright (C) 2019  jk30
+# Copyright (C) 2019, 2020, 2024  jk30
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ export RM=rm -f
 export MAKE=make
 export TARGET=$(ARCHITECTURE)-elf
 
-export CFLAGS ?= -O2 -Wall
+export CFLAGS ?= -O1 -Wall
 export NASM ?= nasm
 export NASMFLAGS ?= -f elf64
 export AR ?= ar
@@ -54,7 +54,7 @@ export LOCAL_CFLAGS := $(CFLAGS)
 export LOCAL_LDFLAGS := $(LDFLAGS)
 
 export CC=$(TARGET)-gcc
-export CFLAGS=-O2 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -mno-sse
+export CFLAGS=-O1 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCHITECTURE_UPPERCASE) --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -mno-sse
 # TODO Support larger page sizes for modules
 export CFLAGS_KERNEL_DEFINITION=-D_HYPNOTICOS_KERNEL
 export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -nostdlib -mno-sse -zmax-page-size=0x1000
