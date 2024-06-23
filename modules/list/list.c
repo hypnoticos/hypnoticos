@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     if(entry.type == INDEX_TYPE_DIRECTORY) {
       printf("%s\n", type);
     } else {
-      printf("%s - %u bytes\n", type, entry.size);
+      printf("%s - %u bytes\n", type, (unsigned int) entry.size);
     }
   }
 

@@ -141,22 +141,22 @@ void IdtCall() {
       exception_descriptions[(IdtCallVector > 20 ? 15 : IdtCallVector)]);
 
     if(IdtCallErrorCode) {
-      printf("Error code: 0x%X\n", IdtCallErrorCodeOnStack);
+      printf("Error code: 0x%X\n", (unsigned int) IdtCallErrorCodeOnStack);
     } else {
       printf("Error code: (none)\n");
     }
     printf("Exception occurred at: %s\n", level_descriptions[privilege_level]);
     printf("Saved registers:\n");
-    printf("  rsp=0x%X rbp=0x%X\n", IdtCallSavedRsp, IdtCallSavedRbp);
-    printf("  rax=0x%X rbx=0x%X\n", IdtCallSavedRax, IdtCallSavedRbx);
-    printf("  rcx=0x%X rdx=0x%X\n", IdtCallSavedRcx, IdtCallSavedRdx);
-    printf("  rsi=0x%X rdi=0x%X\n", IdtCallSavedRsi, IdtCallSavedRdi);
-    printf("  rip=0x%X rflags=0x%X\n", IdtCallSavedRip, IdtCallSavedRflags);
-    printf("  r8=0x%X r9=0x%X\n", IdtCallSavedR8, IdtCallSavedR9);
-    printf("  r10=0x%X r11=0x%X\n", IdtCallSavedR10, IdtCallSavedR11);
-    printf("  r12=0x%X r13=0x%X\n", IdtCallSavedR12, IdtCallSavedR13);
-    printf("  r14=0x%X r15=0x%X\n", IdtCallSavedR14, IdtCallSavedR15);
-    printf("  cr2=0x%X\n", IdtCallSavedCr2);
+    printf("  rsp=0x%X rbp=0x%X\n", (unsigned int) IdtCallSavedRsp, (unsigned int) IdtCallSavedRbp);
+    printf("  rax=0x%X rbx=0x%X\n", (unsigned int) IdtCallSavedRax, (unsigned int) IdtCallSavedRbx);
+    printf("  rcx=0x%X rdx=0x%X\n", (unsigned int) IdtCallSavedRcx, (unsigned int) IdtCallSavedRdx);
+    printf("  rsi=0x%X rdi=0x%X\n", (unsigned int) IdtCallSavedRsi, (unsigned int) IdtCallSavedRdi);
+    printf("  rip=0x%X rflags=0x%X\n", (unsigned int) IdtCallSavedRip, (unsigned int) IdtCallSavedRflags);
+    printf("  r8=0x%X r9=0x%X\n", (unsigned int) IdtCallSavedR8, (unsigned int) IdtCallSavedR9);
+    printf("  r10=0x%X r11=0x%X\n", (unsigned int) IdtCallSavedR10, (unsigned int) IdtCallSavedR11);
+    printf("  r12=0x%X r13=0x%X\n", (unsigned int) IdtCallSavedR12, (unsigned int) IdtCallSavedR13);
+    printf("  r14=0x%X r15=0x%X\n", (unsigned int) IdtCallSavedR14, (unsigned int) IdtCallSavedR15);
+    printf("  cr2=0x%X\n", (unsigned int) IdtCallSavedCr2);
 
     if(privilege_level != 3) {
       printf("The exception occurred at non-process level, so the kernel will be halted.\n");

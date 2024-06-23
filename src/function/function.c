@@ -81,12 +81,11 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     case KERNEL_FUNCTION_DIRECTORY_ENTRY:
     return KernelFunctionDirectoryEntry(p, rax, rbx, rcx);
     break;
-
-    default:
-    // TODO Terminate process
-    WARNING();
-    return 0;
   }
+  
+  // TODO Terminate process
+  WARNING();
+  return 0;
 }
 
 /**

@@ -58,6 +58,10 @@ export CFLAGS=-O1 -Wall -D_HYPNOTICOS="\"$(HYPNOTICOS)\"" -D_ARCHITECTURE_$(ARCH
 # TODO Support larger page sizes for modules
 export CFLAGS_KERNEL_DEFINITION=-D_HYPNOTICOS_KERNEL
 export CFLAGS_MODULES=-O2 -Wall --sysroot=$(SYSROOT) -I$(INCDIR) -isystem=$(INCDIR) -nostdlib -mno-sse -zmax-page-size=0x1000
+ifdef _STRICT
+export CFLAGS += -Werror
+export CFLAGS_MODULES += -Werror
+endif
 
 export AR=$(TARGET)-ar
 

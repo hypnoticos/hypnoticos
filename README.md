@@ -44,6 +44,11 @@ To create an ISO which has debug mode enabled:
 _DEBUG=1 make iso
 ```
 
+To build the kernel, libc and the modules with the `-Werror` flag:
+```
+_WERROR=1 make iso
+```
+
 ## Debug mode
 
 When HypnoticOS is compiled with deubg mode, you can show `INFO`, `WARNING` and `HALT` output on the console if you run QEMU with the `-debugcon stdio` parameter. For example:

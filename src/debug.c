@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <hypnoticos/cpu.h>
 
 void printf_debug(const char *format, ...) {

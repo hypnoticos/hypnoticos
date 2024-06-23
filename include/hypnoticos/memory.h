@@ -89,8 +89,8 @@ extern uint64_t MemoryKernelPML4[512];
 
 #define MemoryPagingSetPageImitate(pd, pa, flags, page_size)     MemoryPagingSetPage(pd, pa, pa, flags, page_size)
 
-void *__malloc_align(size_t size, uint8_t align, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
-uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line);
+void *__malloc_align(size_t size, uint8_t align, const char *function, uint32_t line);
+uint8_t MemoryAllocated(void *addr, size_t size, const char *function, uint32_t line);
 MemoryTable_t *MemoryFind(void *addr);
 void *MemoryFindSpace(size_t size, uint8_t align);
 uint8_t MemoryNewBlock(multiboot_info_t *multiboot, multiboot_memory_map_t *mmap_entry);

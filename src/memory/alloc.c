@@ -21,7 +21,7 @@
 #include <hypnoticos/memory.h>
 #include <hypnoticos/hypnoticos.h>
 
-uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line) {
+uint8_t MemoryAllocated(void *addr, size_t size, const char *function, uint32_t line) {
   MemoryTableIndex_t *mti;
   MemoryTable_t *mt;
 
@@ -56,7 +56,7 @@ uint8_t MemoryAllocated(void *addr, size_t size, const char function[MEMORY_TABL
   HALT();
 }
 
-void *__malloc_align(size_t size, uint8_t align, const char function[MEMORY_TABLE_FUNCTION_LABEL_SIZE], uint32_t line) {
+void *__malloc_align(size_t size, uint8_t align, const char *function, uint32_t line) {
   void *addr;
   uint8_t restarted = 0;
 

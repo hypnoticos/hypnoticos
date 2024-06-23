@@ -90,10 +90,12 @@ void AcpiFindRsdp() {
   }
 }
 
-#define ACPI_CHECKSUM(ptr)        for(i = 0, sum = 0; i < ptr->length; \
-                                    sum += *((uint8_t *) ((uint64_t) ptr + i)), i++); \
-                                  if((sum & 0xFF) != 0x00) { \
-                                    HALT(); \
+#define ACPI_CHECKSUM(ptr)        { \
+                                    for(i = 0, sum = 0; i < ptr->length; \
+                                      sum += *((uint8_t *) ((uint64_t) ptr + i)), i++); \
+                                    if((sum & 0xFF) != 0x00) { \
+                                      HALT(); \
+                                    } \
                                   }
 
 uint8_t AcpiParse() {

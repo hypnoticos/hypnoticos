@@ -21,6 +21,8 @@
 #include <hypnoticos/boot.h>
 #include <multiboot.h>
 #include <hypnoticos/memory.h>
+#include <string.h>
+#include <stdlib.h>
 
 uint32_t BootModulesCount = 0;
 uint32_t BootModulesAddr = 0;
