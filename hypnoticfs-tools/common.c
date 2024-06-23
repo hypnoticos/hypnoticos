@@ -67,7 +67,7 @@ uint8_t PathConsolidate(const char *path, char *dest) {
       free(segments[i]);
       segments[i] = NULL;
       if(i != 0 && segments[i - 1] != NULL) {
-        free(segments[i] - 1);
+        free(segments[i - 1]);
         segments[i - 1] = NULL;
       }
     }
