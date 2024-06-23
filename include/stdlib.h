@@ -35,8 +35,6 @@ void free(void *addr);
 #else
 
 void exit(int code);
-void itoa(int64_t i, char *a);
-void itoh(int64_t i, char *a);
 void *malloc(size_t size);
 
 #ifdef _HYPNOTICOS_TESTS
@@ -45,6 +43,8 @@ void *malloc(size_t size);
 
 #endif
 
+void itoa(int64_t i, char *a);
+void itoh(int64_t i, char *a);
 void *realloc(void *addr, size_t new_size);
 
 #endif
