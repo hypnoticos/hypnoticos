@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <sys/types.h>
+#include <stdint.h>
 
 void *calloc(size_t count, size_t size);
 void free(void *addr);
@@ -34,6 +35,8 @@ void free(void *addr);
 #else
 
 void exit(int code);
+void itoa(int64_t i, char *a);
+void itoh(int64_t i, char *a);
 void *malloc(size_t size);
 
 #ifdef _HYPNOTICOS_TESTS

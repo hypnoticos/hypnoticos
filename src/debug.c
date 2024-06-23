@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -41,4 +41,11 @@ void printf_debug(const char *format, ...) {
   IoPort8Out(0xE9, '\n');
 
   free(buffer);
+}
+
+void puts_debug(const char *text) {
+  for(int i = 0; i < strlen(text); i++) {
+    IoPort8Out(0xE9, text[i]);
+  }
+  IoPort8Out(0xE9, '\n');
 }

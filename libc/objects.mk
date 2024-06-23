@@ -1,6 +1,6 @@
 #
 # HypnoticOS
-# Copyright (C) 2019, 2020  jk30
+# Copyright (C) 2019, 2020, 2024  jk30
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ LIBC_OBJS+=stdio/vsnprintf.o
 LIBC_OBJS+=stdlib/calloc.o
 LIBC_OBJS+=stdlib/exit.o
 LIBC_OBJS+=stdlib/free.o
+LIBC_OBJS+=stdlib/ito.o
 LIBC_OBJS+=stdlib/malloc.o
 LIBC_OBJS+=stdlib/realloc.o
 
