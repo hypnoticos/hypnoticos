@@ -85,7 +85,7 @@ uint8_t TssNew() {
   gdt_tss = (GdtTss_t *) ((uint64_t) &GdtEntries + (5 * 8) + (TssTotal * 16));
   gdt_tss->base_0_15 = ((uint64_t) new_tss & 0xFFFF);
   gdt_tss->base_16_23 = (((uint64_t) new_tss >> 16) & 0xFF);
-  gdt_tss->base_24_31 = (((uint64_t) new_tss >> 23) & 0xFF);
+  gdt_tss->base_24_31 = (((uint64_t) new_tss >> 24) & 0xFF);
   gdt_tss->base_32_63 = ((uint64_t) new_tss >> 32);
   gdt_tss->length = 0x2089;
   gdt_tss->middle_1 = 0x89;
