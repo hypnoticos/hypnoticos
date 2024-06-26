@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../../include/hypnoticos/memory.h"
 
 #define ERROR()       fprintf(stderr, "Error.\n");
@@ -36,11 +37,21 @@ int main(int argc, char *argv[]) {
   fprintf(stdout, "The results may differ from architecture to architecture so may be inaccurate.\n");
   fprintf(stdout, "\n");
 
-  if(argc != 3) {
+  if(argc < 3 || argc > 4) {
     fprintf(stdout, "Usage: %s file address\n", argv[0]);
     fprintf(stdout, "  file      HypnoticOS memory dump file\n");
     fprintf(stdout, "  address   Hex address of MemoryTableIndices within the memory dump\n");
+    fprintf(stdout, "  no-data   Optional - Set to 'y' to omit the data.\n");
     return 1;
+  }
+
+  short no_data = 0;
+  if(argc == 4) {
+    if(strcmp(argv[3], "y") != 0) {
+      ERROR();
+      return 1;
+    }
+    no_data = 1;
   }
 
   file = argv[1];
@@ -103,25 +114,27 @@ int main(int argc, char *argv[]) {
         return 1;
       }
       fprintf(stdout, "addr=0x%lX\tsize=0x%lX\t%s:%u\n", mt_entry->addr, mt_entry->size, mt_entry->function, mt_entry->line);
-      fprintf(stdout, "data:\n");
+      if(!no_data) {
+        fprintf(stdout, "data:\n");
 
-      fseek(f, (uint64_t) mt_entry->addr, SEEK_SET);
-      for(i3 = 0; i3 < mt_entry->size; i3++) {
-        if(fread(&c, 1, 1, f) != 1) {
-          ERROR();
-          fclose(f);
-          free(mt);
-          return 1;
+        fseek(f, (uint64_t) mt_entry->addr, SEEK_SET);
+        for(i3 = 0; i3 < mt_entry->size; i3++) {
+          if(fread(&c, 1, 1, f) != 1) {
+            ERROR();
+            fclose(f);
+            free(mt);
+            return 1;
+          }
+
+          if(i3 != 0 && (i3 % 16) == 0) {
+            fprintf(stdout, "\n");
+          }
+
+          fprintf(stdout, "%02X ", c & 0xFF);
         }
 
-        if(i3 != 0 && (i3 % 16) == 0) {
-          fprintf(stdout, "\n");
-        }
-
-        fprintf(stdout, "%02X ", c & 0xFF);
+        fprintf(stdout, "\n\n");
       }
-
-      fprintf(stdout, "\n\n");
     }
     fprintf(stdout, "\n");
     free(mt);
