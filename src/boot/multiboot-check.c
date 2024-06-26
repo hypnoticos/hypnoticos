@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -68,13 +68,16 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
     mmap_entry = (multiboot_memory_map_t *) ((uint64_t) mmap_addr + offset);
 
     // Check if the size parameter is invalid
-    if(offset + mmap_entry->size > mmap_length || mmap_entry->size < 20) {
-      puts("Error");
+    if(offset + mmap_entry->size > mmap_length) {
+      puts("mmap_entry goes beyond mmap_length. Halted.");
+      HALT_NO_OUTPUT();
+    } else if(mmap_entry->size != sizeof(multiboot_memory_map_t) - sizeof(mmap_entry->size)) {
+      puts("Unexpected mmap_entry size. Halted.");
       HALT_NO_OUTPUT();
     }
 
     if(!MemoryNewBlock(multiboot, mmap_entry)) {
-      puts("Error");
+      puts("Error while noting available memory. Halted.");
       HALT_NO_OUTPUT();
     }
 
@@ -83,7 +86,7 @@ void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
 
   if(offset != mmap_length) {
     // Something didn't go right.
-    puts("Error");
+    puts("mmap_entry iteration and mmap_length was not consistent. Halted.");
     HALT_NO_OUTPUT();
   }
 }
