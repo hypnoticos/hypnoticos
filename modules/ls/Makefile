@@ -16,8 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-BUILD=list
-BUILD_OBJS=list.o
+BUILD=ls
+BUILD_OBJS=ls.o
 
 .PHONY: install $(BUILD) clean
 

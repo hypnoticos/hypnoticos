@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-SUBDIRS=test console list parameters
+SUBDIRS=test console ls parameters
 INSTALLDIRS=$(SUBDIRS:%=install-%)
 CLEANDIRS=$(SUBDIRS:%=clean-%)
 

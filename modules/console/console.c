@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,17 +21,19 @@
 #include <stdlib.h>
 #include <hypnoticos/hypnoticos.h>
 
-void CommandRun();
+#define MAX_INPUT         80
+
+void CommandRun(char *filename);
 
 int main(int argc, char **argv) {
-  char s[80], c;
+  char s[MAX_INPUT + 1], c;
 
   while(1) {
-    memset(s, 0, 80);
-    printf("Input: ");
+    memset(s, 0, MAX_INPUT + 1);
+    printf("# ");
 
     // TODO malloc
-    while(strlen(s) < 79) {
+    while(strlen(s) < MAX_INPUT) {
       c = fgetc(stdin);
 
       if(c == '\n') {
@@ -49,53 +51,30 @@ int main(int argc, char **argv) {
 
     if(strcmp(s, "help") == 0) {
       puts("HypnoticOS Console");
-      puts("Commands:");
-      puts(" run            Run a binary");
-      puts(" help           Display this message");
-    } else if(strcmp(s, "run") == 0) {
-      CommandRun();
+      puts("There are no other built-in commands.");
     } else {
-      puts("Unrecognised command.");
+      CommandRun(s);
     }
     putchar('\n');
   }
 }
 
-void CommandRun() {
-  char filename[80], c;
-
-  memset(filename, 0, 80);
-  printf("Location of binary: ");
-
-  while(strlen(filename) < 79) {
-    c = fgetc(stdin);
-
-    if(c == '\n') {
-      break;
-    } else if(c == '\b') {
-      if(strlen(filename) != 0) {
-        filename[strlen(filename) - 1] = 0;
-      }
-    } else {
-      filename[strlen(filename)] = c;
-      putchar(c);
-    }
-  }
-  putchar('\n');
+void CommandRun(char *filename) {
+  char c;
 
   if(filename[0] == 0) {
     return;
   }
 
   char **argv = NULL;
-  char this_param[80];
+  char this_param[MAX_INPUT + 1];
   int param_count = 1;
   while(1) {
-    memset(this_param, 0, 80);
+    memset(this_param, 0, MAX_INPUT + 1);
     printf("Parameter %u: ", param_count);
 
     // TODO malloc
-    while(strlen(this_param) < 79) {
+    while(strlen(this_param) < MAX_INPUT) {
       c = fgetc(stdin);
 
       if(c == '\n') {
@@ -126,10 +105,7 @@ void CommandRun() {
     }
   }
 
-  uint16_t pid;
-  if((pid = Run(filename, argv, param_count)) == 0) {
+  if(Run(filename, argv, param_count) == 0) {
     printf("Failed to run binary.\n");
-  } else {
-    printf("PID %u\n", pid);
   }
 }
