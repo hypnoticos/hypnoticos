@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2020  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,6 +84,9 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc)
 
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
+
+  p->working_directory = malloc(strlen(DISPATCHER_DEFAULT_WORKING_DIRECTORY) + 1);
+  strcpy(p->working_directory, DISPATCHER_DEFAULT_WORKING_DIRECTORY);
 
   p->va = malloc(sizeof(DispatcherProcessVa_t *));
   p->va[0] = NULL;

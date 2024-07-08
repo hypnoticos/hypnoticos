@@ -30,6 +30,7 @@
 #define KERNEL_FUNCTION_DIRECTORY_GET               0x9
 #define KERNEL_FUNCTION_DIRECTORY_DONE              0xA
 #define KERNEL_FUNCTION_DIRECTORY_ENTRY             0xB
+#define KERNEL_FUNCTION_GETCWD                      0xC
 
 #ifdef _HYPNOTICOS_KERNEL
 
@@ -60,6 +61,7 @@ uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path, uint64_t argv,
 uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t path);
 uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t lock_entry_id);
 uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t lock_entry_id, uint64_t offset, uint64_t index_addr);
+uint64_t KernelFunctionGetCurrentWorkingDirectory(DispatcherProcess_t *p, uint64_t buffer, uint64_t size);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p);
 

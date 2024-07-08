@@ -96,6 +96,7 @@ BUILD_OBJS_BIN+=function/directory-done.o
 BUILD_OBJS_BIN+=function/directory-entry.o
 BUILD_OBJS_BIN+=function/directory-get.o
 BUILD_OBJS_BIN+=function/exit.o
+BUILD_OBJS_BIN+=function/getcwd.o
 BUILD_OBJS_BIN+=function/function.o
 BUILD_OBJS_BIN+=function/heap-addr.o
 BUILD_OBJS_BIN+=function/heap-size.o

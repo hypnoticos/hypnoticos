@@ -81,6 +81,10 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
     case KERNEL_FUNCTION_DIRECTORY_ENTRY:
     return KernelFunctionDirectoryEntry(p, rax, rbx, rcx);
     break;
+
+    case KERNEL_FUNCTION_GETCWD:
+    return KernelFunctionGetCurrentWorkingDirectory(p, rax, rbx);
+    break;
   }
   
   // TODO Terminate process

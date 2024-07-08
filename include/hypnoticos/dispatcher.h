@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2020  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ typedef struct _DispatcherProcessSave_t DispatcherProcessSave_t;
 #include <hypnoticos/fs.h>
 #include <sys/types.h>
 #include <stdint.h>
+
+#define DISPATCHER_DEFAULT_WORKING_DIRECTORY          "/"
 
 #define DISPATCHER_FORMAT_ELF                         0x01
 
@@ -102,6 +104,8 @@ struct _DispatcherProcess_t {
   void *suspend_data;
 
   uint8_t pending_exit;
+
+  char *working_directory;
 };
 
 typedef struct _DispatcherCpu_t DispatcherCpu_t;

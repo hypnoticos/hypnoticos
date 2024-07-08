@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2024  jk30
+// Copyright (C) 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,21 +16,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef UNISTD_H
-#define UNISTD_H
+#include <string.h>
 
-#include <sys/types.h>
+char *strncpy(char *d, const char *s, size_t len) {
+  size_t i;
 
-#define STDIN_FILENO      1
-#define STDOUT_FILENO     2
-#define STDERR_FILENO     3
+  for(i = 0; s[i] != 0 && i < len; i++) {
+    d[i] = s[i];
+  }
+  for(; i < len; i++) {
+    d[i] = 0;
+  }
+  d[i] = 0;
 
-#ifndef _HYPNOTICOS_KERNEL
-unsigned int sleep(unsigned int s);
-#endif
-
-char *getcwd(char *buffer, size_t size);
-ssize_t read(int fd, void *buffer, size_t count);
-ssize_t write(int fd, const void *buffer, size_t count);
-
-#endif
+  return d;
+}

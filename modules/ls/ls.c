@@ -22,19 +22,26 @@
 #include <unistd.h>
 
 #define MAX_INDEX_TYPE      3
+#define CWD_MAX             100
 
 int main(int argc, char **argv) {
   Directory_t *directory_ptr;
   FsIndex_t entry;
   uint64_t result;
   char * const index_types[MAX_INDEX_TYPE] = { "Unknown", "file", "directory" };
+  char cwd[CWD_MAX + 1];
 
-  if((directory_ptr = DirectoryGet("/bin")) == NULL) {
+  if(getcwd(cwd, CWD_MAX) == NULL) {
     printf("Error.\n");
     return 1;
   }
 
-  printf("Contents of /bin:\n");
+  if((directory_ptr = DirectoryGet(cwd)) == NULL) {
+    printf("Error.\n");
+    return 1;
+  }
+
+  printf("Contents of %s:\n", cwd);
   while((result = DirectoryEntry(directory_ptr, &entry)) == 1) {
     char *type;
     if(entry.type < MAX_INDEX_TYPE) {

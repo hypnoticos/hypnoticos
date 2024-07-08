@@ -53,7 +53,9 @@ LIBC_OBJS+=string/strcat.o
 LIBC_OBJS+=string/strcmp.o
 LIBC_OBJS+=string/strcpy.o
 LIBC_OBJS+=string/strlen.o
+LIBC_OBJS+=string/strncpy.o
 
+LIBC_OBJS+=unistd/getcwd.o
 LIBC_OBJS+=unistd/read.o
 LIBC_OBJS+=unistd/sleep.o
 LIBC_OBJS+=unistd/write.o

@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019  jk30
+// Copyright (C) 2019, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,5 +29,6 @@ char *strcat(char *dest, const char *src);
 int strcmp(const char *str1, const char *str2);
 char *strcpy(char *d, const char *s);
 size_t strlen(const char *s);
+char *strncpy(char *d, const char *s, size_t len);
 
 #endif

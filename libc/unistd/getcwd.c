@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2024  jk30
+// Copyright (C) 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,21 +16,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef UNISTD_H
-#define UNISTD_H
-
-#include <sys/types.h>
-
-#define STDIN_FILENO      1
-#define STDOUT_FILENO     2
-#define STDERR_FILENO     3
+#include <unistd.h>
 
 #ifndef _HYPNOTICOS_KERNEL
-unsigned int sleep(unsigned int s);
-#endif
 
-char *getcwd(char *buffer, size_t size);
-ssize_t read(int fd, void *buffer, size_t count);
-ssize_t write(int fd, const void *buffer, size_t count);
+#include <hypnoticos/interface.h>
+#include <hypnoticos/function-codes.h>
+
+char *getcwd(char *buffer, size_t size) {
+  return (char *) KernelFunctionInterface((uint64_t) buffer, size, 0, 0, 0, KERNEL_FUNCTION_GETCWD);
+}
 
 #endif
