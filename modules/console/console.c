@@ -33,7 +33,13 @@ int main(int argc, char **argv) {
 
   while(1) {
     memset(s, 0, MAX_INPUT + 1);
-    printf("# ");
+    char cwd[CWD_MAX + 1];
+
+    if(getcwd(cwd, CWD_MAX) != cwd) {
+      strcpy(cwd, "?");
+    }
+
+    printf("[%s]# ", cwd);
 
     // TODO malloc
     while(strlen(s) < MAX_INPUT) {
