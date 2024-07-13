@@ -49,7 +49,7 @@ uint8_t DispatcherProcessSetUpStack(DispatcherProcess_t *p, uint64_t size) {
   return 1;
 }
 
-DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc)
+DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc, DispatcherProcess_t *parent_process)
 {
   DispatcherProcess_t *p;
   uint32_t i;
@@ -85,8 +85,13 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc)
   p->name = malloc(strlen(name) + 1);
   strcpy(p->name, name);
 
+  if(parent_process == NULL) {
   p->working_directory = malloc(strlen(DISPATCHER_DEFAULT_WORKING_DIRECTORY) + 1);
   strcpy(p->working_directory, DISPATCHER_DEFAULT_WORKING_DIRECTORY);
+  } else {
+    p->working_directory = malloc(strlen(parent_process->working_directory) + 1);
+    strcpy(p->working_directory, parent_process->working_directory);
+  }
 
   p->va = malloc(sizeof(DispatcherProcessVa_t *));
   p->va[0] = NULL;
@@ -139,7 +144,7 @@ DispatcherProcess_t *DispatcherProcessNew(char *name, char **argv, int argc)
 
 #ifndef _HYPNOTICOS_TESTS
 
-DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path, char **argv, int argc)
+DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path, char **argv, int argc, DispatcherProcess_t *parent_process)
 {
   uint32_t format = 0;
   DispatcherProcess_t *p;
@@ -192,7 +197,7 @@ DispatcherProcess_t *DispatcherProcessNewFromFormat(char *path, char **argv, int
     return NULL;
   }
 
-  p = DispatcherProcessNew(path, argv, argc);
+  p = DispatcherProcessNew(path, argv, argc, parent_process);
   if(p == NULL) {
     WARNING();
     free(data);

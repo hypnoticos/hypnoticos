@@ -64,7 +64,7 @@ uint64_t KernelFunctionRun(DispatcherProcess_t *p, uint64_t path, uint64_t argv,
     }
   }
 
-  if((process = DispatcherProcessNewFromFormat(path_pa, argv_pa, argc)) == NULL) {
+  if((process = DispatcherProcessNewFromFormat(path_pa, argv_pa, argc, p)) == NULL) {
     return 0;
   } else {
     return process->pid;
