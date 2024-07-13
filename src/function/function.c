@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2020  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,6 +84,10 @@ uint64_t KernelFunction(DispatcherProcess_t *p, uint64_t rax, uint64_t rbx, uint
 
     case KERNEL_FUNCTION_GETCWD:
     return KernelFunctionGetCurrentWorkingDirectory(p, rax, rbx);
+    break;
+
+    case KERNEL_FUNCTION_CHDIR:
+    return KernelFunctionChangeCurrentWorkingDirectory(p, rax);
     break;
   }
   

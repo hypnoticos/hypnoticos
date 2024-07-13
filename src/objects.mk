@@ -1,6 +1,6 @@
 #
 # HypnoticOS
-# Copyright (C) 2020  jk30
+# Copyright (C) 2020, 2024  jk30
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ BUILD_OBJS_BIN+=fs/path.o
 BUILD_OBJS_BIN+=fs/read.o
 BUILD_OBJS_BIN+=fs/write.o
 
+BUILD_OBJS_BIN+=function/chdir.o
 BUILD_OBJS_BIN+=function/directory-done.o
 BUILD_OBJS_BIN+=function/directory-entry.o
 BUILD_OBJS_BIN+=function/directory-get.o

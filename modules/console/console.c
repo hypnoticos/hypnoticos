@@ -19,11 +19,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <hypnoticos/hypnoticos.h>
 
 #define MAX_INPUT         80
+#define CWD_MAX           100
 
 void CommandRun(char *filename);
+void CommandChangeDirectory();
 
 int main(int argc, char **argv) {
   char s[MAX_INPUT + 1], c;
@@ -51,7 +54,11 @@ int main(int argc, char **argv) {
 
     if(strcmp(s, "help") == 0) {
       puts("HypnoticOS Console");
-      puts("There are no other built-in commands.");
+      puts("Built-in commands:");
+      puts(" cd             Change the working directory");
+      puts(" help           Display this message");
+    } else if(strcmp(s, "cd") == 0) {
+      CommandChangeDirectory();
     } else {
       CommandRun(s);
     }
@@ -107,5 +114,60 @@ void CommandRun(char *filename) {
 
   if(Run(filename, argv, param_count) == 0) {
     printf("Failed to run binary.\n");
+  }
+}
+
+void CommandChangeDirectory() {
+  char c, cwd[CWD_MAX + 1];
+
+  if(getcwd(cwd, CWD_MAX) != cwd) {
+    puts("Error.");
+    return;
+  }
+
+  char new_directory[MAX_INPUT + 1];
+  memset(new_directory, 0, MAX_INPUT + 1);
+  printf("Current directory: %s\n", cwd);
+  printf("New directory: ");
+
+  // TODO malloc
+  while(strlen(new_directory) < MAX_INPUT) {
+    c = fgetc(stdin);
+
+    if(c == '\n') {
+      break;
+    } else if(c == '\b') {
+      if(strlen(new_directory) != 0) {
+        new_directory[strlen(new_directory) - 1] = 0;
+      }
+    } else {
+      new_directory[strlen(new_directory)] = c;
+      putchar(c);
+    }
+  }
+  putchar('\n');
+
+  if(new_directory[0] == 0) {
+    puts("Command cancelled.");
+    return;
+  }
+
+  if(new_directory[0] != '/') {
+    // This is a relative path
+    uint16_t size = strlen(cwd) + 1 + strlen(new_directory) + 1;
+    char *new_working_directory = malloc(size);
+    snprintf(new_working_directory, size, "%s/%s", cwd, new_directory);
+    if(chdir(new_working_directory) != 0) {
+      puts("Error.");
+    } else {
+      printf("Directory changed to %s\n", new_working_directory);
+    }
+    free(new_working_directory);
+  } else {
+    if(chdir(new_directory) != 0) {
+      puts("Error.");
+    } else {
+      printf("Directory changed to %s\n", new_directory);
+    }
   }
 }

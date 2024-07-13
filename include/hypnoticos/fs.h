@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2020  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,5 +58,6 @@ void FsNewRoot(uint32_t fs_type, StorageDevice_t *storage, uint64_t storage_offs
 uint64_t FsRead(const char *path, uint64_t offset, uint64_t size, uint8_t *dest);
 uint64_t FsWrite(const char *path, uint64_t offset, uint64_t size, uint8_t *src);
 char **PathBreakdown(const char *path);
+uint8_t PathConsolidate(const char *path, char *dest);
 
 #endif

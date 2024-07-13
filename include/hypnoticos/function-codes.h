@@ -1,6 +1,6 @@
 //
 // HypnoticOS
-// Copyright (C) 2019, 2020  jk30
+// Copyright (C) 2019, 2020, 2024  jk30
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #define KERNEL_FUNCTION_DIRECTORY_DONE              0xA
 #define KERNEL_FUNCTION_DIRECTORY_ENTRY             0xB
 #define KERNEL_FUNCTION_GETCWD                      0xC
+#define KERNEL_FUNCTION_CHDIR                       0xD
 
 #ifdef _HYPNOTICOS_KERNEL
 
@@ -62,6 +63,7 @@ uint64_t KernelFunctionDirectoryGet(DispatcherProcess_t *p, uint64_t path);
 uint64_t KernelFunctionDirectoryDone(DispatcherProcess_t *p, uint64_t lock_entry_id);
 uint64_t KernelFunctionDirectoryEntry(DispatcherProcess_t *p, uint64_t lock_entry_id, uint64_t offset, uint64_t index_addr);
 uint64_t KernelFunctionGetCurrentWorkingDirectory(DispatcherProcess_t *p, uint64_t buffer, uint64_t size);
+uint64_t KernelFunctionChangeCurrentWorkingDirectory(DispatcherProcess_t *p, uint64_t new_dir);
 void KernelFunctionSleep_SuspendTest(DispatcherProcess_t *p);
 void KernelFunctionRead_SuspendTest(DispatcherProcess_t *p);
 
