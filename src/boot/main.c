@@ -38,7 +38,7 @@
 void Main(uint32_t magic, multiboot_info_t *multiboot) {
   VideoMemoryInit();
   puts(_HYPNOTICOS);
-  puts("HypnoticOS  Copyright (C) 2019, 2020  jk30");
+  puts("HypnoticOS  Copyright (C) 2019, 2020, 2021, 2024  jk30");
   puts("This program comes with ABSOLUTELY NO WARRANTY; for details see the LICENSE");
   puts("file in the source code. This is free software, and you are welcome to");
   puts("redistribute it under certain conditions; see the aforementioned file.");
