@@ -21,6 +21,8 @@ extern Main, Tss, TssBase_0_15, TssBase_16_23, TssBase_24_31, TssBase_32_63, Mem
 
 section .text
 bits 32
+
+; The first function called.
 Start:
   cli
 
@@ -152,6 +154,7 @@ Loop:
   jmp Loop
 
 section .bss
+; The kernel stack
 align 16
   resb 16384
 Stack:

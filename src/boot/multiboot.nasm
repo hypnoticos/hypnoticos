@@ -18,6 +18,7 @@
 
 align 4
 section .rodata
+; The multiboot header to be read by GRUB.
 MultibootHeader:
   dd 0x1BADB002                   ; Magic value
   dd 0x00000002                   ; Flags: MULTIBOOT_MEMORY_INFO

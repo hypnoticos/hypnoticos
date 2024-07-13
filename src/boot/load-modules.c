@@ -25,6 +25,11 @@
 #include <hypnoticos/devices/storage/memory-disk.h>
 #include <hypnoticos/fs.h>
 
+/**
+ * @brief Load the boot modules provided by GRUB.
+ * 
+ * @return uint8_t Returns 0 on failure, and 1 on success.
+ */
 uint8_t BootLoadModules() {
   multiboot_module_t *module;
   uint64_t module_size;

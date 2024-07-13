@@ -29,10 +29,11 @@
 #include <hypnoticos/devices/storage.h>
 #include <hypnoticos/fs.h>
 
-/*!
-   \brief Called by Start.
-   \param magic Magic value
-   \param multiboot multiboot_info_t struct
+/**
+ * @brief Called by Start.
+ * 
+ * @param magic Magic value provided by GRUB.
+ * @param multiboot multiboot_info_t struct provided by GRUB.
 */
 void Main(uint32_t magic, multiboot_info_t *multiboot) {
   VideoMemoryInit();

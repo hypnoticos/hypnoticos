@@ -40,6 +40,11 @@ uint16_t TssLast = 0;
 TssEntries_t **TssEntriesAPs = NULL;
 extern uint32_t GdtEntries;
 
+/**
+ * @brief Initialise the TssEntriesAPs struct.
+ * 
+ * @return uint8_t Returns 0 on error and 1 on success.
+ */
 uint8_t TssInitApEntries() {
   TssEntriesAPs = malloc(sizeof(Tss_t *));
 
@@ -53,6 +58,11 @@ uint8_t TssInitApEntries() {
   return 1;
 }
 
+/**
+ * @brief Create a new TSS entry for an AP and add this to the TssEntriesAPs struct.
+ * 
+ * @return uint8_t 
+ */
 uint8_t TssNew() {
   void *stack;
   Tss_t *new_tss;

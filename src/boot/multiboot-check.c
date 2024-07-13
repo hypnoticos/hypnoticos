@@ -27,8 +27,15 @@
 uint32_t BootModulesCount = 0;
 uint32_t BootModulesAddr = 0;
 
-// NOTE: Do not use INFO, WARNING or HALT here. The macros call printf which in turn calls malloc.
+/**
+ * @brief Check and parse the multiboot info provided by GRUB.
+ * 
+ * @param magic Magic value provided by GRUB.
+ * @param multiboot multiboot_info_t struct provided by GRUB.
+ */
 void MultibootCheck(uint32_t magic, multiboot_info_t *multiboot) {
+  // NOTE: Do not use INFO, WARNING or HALT here. The macros call printf which in turn calls malloc.
+
   uint32_t offset, mmap_addr, mmap_length;
   multiboot_memory_map_t *mmap_entry;
 
